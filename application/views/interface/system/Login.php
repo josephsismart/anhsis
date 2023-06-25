@@ -93,12 +93,6 @@
     <!-- AdminLTE App -->
     <script src="<?= base_url() ?>dist/js/adminlte.min.js"></script>
 
-    <script>
-        setInterval(function() {
-            $.post("<?= base_url('Main/allow') ?>");
-        }, 3000)
-    </script>
-
 </body>
 
 </html>

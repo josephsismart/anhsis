@@ -884,8 +884,8 @@ $q_ = $getOnLoad["qrtrR"]; //$getOnLoad["sy_qrtr_e_g"];
     $(".submitBtnGRADE_SLIP").click(function() {
         // alert(rsid)
         var q = $("#form_report_dataGRADE_SLIP #qrtr").val();
-        console.log(q)
-        console.log("aaaaa")
+        // console.log(q)
+        // console.log("aaaaa")
         var g = "";
         var g = "";
         var c = [];
@@ -1054,11 +1054,11 @@ $q_ = $getOnLoad["qrtrR"]; //$getOnLoad["sy_qrtr_e_g"];
                         let full_name = d[ji]["full_name"];
                         let birthdate = d[ji]["birthdate"];
                         let g_sec = d[ji]["grade"] +' - '+ d[ji]["sctn_nm"];
-                        let adviserory = d[ji]["adviserory"];
+                        let advisory = d[ji]["advisory"];
                         let add_details = d[ji]["address_details"];
                         let other_details = d[ji]["other_details"];
                         let od = JSON.parse(other_details);
-                        console.log(od)
+                        // console.log(od)
                         // alert(i)
                         // if (d.length <= i) {
                         //     break;
@@ -1181,9 +1181,9 @@ $q_ = $getOnLoad["qrtrR"]; //$getOnLoad["sy_qrtr_e_g"];
                                                     '<td></td>' +
                                                     '<td></td>' +
                                                     '<td></td>' +
-                                                    // '<td colspan="6" style="padding:0px"><svg id="bbbb' + i + '" style="width:2rem;height:2rem;padding:0px;"></svg></td>' +
-                                                    // '<td colspan="7" style="padding:0px"><canvas class="barcode" id="bbbb' + i + '" style="width:100%;height:1.2rem;padding:0px;"></canvas></td>' +
-                                                    '<td colspan="7" style="padding:1px"><img id="bbbb' + i + '" alt="Barcode Image" width="100%" height="25"></td>' +
+                                                    // '<td colspan="6" style="padding:0px"><svg class="bbbb' + i + '" style="width:2rem;height:2rem;padding:0px;"></svg></td>' +
+                                                    // '<td colspan="7" style="padding:0px"><canvas class="barcode" class="bbbb' + i + '" style="width:100%;height:1.2rem;padding:0px;"></canvas></td>' +
+                                                    '<td colspan="7" style="padding:1px"><img id="bbbb1' + i + '" alt="Barcode Image" width="100%" height="25"></td>' +
                                                     '<td> </td>' +
                                                 '</tr>' +
                                             '</td>' +
@@ -1245,13 +1245,13 @@ $q_ = $getOnLoad["qrtrR"]; //$getOnLoad["sy_qrtr_e_g"];
                                         '</tr>' +
                                         '<tr align="left">' +
                                             '<td></td>' +
-                                            '<td colspan="13" style="padding:0px;font-family:Open Sans;font-size:19px;">Adviser: <u>&emsp;'+adviserory+'&emsp;</u></td>' +
+                                            '<td colspan="13" style="padding:0px;font-family:Open Sans;font-size:19px;" height="20">Adviser: <u>&emsp;'+advisory+'&emsp;</u></td>' +
                                             '<td colspan="5" style="border: 1px solid #000;text-align:center;">|</td>' +
                                             '<td></td>' +
                                         '</tr>' +
                                         '<tr align="center">' +
                                             '<td colspan="14"></td>' +
-                                            '<td colspan="5" style="border: 1px solid #000;text-align:center;">|</td>' +
+                                            '<td colspan="5" style="border: 1px solid #000;text-align:center;" height="20">|</td>' +
                                             '<td></td>' +
                                         '</tr>' +
                                         '<tr align="center">' +
@@ -1314,7 +1314,9 @@ $q_ = $getOnLoad["qrtrR"]; //$getOnLoad["sy_qrtr_e_g"];
 
                                         '<tr align="center">' +
                                             '<td colspan="6"></td>' +
-                                            '<td colspan="8" rowspan="11" style="height:12rem; text-align: center;padding-left:7.5%;"><div id="qqqq'+i+'" style="text-align:center;width:100%;height:100%;"></div></td>' +
+                                            // '<td colspan="8" rowspan="11" style="height:12rem; text-align: center;padding-left:7.5%;"><div id="qqqq'+i+'" style="text-align:center;width:100%;height:100%;"></div></td>' +
+                                            '<td colspan="8" rowspan="11" style="height:12rem; text-align: center;padding-left:7.5%;"><img id="bbbb0' + i + '" alt="Barcode Image" width="100%" height="100%"></td>' +
+                                            
                                             '<td colspan="6"></td>' +
                                         '</tr>' +
                                         '<tr">' +
@@ -1438,12 +1440,13 @@ $q_ = $getOnLoad["qrtrR"]; //$getOnLoad["sy_qrtr_e_g"];
     });
 
     function QR_BAR_Generator(a,b,c) {
-        var qrcode = new QRCode(document.getElementById("qqqq"+a), {
-            text: b,
-            height: 185,
-            width: 187,
-        });
-        JsBarcode("#bbbb"+a, c, { pixelRatio: 100 ,displayValue: false});
+        // var qrcode = new QRCode(document.getElementById("qqqq"+a), {
+        //     text: b,
+        //     height: 185,
+        //     width: 187,
+        // });
+        JsBarcode("#bbbb1"+a, '1'+c, { pixelRatio: 100 ,displayValue: false});
+        JsBarcode("#bbbb0"+a, '0'+c, { pixelRatio: 100 ,displayValue: false});
         // JsBarcode("#bbbb"+a, c,{displayValue: false});
         // $("#bbbb"+a).attr('src', z);
     }

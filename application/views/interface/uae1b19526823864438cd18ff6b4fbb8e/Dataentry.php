@@ -28,6 +28,8 @@ $uri = $this->session->schoolmis_login_uri;
 <section class="content">
 	<div class="container-fluid">
 		<div class="row">
+			<input type="text" id="bbbb" style="border:none;background:transparent;color:transparent;outline:none;text-decoration:none;-webkit-text-decoration:none;-moz-text-decoration: none" />
+
 			<div class="col-1 col-xl-1 col-md-1 col-sm-0">
 			</div>
 			<div class="col-10 col-xl-10 col-md-10 col-sm-12 form_save_dataGuardInfo">
@@ -62,7 +64,7 @@ $uri = $this->session->schoolmis_login_uri;
 								<div class="col-2"></div>
 							</div>
 							<div class="card card-navy view_details" style="display:none;">
-							<!-- <div class="card card-navy view_details"> -->
+								<!-- <div class="card card-navy view_details"> -->
 								<div class="card-header">
 									<h1 class="card-title header text-lg text-bold"><i class="fa fa-card"></i> SELECT GATE</h1>
 									<input type="text" id="qr" hidden />
@@ -71,7 +73,7 @@ $uri = $this->session->schoolmis_login_uri;
 									</button>
 								</div> -->
 									<div class="float-right">
-										<button type="button" class="btn btn-default btn-xs" onclick="vdetails();"><i class="fas fa-door-open"></i> Gate Selection</button>
+										<button type="button" class="btn btn-default btn-xs gateSelect" onclick="vdetails();"><i class="fas fa-door-open"></i> Gate Selection</button>
 										<button type="button" class="btn btn-xs btn-info openreader-multi3" id="openreader-multi3" data-qrr-multiple="false" data-qrr-target="#multiple" data-qrr-skip-duplicates="false" onclick="$('.openreader-multi3').hide();$('.qrr-close').show();" style="display:none;">
 											<i class="fa fa-qrcode"></i> Read QR Code
 										</button>
@@ -158,35 +160,51 @@ $uri = $this->session->schoolmis_login_uri;
 <script type="text/javascript">
 	$(function() {
 		let f1 = "GateSearch";
-		// let f2 = "GradeSecInfo";
-		// getTable("AssignedSectionList", 1, -1);
-		// getTable("LearnersList", 0, -1);
-		// getTable("SearchEnrollLearnersList", 0, 10);
-		// getTable("GradesList", 1, -1);
-		// getFetchList(f1, "CityMunList", null, 1, {
-		// 	v: 1602
-		// }, 1);
-		// getFetchList(f1, "BarangayList", null, 1, {
-		// 	v: 160201
-		// }, 0);
+		let intervalId = "";
 		getFetchList(f1, "GateList", "PartyList", 0, {
 			v: 20
 		}, 0);
 
 		$("document").ready(function() {
-			// setTimeout(function() {
-			// 	$("#openreader-multi3").trigger("click");
-			// }, 1000);
+			var barcode = "";
+			var beep = new Audio("<?= base_url() ?>plugins/qrcode/audio/beep.mp3");
+
+			// Listen for keydown event on a specific element or the document
+			$(document).on('keydown', function(event) {
+				var key = event.key;
+
+				// Check if key is a valid barcode character
+				if (key.length === 1 && /^[0-9a-zA-Z]$/.test(key)) {
+					barcode += key;
+				}
+			});
+
+			// Listen for keyup event on a specific element or the document
+			$(document).on('keyup', function(event) {
+				var key = event.key;
+
+				// Check if key is Enter (carriage return)
+				if (key === "Enter") {
+					// Barcode scanning is complete
+					// Retrieve the scanned value
+					var scannedValue = barcode;
+
+					// Do something with the scanned value
+					beep.play();
+					console.log("Scanned Value:", scannedValue);
+
+					// Reset the barcode variable for the next scan
+					barcode = "";
+				}
+			});
 		});
 
 		setInterval(() => {
 			!$("#qr").val() ?
-				console.log(10) :
+				"" :
 				getQRPerson({
 					v: $("#qr").val()
 				}, f1);
 		}, 1000)
-		// saveForm(f1, [f1], null);
-		// saveForm("GradesList", [null], null, 1, -1);
 	});
 </script>

@@ -1990,7 +1990,7 @@ class Reports extends MY_Controller
                 "full_name" => $value->full_name,
                 "img_path" => $this->getImg($value->img_path),
                 "birthdate" => $value->birthdate,
-                "adviserory" => $value->adviser,
+                "advisory" => $this->font_id($value->adviser, 8, 19, 20),
                 "address_details" => $value->address_details,
                 "other_details" => $value->other_details,
             ];

@@ -26,12 +26,12 @@ $uri = $this->session->schoolmis_login_uri;
 
 <script type="text/javascript">
     $(function() {
-        $.qrCodeReader.jsQRpath = "<?= base_url() ?>plugins/qrcode/js/jsQR/jsQR.min.js";
-        $.qrCodeReader.beepPath = "<?= base_url() ?>plugins/qrcode/audio/beep.mp3";
-        $("#openreader-multi3").qrCodeReader({
-            multiple: false,
-            target: "#qr"
-        });
+        // $.qrCodeReader.jsQRpath = "<?= base_url() ?>plugins/qrcode/js/jsQR/jsQR.min.js";
+        // $.qrCodeReader.beepPath = "<?= base_url() ?>plugins/qrcode/audio/beep.mp3";
+        // $("#openreader-multi3").qrCodeReader({
+        //     multiple: false,
+        //     target: "#qr"
+        // });
     });
 
     function vdetails() {
@@ -41,9 +41,9 @@ $uri = $this->session->schoolmis_login_uri;
             $(".view_details .header").text($("#gate_select option:selected").text())
             $(".view_details").toggle("slow", function() {});
             $(".get_selection").toggle("slow", function() {});
-            if ($('#openreader-multi3').hidden() == true) {
-                $('#openreader-multi3').trigger('click');
-            }
+            // if ($('#openreader-multi3').is(':hidden') == true) {
+            //     $('#openreader-multi3').trigger('click');
+            // }
         }
     }
 

@@ -18,7 +18,7 @@ class MY_Controller extends CI_Controller
             "system_svg_1x1"    => base_url("dist/img/media/icons/1x1.png"),
             "system_bg_id"    => base_url("dist/img/media/bg/id/2023/v1/v1.png"),
             "system_esig"    => base_url("dist/img/media/esig/roa.png"),
-            
+
             "system_deped_1x1"    => base_url("dist/img/media/icons/deped_1x1.png"),
             "system_depeddiv_1x1"    => base_url("dist/img/media/icons/depeddiv_1x1.png"),
 
@@ -665,7 +665,7 @@ class MY_Controller extends CI_Controller
     public function uploadImg($pic)
     {
         // if (isset($_FILES['pic'])) {
-        if(isset($pic)){
+        if (isset($pic)) {
             //$thisPic=$this->do_blob($_FILES['pic']);
             // dist/img/icons
             // dist/img/media/learner/2023/5
@@ -698,7 +698,7 @@ class MY_Controller extends CI_Controller
     public function getImg($a)
     {
         $defaultImage = base_url('dist/img/media/icons/1x1.png');
-    
+
         if ($a && file_exists($a)) {
             return base_url() . $a;
         } else {
@@ -724,6 +724,33 @@ class MY_Controller extends CI_Controller
             $b = date_format($c, "M d, Y");
         }
         return strtoUpper($b);
+    }
+
+    // public function font_id($a)
+    // {
+    //     $count = strlen($a);
+    //     if ($count >= 15) {
+    //         $s = 8;
+    //     } else if ($count >= 12) {
+    //         $s = 12;
+    //     }
+    //     return strtoUpper("<p style='font-size: " . $s . "px'>" . $a . "</p>");
+    // }
+
+    function font_id($text, $minFontSize, $maxFontSize, $maxLength)
+    {
+        $textLength = strlen($text);
+        $fontSize = $minFontSize;
+
+        // Calculate the font size based on the text length
+        if ($textLength > 0) {
+            $fontSize = $minFontSize + (($maxFontSize - $minFontSize) * ($textLength / $maxLength));
+        }
+
+        // Return the font size
+        // return $fontSize;
+        // <u>&emsp;'+advisory+'&emsp;</u>
+        return strtoUpper("<u style='font-size: " . $fontSize . "px'>" . $text . "</u>");
     }
 
     public function grades_input($lrn, $q, $qrtr)
