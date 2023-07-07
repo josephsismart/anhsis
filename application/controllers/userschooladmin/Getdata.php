@@ -142,6 +142,7 @@ class Getdata extends MY_Controller
                                         ORDER BY t1.schoolpersonnel_id DESC LIMIT $limit");
         $cc = 1;
         foreach ($thisQuery->result() as $key => $value) {
+            $other_details = json_decode($value->other_details, true);
             $id = $value->schoolpersonnel_id;
             $is_a_v = $value->is_active_schl_personnel;
             $is_active = $is_a_v < 1 ? "<span class='badge bg-danger'>INACTIVE</span>" : "";
@@ -172,6 +173,7 @@ class Getdata extends MY_Controller
                 "emptype" => $value->employeeTypeId,
                 "personaltitle" => $value->personalTitleId,
                 "empstatus" => $value->status_id,
+                "employeeID" => $other_details["employee_id"],
             ];
             $data2 = [
                 "userId" => $value->user_id,
@@ -374,7 +376,7 @@ class Getdata extends MY_Controller
                     </button>
                     <div class='dropdown-menu'>
                         <a class='dropdown-item' href='#' onclick='getSbjctAssPrsnnlFN(\"SbjctAssPrsnnl\"," . $gid . "," . $rmsecid . ");getDetails(\"SbjctAssPrsnnl\",$arr);'>Subject Assignment</a>
-                        <a class='dropdown-item' href='#' onclick='getDetails(\"MemberUser\",1)'>Edit Information</a>
+                        <!-- <a class='dropdown-item' href='#' onclick='getDetails(\"MemberUser\",1)'>Edit Information</a> -->
                     </div>
                 </div></div>",
             ];

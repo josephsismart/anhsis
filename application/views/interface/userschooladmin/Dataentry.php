@@ -185,7 +185,15 @@ $uri = $this->session->schoolmis_login_uri;
 
 								<h6 class="mt-2">Employment Information Details</h6>
 								<div class="row">
-									<div class="col-4">
+									<div class="col-6 col-lg-3 col-md-6 col-sm-6">
+										<div class="input-group mb-2">
+											<div class="input-group-prepend">
+												<span class="input-group-text"><i class="fas fa-id-card"></i></span>
+											</div>
+											<input type="text" class="form-control form-control-sm text-uppercase" name="employeeID" placeholder="Employee ID" autocomplete="off">
+										</div>
+									</div>
+									<div class="col-6 col-lg-3 col-md-6 col-sm-6">
 										<div class="input-group mb-2">
 											<div class="input-group-prepend">
 												<span class="input-group-text"><i class="fas fa-briefcase"></i></span>
@@ -194,7 +202,7 @@ $uri = $this->session->schoolmis_login_uri;
 											</select>
 										</div>
 									</div>
-									<div class="col-4">
+									<div class="col-6 col-lg-3 col-md-6 col-sm-6">
 										<div class="input-group mb-2">
 											<div class="input-group-prepend">
 												<span class="input-group-text"><i class="fas fa-briefcase"></i></span>
@@ -207,7 +215,7 @@ $uri = $this->session->schoolmis_login_uri;
 											</div> -->
 										</div>
 									</div>
-									<div class="col-4">
+									<div class="col-6 col-lg-3 col-md-6 col-sm-6">
 										<div class="input-group mb-2">
 											<div class="input-group-prepend">
 												<span class="input-group-text"><i class="fas fa-briefcase"></i></span>

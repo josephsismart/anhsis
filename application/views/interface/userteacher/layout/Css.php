@@ -132,7 +132,7 @@
     input[type=radio] {
         transform: scale(1.3);
     }
-    
+
     /* .image-cell {
       position: relative;
     }
@@ -143,5 +143,13 @@
       top: -5px;
     } */
 
-    
+    /* #import_form .form-check-input[type="checkbox"] {
+        width: 20px;
+        height: 20px;
+    }
+
+    #import_form .form-check-label {
+        padding-left: 10px;
+        font-size: 12px;
+    } */
 </style>

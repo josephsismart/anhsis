@@ -44,6 +44,11 @@ $uri = $this->session->schoolmis_login_uri;
             // if ($('#openreader-multi3').is(':hidden') == true) {
             //     $('#openreader-multi3').trigger('click');
             // }
+            // getQRPerson({
+            //     v: "712345676",
+            //     g_id: $("#gate_select").val(),
+            //     g_nm: $("#gate_select option:selected").text()
+            // }, "GateSearch");
         }
     }
 
@@ -119,31 +124,42 @@ $uri = $this->session->schoolmis_login_uri;
     }
 
     function getQRPerson(where, form) {
-        $.post("<?= base_url($uri . '/getdata/getQRPerson') ?>", where,
-            function(data) {
-                var result = JSON.parse(data);
-                if (result["data"].length > 0) {
-                    $("#form_save_data" + form + " #name").text(result["data"][0]['fullName']);
-                    $("#form_save_data" + form + " #type").text(result["data"][0]['description']);
-                    var reader = new FileReader();
-                    console.log(result["data"][0]['pic'])
-                    // $("[name=previewPic]").val("");
-                    // img = (d == 'FEMALE' ? 'defaultf.png' : 'defaultm.png');
-                    $("[name=previewPic]").attr("src", result["data"][0]['pic']);
-                    reader.onload = function(e) {
-                        document.getElementById(b).src = e.target.result;
-                    };
-                } else {
-                    failAlert("No Data found!");
-                    $("#form_save_data" + form + " #name").text("No Data found!");
-                    $("#form_save_data" + form + " #type").text("");
+        if (!$("#gate_select").val() || $('.view_details').is(':hidden') == true) {
+            failAlert('Please Select Gate')
+        } else {
+            $.post("<?= base_url($uri . '/getdata/getQRPerson') ?>", where,
+                function(data) {
+                    var result = JSON.parse(data);
+                    var inn = new Audio("<?= base_url() ?>plugins/qrcode/audio/in.mp3");
+                    var outt = new Audio("<?= base_url() ?>plugins/qrcode/audio/out.wav");
+                    var toink = new Audio("<?= base_url() ?>plugins/qrcode/audio/toink.mp3");
+                    if (result["data"].length > 0) {
+                        $("#form_save_data" + form + " #name").text(result["data"][0]['fullName']);
+                        $("#form_save_data" + form + " #type").html(result["data"][0]['description']);
+                        var reader = new FileReader();
+                        // console.log(result["data"][0]['pic'])
+                        let io = where['v'][0];
+                        // $("[name=previewPic]").val("");
+                        // img = (d == 'FEMALE' ? 'defaultf.png' : 'defaultm.png');
+                        $("[name=previewPic]").attr("src", result["data"][0]['pic']);
+                        reader.onload = function(e) {
+                            document.getElementById(b).src = e.target.result;
+                        };
+                        io == '7' ? inn.play() : (io == '6' ? outt.play() : toink.play());
+                    } else {
+                        failAlert("No Data found!");
+                        toink.play();
+                        $("[name=previewPic]").attr("src", "<?= base_url() ?>dist/img/media/icons/1x1.png");
+                        $("#form_save_data" + form + " #name").text("No Data found!");
+                        $("#form_save_data" + form + " #type").text("");
+                    }
+                    $("#qr").val("");
+                    $("#openreader-multi3").trigger("click");
                 }
-                $("#qr").val("");
-                $("#openreader-multi3").trigger("click");
-            }
-        ).then(function() {
-            // $(".btnViewContactT").attr("disabled", false);
-        });
+            ).then(function() {
+                // $(".btnViewContactT").attr("disabled", false);
+            });
+        }
     }
 
     const Toast = Swal.mixin({

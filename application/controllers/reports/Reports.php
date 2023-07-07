@@ -1932,7 +1932,7 @@ class Reports extends MY_Controller
         // echo json_encode($data);
     }
 
-    function getPreviewID()
+       function getPreviewID()
     {
         $tab = null;
         $arr = null;
@@ -1990,7 +1990,7 @@ class Reports extends MY_Controller
                 "full_name" => $value->full_name,
                 "img_path" => $this->getImg($value->img_path),
                 "birthdate" => $value->birthdate,
-                "advisory" => $this->font_id($value->adviser, 8, 19, 20),
+                "advisory" => $value->adviser,//$this->font_id(, 15, 19, 10),
                 "address_details" => $value->address_details,
                 "other_details" => $value->other_details,
             ];

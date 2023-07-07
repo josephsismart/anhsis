@@ -17,7 +17,7 @@ class Dataentry extends MY_Controller
     public function index()
     {
         $page_data = $this->system();
-        $uri = 'userteacher';// $this->session->schoolmis_login_uri;
+        $uri = 'userteacher'; // $this->session->schoolmis_login_uri;
         $page_data += [
             "page_title"        => "Dataentry",
             "current_location"  => "dataentry",
@@ -223,7 +223,7 @@ class Dataentry extends MY_Controller
         $homeAddress = strtoupper($this->input->post("homeAddress"));
         $status = $this->input->post("status");
         $enrollDate = $this->input->post("enrollDate");
-        $img_path = null;
+        // $img_path = $this->input->post("previewPic");
 
         $login_id = $this->session->schoolmis_login_id;
         $dateNow = $this->now();
@@ -231,9 +231,6 @@ class Dataentry extends MY_Controller
         $false = ["success"   => false];
         // $false += ["message"   => ""];
 
-        if(isset($_FILES['pic'])){
-            $img_path = $this->uploadImg($_FILES['pic']);
-        }
 
         $data = [
             "first_name" => $firstName,
@@ -249,8 +246,15 @@ class Dataentry extends MY_Controller
             // "email_address" => $emailAddress,
             $id ? "updated_by" : "added_by" => $login_id,
             $id ? "date_updated" : "date_added" => $dateNow,
-            "img_path" => $img_path,
+            // "img_path" => $img_path,
         ];
+
+        if (isset($_FILES['pic'])) {
+            $data += [
+                "img_path" => $this->uploadImg($_FILES['pic'])
+            ];
+        }
+
 
         if ($lrn && $firstName && $lastName && $sex && $birthdate && $brgy && $login_id) {
             if ($edit == 't' && $enroll_id && $learner_id && $binfo_id) {
@@ -364,6 +368,8 @@ class Dataentry extends MY_Controller
     {
         $this->db->trans_begin();
         $rsid = $this->input->post("rsid");
+        $batch_update = $this->input->post("batch_update");
+        echo($batch_update);
         $basicInfoData = [];
         $learnerData = [];
         $enrollmentData = [];
@@ -437,8 +443,12 @@ class Dataentry extends MY_Controller
                             $checkLearner = $this->learnerChecker($LRN, null);
                             // echo $checkLearner . ' aa \n ';
                             if ($checkLearner) { //IF LEARNER EXIST IN TBL_LEARNER
-                                $checkEnrollemnt = $this->enrollmentChecker($checkLearner);
+                                echo(' ddfdfd ');
+                                $checkEnrollemnt = $this->enrollmentChecker($checkLearner, $batch_update);
                                 if ($checkEnrollemnt) { //IF LEARNER EXIST IN TBL_ENROLLMENT THEN DO NOTHING
+                                    echo(' ffff');
+                                    echo('<b/>');
+                                    echo($checkEnrollemnt);
                                     $ret = $false;
                                 } else {
                                     $enrollmentData[] = [
@@ -447,6 +457,92 @@ class Dataentry extends MY_Controller
                                         "status_id" => 5,
                                         "added_by" => $login_id,
                                     ];
+                                }
+                                if ($batch_update) {
+                                    $basicInfoData = array(
+                                        "first_name" => $fname,
+                                        "middle_name" => $mname,
+                                        "last_name" => $lname,
+                                        "birthdate" => $birthdate,
+                                        "sex" => $boolSex,
+                                        "barangay_id" => $this->getBarangay_City($barangay, $mun_city), //160202054,//$barangay,
+                                        "address_info" => $homeAddress,
+                                    );
+
+                                    $this->db->where('id', $checkEnrollemnt);
+                                    if ($this->db->update("profile.tbl_basicinfo", $basicInfoData)) {
+                                        $ret = $true;
+                                        if ($basicInfoId) { //IF THE VALUE OF BASICINO ID HAS DATA THEN PREPARATION FOR A NEW LEARNER
+                                            $learnerData = array(
+                                                // "lrn" => $LRN,
+                                                // "basic_info_id" => $basicInfoId,
+                                                "ffirst_name" => $ffname,
+                                                "fmiddle_name" => $fmname,
+                                                "flast_name" => $flname,
+                                                "mfirst_name" => $mfname,
+                                                "mmiddle_name" => $mmname,
+                                                "mlast_name" => $mlname,
+                                                "guardian" => $g_name,
+                                                "relation" => $rltn,
+                                                "contact_num" => $cntct,
+                                                "mother_tongue_txt" => $mt,
+                                                "ip_ethnic_group_txt" => $ip,
+                                                "religion_txt" => $rlgn,
+                                                "learning_modality_txt" => $module,
+                                                "remarks" => $rmrks,
+                                            );
+                                            $this->db->where('basic_info_id', $basicInfoId);
+                                            if ($this->db->update("profile.tbl_learners", $learnerData)) {
+                                                $ret = $true;
+                                            } else {
+                                                $ret = $false;
+                                            }
+                                        }
+                                    } else {
+                                        $ret = $false;
+                                    }
+
+
+                                    // $basicInfoDataLOG = json_encode($basicInfoData);
+                                    // if ($this->db->insert("profile.tbl_basicinfo", $basicInfoData)) { //INSERT TO TBL_BASICNFO FOR NEW RECORD
+                                    //     $basicInfoId = $this->db->insert_id();
+                                    //     $ret = $true;
+                                    //     if ($basicInfoId) { //IF THE VALUE OF BASICINO ID HAS DATA THEN PREPARATION FOR A NEW LEARNER
+                                    //         $learnerData = [
+                                    //             "lrn" => $LRN,
+                                    //             "basic_info_id" => $basicInfoId,
+                                    //             "ffirst_name" => $ffname,
+                                    //             "fmiddle_name" => $fmname,
+                                    //             "flast_name" => $flname,
+                                    //             "mfirst_name" => $mfname,
+                                    //             "mmiddle_name" => $mmname,
+                                    //             "mlast_name" => $mlname,
+                                    //             "guardian" => $g_name,
+                                    //             "relation" => $rltn,
+                                    //             "contact_num" => $cntct,
+                                    //             "mother_tongue_txt" => $mt,
+                                    //             "ip_ethnic_group_txt" => $ip,
+                                    //             "religion_txt" => $rlgn,
+                                    //             "learning_modality_txt" => $module,
+                                    //             "remarks" => $rmrks,
+                                    //         ];
+                                    //         if ($this->db->insert("profile.tbl_learners", $learnerData)) {
+                                    //             $learnerId = $this->db->insert_id();
+                                    //             // $this->userlog("INSERTED NEW LEARNER FROM EXCEL FILE" . $learnerDataLOG);
+                                    //             $ret = $true;
+                                    //             // if ($learnerId) {
+                                    //             //     $enrollmentData[] = [
+                                    //             //         "learner_id" => $learnerId,
+                                    //             //         "room_section_id" => $rsid,
+                                    //             //         "status_id" => 5,
+                                    //             //         "added_by" => $login_id,
+                                    //             //     ];
+                                    //             // }
+                                    //         }
+                                    //     }
+                                    // } else {
+                                    //     $ret = $false;
+                                    // }
                                 }
                             } else {
                                 $checkBasicInfo = $this->basicInfoChecker($fname, $mname, $lname, $birthdate, $boolSex);
@@ -543,7 +639,7 @@ class Dataentry extends MY_Controller
                                     $checkLearnerId = $this->learnerChecker(null, $checkBasicInfo);
                                     // echo $checkLearnerId . ' cc \n ';
                                     if ($checkLearnerId) {
-                                        $checkEnrollemnt = $this->enrollmentChecker($checkLearnerId);
+                                        $checkEnrollemnt = $this->enrollmentChecker($checkLearnerId, $batch_update);
                                         if ($checkEnrollemnt) { //IF LEARNER EXIST IN TBL_ENROLLMENT THEN DO NOTHING
                                             $ret = $false;
                                         } else {

@@ -90,6 +90,16 @@ $uri = 'userteacher'; //$this->session->schoolmis_login_uri;
                                     <p><button type="submit" name="import" class="btn btn-xs btn-info submitBtnUpload"><i class="fa fa-upload"></i> Import SF1 Excel</button>
                                         <!-- <input type="file" name="file" id="file" required accept=".xlsm" /> -->
                                         <input type="file" name="file" id="file" required accept=".xls" />
+                                    <div class="form-check">
+                                        <input type="text" class="form-check-input" name="batch_update" id="batch_update" hidden/>
+                                        <input type="checkbox" onchange="$('#batch_update').val($('#batch_update').val()==''?'a':'');" class="form-check-input" name="batch_update_box" id="batch_update_box"/>
+                                        <label class="form-check-label" for="batch_update_box">Update only 
+                                            <span class="badge" data-toggle="tooltip" data-html="true" title="<em>Purpose:</em> By selecting this checkbox, you will have the ability to <b>UPDATE</b> the <b>LEARNERS' INFORMATION</b> only.">
+                                                <i class="fa fa-question-circle"></i>
+                                            </span>
+                                        </label>
+
+                                    </div>
                                     </p>
                                 </form>
                                 <!-- Morbi turpis dolor, vulputate vitae felis non, tincidunt congue mauris. Phasellus volutpat augue id mi placerat mollis. Vivamus faucibus eu massa eget condimentum. Fusce nec hendrerit sem, ac tristique nulla. Integer vestibulum orci odio. Cras nec augue ipsum. Suspendisse ut velit condimentum, mattis urna a, malesuada nunc. Curabitur eleifend facilisis velit finibus tristique. Nam vulputate, eros non luctus efficitur, ipsum odio volutpat massa, sit amet sollicitudin est libero sed ipsum. Nulla lacinia, ex vitae gravida fermentum, lectus ipsum gravida arcu, id fermentum metus arcu vel metus. Curabitur eget sem eu risus tincidunt eleifend ac ornare magna. -->

@@ -48,6 +48,7 @@ class Dataentry extends MY_Controller
         $emptype = $this->input->post("emptype");
         $personaltitle = $this->input->post("personaltitle");
         $empstatus = $this->input->post("empstatus");
+        $employeeID = $this->input->post("employeeID");
         $login_id = $this->session->schoolmis_login_id;
         $inid = null;
         $dateNow = $this->now();
@@ -82,6 +83,8 @@ class Dataentry extends MY_Controller
                     "personal_title_id" => $personaltitle,
                     "is_active" => $is_active,
                     "status_id" => $empstatus,
+                    "employee_id" => $employeeID,
+                    
                 ];
                 // $data2_e = json_encode($data2);
                 if (!$this->mainModel->update("profile.tbl_schoolpersonnel", $data2, "basic_info_id", $id)) {
@@ -103,6 +106,7 @@ class Dataentry extends MY_Controller
                     "personal_title_id" => $personaltitle,
                     "is_active" => $is_active,
                     "status_id" => $empstatus,
+                    "employee_id" => $employeeID,
                 ];
                 // $data2_e = json_encode($data2);
                 // $this->userlog("INSERTED PERSONNEL " . $inid . " " . json_encode($data));

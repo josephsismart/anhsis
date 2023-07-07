@@ -338,6 +338,7 @@ $q_ = $getOnLoad["qrtrR"]; //$getOnLoad["sy_qrtr_e_g"];
                 var d = JSON.parse(data);
                 if (d.success == true) {
                     successAlert("Successfully Saved!");
+                    // alert(formId)
                     if ((formId == "GradesList") || (formId == "GradesPSList")) {} else {
                         $("#modal" + formId).modal('hide');
                         clear_form("form_save_data" + formId);
@@ -359,9 +360,9 @@ $q_ = $getOnLoad["qrtrR"]; //$getOnLoad["sy_qrtr_e_g"];
                     tbl ? removeAllItemList("tbl" + tbl) : null;
                     tbl ? $("#btn" + tbl).trigger("click") : null;
 
-                    // if (formId == 'EnrollmentInfo') {
-                    //     $('#modalEnrollment').modal('hide');
-                    // }
+                    if (formId == 'EnrollmentInfo') {
+                        $('#modalEnrollment').modal('hide');
+                    }
                 } else if (d.exist == true) {
                     existAlert("Person already exist!<br/>You can search and add TEST RESULT");
                 } else if (d.existCode == true) {
@@ -986,6 +987,25 @@ $q_ = $getOnLoad["qrtrR"]; //$getOnLoad["sy_qrtr_e_g"];
 
     });
 
+    function autoSizeFont(text, minFontSize, maxFontSize, maxWidth) {
+        var $tempElement = $('<span>').text(text).hide().appendTo('body');
+        var fontSize = maxFontSize;
+
+        // Set the initial font size
+        $tempElement.css('font-size', fontSize + 'px');
+
+        // Check if the text width exceeds the maximum width
+        while ($tempElement.width() > maxWidth && fontSize > minFontSize) {
+            fontSize--;
+            $tempElement.css('font-size', fontSize + 'px');
+        }
+
+        // Clean up the temporary element
+        $tempElement.remove();
+
+        return fontSize;
+    }
+
 
     $(".submitBtnPreviewID").click(function() {
         // alert(rsid)
@@ -996,6 +1016,12 @@ $q_ = $getOnLoad["qrtrR"]; //$getOnLoad["sy_qrtr_e_g"];
         var e = "";
         var ee = "";
         var grd_q = "";
+
+        var minFontSize = 12;
+        var maxFontSize = 24;
+        var maxWidth = 360;
+
+        
 
         for (m = 0; m < q.length; m++) {
             var qqq = "Q" + q[m];
@@ -1058,6 +1084,9 @@ $q_ = $getOnLoad["qrtrR"]; //$getOnLoad["sy_qrtr_e_g"];
                         let add_details = d[ji]["address_details"];
                         let other_details = d[ji]["other_details"];
                         let od = JSON.parse(other_details);
+                        let incase_emergency = ifnull(od['incase_emergency']);
+                        let relation = ifnull(od['relation']);
+                        let contact_number = ifnull(od['contact_number']);
                         // console.log(od)
                         // alert(i)
                         // if (d.length <= i) {
@@ -1195,7 +1224,7 @@ $q_ = $getOnLoad["qrtrR"]; //$getOnLoad["sy_qrtr_e_g"];
                                         '</tr>' +
                                         '<tr align="left">' +
                                             '<td></td>' +
-                                            '<td colspan="18" style="padding:0px;font-weight:bold;font-family:Open Sans;font-size:25px;">'+full_name+'</td>' +
+                                            '<td colspan="18" style="padding:0px;font-weight:bold;font-family:Open Sans;font-size:'+autoSizeFont(full_name, 12, 24, 360)+'px;">'+full_name+'</td>' +
                                             '<td></td>' +
                                         '</tr>' +
                                         '<tr align="left">' +
@@ -1214,7 +1243,7 @@ $q_ = $getOnLoad["qrtrR"]; //$getOnLoad["sy_qrtr_e_g"];
                                         '</tr>' +
                                         '<tr align="left">' +
                                             '<td></td>' +
-                                            '<td colspan="13" style="padding:0px;font-family:Open Sans;font-size:19px;">Grade & Section: <u>&nbsp;'+g_sec+'&nbsp;</u></td>' +
+                                            '<td colspan="13" style="padding:0px;font-family:Open Sans;font-size:19px;">Grade & Section: <u style="font-size:'+autoSizeFont(g_sec, 9, 19, 145)+'px;">'+g_sec+'</u></td>' +
                                             '<td colspan="5" style="vertical-align: top; text-align: center;padding:0px;">Signature</td>' +
                                             '<td></td>' +
                                         '</tr>' +
@@ -1245,12 +1274,12 @@ $q_ = $getOnLoad["qrtrR"]; //$getOnLoad["sy_qrtr_e_g"];
                                         '</tr>' +
                                         '<tr align="left">' +
                                             '<td></td>' +
-                                            '<td colspan="13" style="padding:0px;font-family:Open Sans;font-size:19px;" height="20">Adviser: <u>&emsp;'+advisory+'&emsp;</u></td>' +
+                                            '<td colspan="13" style="padding:0px;font-family:Open Sans;font-size:19px;" height="20">Adviser: <u style="font-size:'+autoSizeFont(advisory, 9, 19, 200)+'px;">'+advisory+'</u></td>' +
                                             '<td colspan="5" style="border: 1px solid #000;text-align:center;">|</td>' +
                                             '<td></td>' +
                                         '</tr>' +
                                         '<tr align="center">' +
-                                            '<td colspan="14"></td>' +
+                                            '<td colspan="14" style="font-size:15px"> </td>' +
                                             '<td colspan="5" style="border: 1px solid #000;text-align:center;" height="20">|</td>' +
                                             '<td></td>' +
                                         '</tr>' +
@@ -1370,10 +1399,10 @@ $q_ = $getOnLoad["qrtrR"]; //$getOnLoad["sy_qrtr_e_g"];
                                         '<tr align="center">' +
                                             '<td></td>' +
                                             '<td colspan="18" style="border:1px solid black;">'+
-                                                '<p class="my-n1" style="padding:0px;font-weight:bold;font-family:Open Sans;font-size:25px;">'+od['incase_emergency']+'</p>'+
-                                                '<p class="my-n1" style="padding:0px;font-weight:bold;font-family:Open Sans;font-size:20px;">'+od['relation']+'</p>'+
-                                                '<p class="my-n1" style="padding:0px;font-weight:bold;font-family:Open Sans;font-size:20px;">'+od['contact_number']+'</p>'+
-                                                '<p class="my-n1" style="padding:0px;font-weight:bold;font-family:Open Sans;font-size:19px;">'+add_details+'</p>'+
+                                                '<p class="my-n1" style="padding:0px;font-weight:bold;font-family:Open Sans;font-size:'+autoSizeFont(incase_emergency, 12, 25, 330)+'px;">'+incase_emergency+'</p>'+
+                                                '<p class="my-n1" style="padding:0px;font-weight:bold;font-family:Open Sans;font-size:'+autoSizeFont(relation, 10, 20, 310)+'px;">'+relation+'</p>'+
+                                                '<p class="my-n1" style="padding:0px;font-weight:bold;font-family:Open Sans;font-size:'+autoSizeFont(contact_number, 10, 20, 310)+'px;">'+contact_number+'</p>'+
+                                                '<p class="my-n1" style="padding:0px;font-weight:bold;font-family:Open Sans;font-size:'+autoSizeFont(add_details, 9, 19, 330)+'px;">'+add_details+'</p>'+
                                             '</td>' +
                                             '<td></td>' +
                                         '</tr>' +
@@ -1445,8 +1474,8 @@ $q_ = $getOnLoad["qrtrR"]; //$getOnLoad["sy_qrtr_e_g"];
         //     height: 185,
         //     width: 187,
         // });
-        JsBarcode("#bbbb1"+a, '1'+c, { pixelRatio: 100 ,displayValue: false});
-        JsBarcode("#bbbb0"+a, '0'+c, { pixelRatio: 100 ,displayValue: false});
+        JsBarcode("#bbbb1"+a, '7'+c, { pixelRatio: 100 ,displayValue: false});
+        JsBarcode("#bbbb0"+a, '6'+c, { pixelRatio: 100 ,displayValue: false});
         // JsBarcode("#bbbb"+a, c,{displayValue: false});
         // $("#bbbb"+a).attr('src', z);
     }
@@ -1876,4 +1905,13 @@ $q_ = $getOnLoad["qrtrR"]; //$getOnLoad["sy_qrtr_e_g"];
         // dvExcel.html("");
         // dvExcel.append(table);
     };
+
+    function ifnull(a){
+        let b=a;
+        if((a=="null")||(a==null)||(a=="")){
+            // alert(a)
+            b='-';
+        }
+        return b;
+    }
 </script>

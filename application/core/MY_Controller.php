@@ -589,6 +589,62 @@ class MY_Controller extends CI_Controller
         }
     }
 
+    public function scanlog($x, $type, $scanned_id, $io, $g_name, $g_id)
+    {
+        $exist = false;
+        $query = $this->db->query("SELECT EXISTS (
+                                    SELECT 1
+                                    FROM pg_tables
+                                    WHERE schemaname = 'logs' AND tablename = 'tbl_scan_logs$x'
+                                ) AS t;");
+        if ($query->num_rows() > 0) {
+            $exist =  $query->row()->t;
+        } else {
+            $q = "";
+            $qq = "";
+            $q  = $this->db->query("CREATE SEQUENCE logs.tbl_scan_logs_seq$x
+                                    INCREMENT BY 1
+                                    MINVALUE 1
+                                    MAXVALUE 9223372036854775807
+                                    START 1
+                                    CACHE 1
+                                    NO CYCLE;");
+            if ($q) {
+                $qq = $this->db->query("CREATE TABLE logs.tbl_scan_logs$x (
+                                            id int8 NOT NULL DEFAULT nextval('logs.tbl_scan_logs_seq$x'::regclass),
+                                            date timestamp NOT NULL DEFAULT now(),
+                                            action text NOT NULL,
+                                            scan_data text NULL,
+                                            scanned_by text NOT NULL,
+                                            gate_scanned text NOT NULL,
+                                            ip text NULL,
+                                            CONSTRAINT tbl_userlogs_pkey PRIMARY KEY (id)
+                                        );");
+            }
+            if ($qq) {
+                $exist = true;
+            }
+        }
+        if ($exist == true) {
+            $login_id = $this->session->schoolmis_login_id;
+            $login_alias = $this->session->schoolmis_login_uname;
+            $now = $this->now();
+            // $action = $action; //addslashes($action);
+            $ip = $this->get_ip();
+            $data = [
+                "date" => $now,
+                "action" => '{"IO":"' . $io . '"}',
+                "scan_data" => '{"tpye":"' . $type . '","id":"' . $scanned_id . '"}',
+                "scanned_by" => '{"user":"' . $login_alias . '","id":"' . $login_id . '"}',
+                "gate_scanned" => '{"name":"' . $g_name . '","id":"' . $g_id . '"}',
+                "ip" => $ip,
+            ];
+            if ($login_id) {
+                $this->db->insert("logs.tbl_scan_logs$x", $data);
+            }
+        }
+    }
+
     public function learnerlog($action)
     {
         $sy = $this->getOnLoad()["sy_id"];
@@ -632,10 +688,18 @@ class MY_Controller extends CI_Controller
         }
     }
 
-    public function enrollmentChecker($a)
+    public function enrollmentChecker($a, $b)
     {
         $sy = $this->getOnLoad()["sy_id"];
-        $query = $this->db->query("SELECT t1.id FROM sy$sy.bs_tbl_learner_enrollment t1 WHERE t1.learner_id=$a");
+        echo($a);
+        echo('<br/>');
+        if(!$b){
+            $query = $this->db->query("SELECT t1.id FROM sy$sy.bs_tbl_learner_enrollment t1 WHERE t1.learner_id=$a");
+        }else{
+            $query = $this->db->query("SELECT t2.basic_info_id AS id FROM sy$sy.bs_tbl_learner_enrollment t1 
+                                        LEFT JOIN profile.tbl_learners t2 ON t1.learner_id = t2.id 
+                                        WHERE t1.learner_id=$a");
+        }
         if ($query->num_rows() > 0) {
             return $query->row()->id;
         } else {
@@ -737,7 +801,7 @@ class MY_Controller extends CI_Controller
     //     return strtoUpper("<p style='font-size: " . $s . "px'>" . $a . "</p>");
     // }
 
-    function font_id($text, $minFontSize, $maxFontSize, $maxLength)
+    function font_idz($text, $minFontSize, $maxFontSize, $maxLength)
     {
         $textLength = strlen($text);
         $fontSize = $minFontSize;
@@ -751,6 +815,48 @@ class MY_Controller extends CI_Controller
         // return $fontSize;
         // <u>&emsp;'+advisory+'&emsp;</u>
         return strtoUpper("<u style='font-size: " . $fontSize . "px'>" . $text . "</u>");
+    }
+
+    function font_id2($text, $minFontSize, $maxFontSize, $maxWidth)
+    {
+        $fontSize = $maxFontSize;
+
+        // Create a temporary image to calculate text dimensions
+        $image = imagecreatetruecolor(1, 1);
+
+        // Calculate the width of the text at the maximum font size
+        $textWidth = imagefontwidth($fontSize) * strlen($text);
+
+        // Reduce the font size until it fits within the maximum width
+        while ($textWidth > $maxWidth && $fontSize > $minFontSize) {
+            $fontSize--;
+            $textWidth = imagefontwidth($fontSize) * strlen($text);
+        }
+
+        // Destroy the temporary image
+        imagedestroy($image);
+
+        return strtoUpper("<u style='font-size: " . $fontSize . "px'>" . $text . "</u>");
+    }
+
+    function font_id($text, $minFontSize, $maxFontSize) {
+        $len = strlen($text);
+    
+        if ($len <= 19) {
+            $fontSize = $maxFontSize;
+        } elseif ($len <= 25) {
+            $fontSize = $minFontSize;
+        } elseif ($len <= 28) {
+            $fontSize = $minFontSize;
+        } elseif ($len <= 32) {
+            $fontSize = $minFontSize;
+        } elseif ($len <= 36) {
+            $fontSize = $minFontSize;
+        } else {
+            $fontSize = $maxFontSize - ($len % $maxFontSize);
+        }
+    
+        return "<u style='font-size: " . $fontSize . "px'>" . $text . "</u>";
     }
 
     public function grades_input($lrn, $q, $qrtr)
