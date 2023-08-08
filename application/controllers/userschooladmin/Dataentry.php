@@ -9,6 +9,7 @@ class Dataentry extends MY_Controller
         parent::__construct();
         $this->redirect();
         $this->load->model('mainModel');
+        $this->load->library('excel');
         $this->load->helper('date');
         date_default_timezone_set("Asia/Manila");
     }
@@ -31,6 +32,7 @@ class Dataentry extends MY_Controller
     {
         $this->db->trans_begin();
         $id = $this->input->post("personId");
+        $sy_desc = $this->getOnLoad()["sy"];
         $firstName = strtoupper($this->input->post("firstName"));
         $middleName = strtoupper($this->input->post("middleName"));
         $lastName = strtoupper($this->input->post("lastName"));
@@ -70,6 +72,18 @@ class Dataentry extends MY_Controller
             $id ? "updated_by" : "added_by" => $login_id,
             $id ? "date_updated" : "date_added" => $dateNow,
         ];
+
+        if (isset($_FILES['pic'])) {
+            $data += [
+                "img_path" => $this->uploadImg($_FILES['pic'], $employeeID)
+            ];
+        }
+        
+        // else{
+        //     $data += [
+        //         "img_path" => 'dist/img/media/personnel/' . $sy_desc . '/' . $employeeID . '.jpg',
+        //     ];
+        // }
 
         // $data_e = json_encode($data);
 
@@ -299,11 +313,12 @@ class Dataentry extends MY_Controller
     function saveGradeSecInfo()
     {
         $this->db->trans_begin();
-        $id = null;
+        $id = $this->input->post("id");;
         // $gradelevel = $this->input->post("gradelevel");
         $sy = $this->getOnLoad()["sy_id"];
         $grade = $this->input->post("grade");
         $sectionName = strtoupper($this->input->post("sectionName"));
+        $programName = strtoupper($this->input->post("programName"));
         $sched = $this->input->post("sched");
         $login_id = $this->session->schoolmis_login_id;
         $true = ["success"   => true];
@@ -314,10 +329,12 @@ class Dataentry extends MY_Controller
             "grd_lvl_id" => $grade,
             "schl_yr_id" => $sy,
             "sctn_nm" => $sectionName,
+            "program" => $programName,
             "schedule_id" => $sched,
         ];
         if ($id && $grade && $sy && $sectionName && $sched && $login_id) {
             if (!$this->mainModel->update("building_sectioning.tbl_room_section", $data, "id", $id)) {
+                $this->db->query("REFRESH MATERIALIZED VIEW sy$sy.bs_view_enrollment;");
                 // $this->userlog("UPDATED MEMBER/USER PERSON ".$partyType." ".$firstName.$middleName.$lastName);
                 $ret = $true;
             }
@@ -675,6 +692,58 @@ class Dataentry extends MY_Controller
                 "message"   => "Deparment Name already exist!"
             ];
         }
+        echo json_encode($ret);
+    }
+
+    function saveGateInfo()
+    {
+        $this->db->trans_begin();
+        $uuid = $this->input->post("uuid");
+        $name = strtoupper($this->input->post("name"));
+        $abbr = strtoupper($this->input->post("abbr"));
+        $dateNow = $this->now();
+        $login_id = $this->session->schoolmis_login_id;
+        $true = ["success"   => true];
+        $false = ["success"   => false];
+
+        // $exist = $this->db->query("SELECT * FROM global.tbl_party t1 WHERE t1.party_type_id=20 AND t1.description='$name'");
+        // if ($exist->num_rows() == 0) {
+            $data = [
+                "party_type_id" => 20,
+                "description" => $name,
+                "is_active" => true,
+                // "order_by" => $ordr,
+                "abbr" => $abbr,
+                // "group_by" => 11,
+            ];
+            if ($uuid && $name && $abbr && $login_id) {
+                if (!$this->mainModel->update("global.tbl_party", $data, "party_index", $uuid)) {
+                    // $this->userlog("UPDATED DEPARTMENT " . json_encode($data));
+                    $ret = $true;
+                }
+            } else if ($name && $abbr && $login_id) {
+                if ($this->db->insert("global.tbl_party", $data)) {
+                    // $this->userlog("INSERTED DEPARTMENT " . json_encode($data));
+                    $ret = $true;
+                } else {
+                    $ret = $false;
+                }
+            } else {
+                $ret = $false;
+            }
+
+            if ($this->db->trans_status() === false) {
+                $this->db->trans_rollback();
+            } else {
+                $this->db->trans_commit();
+            }
+        // } else {
+        //     $ret = $false;
+        //     $ret += [
+        //         "exist"   => true,
+        //         "message"   => "Gateway Name already exist!"
+        //     ];
+        // }
         echo json_encode($ret);
     }
 

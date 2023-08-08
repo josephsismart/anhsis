@@ -91,6 +91,7 @@ $q_ = $getOnLoad["qrtrR"]; //$getOnLoad["sy_qrtr_e_g"];
 
     function clear_form1() {
         clear_form("form_save_dataEnrollmentInfo");
+        defaultImg('pic', 'previewPic', 'imgtargetLink', 'MALE');
         $("#form_save_dataEnrollmentInfo #ersid").val(rsid)
     }
 
@@ -123,7 +124,8 @@ $q_ = $getOnLoad["qrtrR"]; //$getOnLoad["sy_qrtr_e_g"];
                     } else {
                         var reader = new FileReader();
                         $("[name=pic]").val("");
-                        $("[name=previewPic]").attr("src", "<?= base_url() ?>" + v);
+                        // $("[name=previewPic]").attr("src", "<?= base_url() ?>" + v);
+                        $("[name=previewPic]").attr("src", v);
                         reader.onload = function(e) {
                             document.getElementById(b).src = e.target.result;
                         };
@@ -151,7 +153,7 @@ $q_ = $getOnLoad["qrtrR"]; //$getOnLoad["sy_qrtr_e_g"];
                     // getTable("LearnersList", 0, -1);
                     $("#modalLearnersUnenroll").modal('hide');
                     // getTable("LearnersList", 0, -1);
-                    getTable("AssignedSectionList", 0, -1);
+                    getTable("AssignedSectionList", 0, 10);
                     // setTimeout(function() {
                     //     $(".form_save_dataSectionList #slctRmRadio" + rsid + rssaid).attr("checked", true).trigger("click");
                     // }, 1500);
@@ -183,7 +185,7 @@ $q_ = $getOnLoad["qrtrR"]; //$getOnLoad["sy_qrtr_e_g"];
                     // getTable("LearnersList", 0, -1);
                     $("#modalLearnersTransfer").modal('hide');
                     // getTable("LearnersList", 0, -1);
-                    getTable("AssignedSectionList", 0, -1);
+                    getTable("AssignedSectionList", 0, 10);
                     // setTimeout(function() {
                     //     $(".form_save_dataSectionList #slctRmRadio" + rsid + rssaid).attr("checked", true).trigger("click");
                     // }, 1500);
@@ -208,7 +210,7 @@ $q_ = $getOnLoad["qrtrR"]; //$getOnLoad["sy_qrtr_e_g"];
         var fileInput = $("[name=" + a + "]")[0]; // Get the file input element
         var file = fileInput.files[0]; // Get the selected file
 
-        if (file.size > 2 * 1024 * 1024) {
+        if (file.size > 25 * 1024 * 1024) {
             // Picture size is above 2MB
             alert("Picture must be less than 2MB");
             return; // You can handle this case according to your requirements
@@ -330,8 +332,8 @@ $q_ = $getOnLoad["qrtrR"]; //$getOnLoad["sy_qrtr_e_g"];
                 // $("#modal" + formId + " .overlay").show();
                 a = $("#form_save_data" + formId + " .submitBtnPrimary").text();
                 // if (formId != "GradesList") {
-                //     $("#form_save_data" + formId + " .submitBtnPrimary").attr("disabled", true);
-                //     $("#form_save_data" + formId + " .submitBtnPrimary").html("<span class=\"fa fa-spinner fa-pulse\"></span>");
+                $("#form_save_data" + formId + " .submitBtnPrimary").attr("disabled", true);
+                $("#form_save_data" + formId + " .submitBtnPrimary").html("<span class=\"fa fa-spinner fa-pulse\"></span>");
                 // }
             },
             success: function(data) {
@@ -377,7 +379,7 @@ $q_ = $getOnLoad["qrtrR"]; //$getOnLoad["sy_qrtr_e_g"];
                 $("#form_save_data" + formId + " .submitBtnPrimary").attr("disabled", false);
                 $("#form_save_data" + formId + " .submitBtnPrimary").html(a);
                 // getTable("LearnersList", 0, -1);
-                getTable("AssignedSectionList", 0, -1);
+                getTable("AssignedSectionList", 0, 10);
                 // setTimeout(function() {
                 // $(".form_save_dataSectionList #slctRmRadio" + rsid + rssaid).attr("checked", true).trigger("click");
                 // }, 1500);
@@ -388,6 +390,7 @@ $q_ = $getOnLoad["qrtrR"]; //$getOnLoad["sy_qrtr_e_g"];
     }
 
     function getTable(tableId, dtd, pl, search) {
+        var drawCounter = 0;
         $("#modal" + tableId + " .content").hide();
         $("#modal" + tableId + " .overlay").show();
         setTimeout(() => {
@@ -403,17 +406,21 @@ $q_ = $getOnLoad["qrtrR"]; //$getOnLoad["sy_qrtr_e_g"];
                             validateTable(tableId);
                         }
                     }] : [] &&
-                    tableId == 'LearnersList' ? [{
-                        text: "<i class='fa fa-cog'></i> Account",
-                        action: function(e, dt, node, config) {
-                            validateTable(tableId);
-                        }
-                    }, {
-                        extend: 'print',
-                        text: '<i class="fa fa-print"></i> Print',
-                        header: "_excel"
+                    tableId == 'LearnersList' ? [
+                        // {
+                        //     text: "<i class='fa fa-cog'></i> Account",
+                        //     action: function(e, dt, node, config) {
+                        //         validateTable(tableId);
+                        //     }
+                        // }, 
 
-                    }] : [] &&
+                        {
+                            extend: 'print',
+                            text: '<i class="fa fa-print"></i> Print',
+                            header: "_excel"
+
+                        }
+                    ] : [] &&
                     tableId == 'AllStudentLogs' ? [{
                         extend: 'print',
                         text: '<i class="fa fa-print"></i> Print',
@@ -440,14 +447,18 @@ $q_ = $getOnLoad["qrtrR"]; //$getOnLoad["sy_qrtr_e_g"];
                 "oLanguage": {
                     "sSearch": ""
                 },
+                "processing": true,
+                "serverSide": true,
                 language: {
                     searchPlaceholder: "Search...",
+                    info: '<p class="text-right pr-2 mt-n3 mb-n1">Displaying _START_ to _END_ of _TOTAL_ entries</p>',
                 },
-                pageLength: pl,
+                pagingType: 'simple',
                 lengthMenu: [
-                    [10, 25, 50, 100],
-                    [10, 25, 50, 100]
+                    [2, 4, 8, -1],
+                    [2, 4, 8, "All"]
                 ],
+                pageLength: pl,
 
                 ajax: {
                     url: "<?= base_url($uri . '/getdata/get') ?>" + tableId,
@@ -458,8 +469,14 @@ $q_ = $getOnLoad["qrtrR"]; //$getOnLoad["sy_qrtr_e_g"];
                         d.rssaid = rssaid;
                         d.by = $("#searchby").val();
                         d.key = $("#keyword").val();
+
+                        drawCounter++;
+                        d.length = pl;
+                        d.draw = drawCounter;
+                        d.search.value = $('#tbl' + tableId + '_filter input').val();
                     }
                 },
+                // "pageLength": pl,
 
                 fnInitComplete: function(oSettings, json) {
                     if (tableId == "Honors") {
@@ -518,8 +535,8 @@ $q_ = $getOnLoad["qrtrR"]; //$getOnLoad["sy_qrtr_e_g"];
                 $(".collapse" + tableId).trigger('click');
             });
             $("#tbl" + tableId + "_filter").addClass("row");
-            $("#tbl" + tableId + "_filter label").css("width", "99.3%");
-            $("#tbl" + tableId + "_filter .form-control-sm").css("width", "99.3%");
+            $("#tbl" + tableId + "_filter label").css("width", "97%");
+            $("#tbl" + tableId + "_filter .form-control-sm").css("width", "97%");
         }, 100);
     }
 
@@ -581,7 +598,7 @@ $q_ = $getOnLoad["qrtrR"]; //$getOnLoad["sy_qrtr_e_g"];
                     tblReload('LearnersList');
                     // tblReload('AssignedSectionList');
                     // getTable("LearnersList", 0, -1);
-                    getTable("AssignedSectionList", 0, -1);
+                    getTable("AssignedSectionList", 0, 10);
                     setTimeout(function() {
                         $(".form_save_dataSectionList #slctRmRadio" + rsid + rssaid).attr("checked", true).trigger("click");
                     }, 1500);
@@ -745,13 +762,14 @@ $q_ = $getOnLoad["qrtrR"]; //$getOnLoad["sy_qrtr_e_g"];
         $("#" + form + " .select" + a).empty();
     }
 
-    function getFetchList(formId, getList, getQ, s2, where, sel, e) {
+    function getFetchList(formId, getList, getQ, s2, where, sel, e, txt) {
         var q = getQ ? getQ : getList;
         $("#form_save_data" + formId + " .select" + getList).empty();
         $.post("<?= base_url($uri . '/getdata/get') ?>" + q, where,
             function(data) {
                 var result = JSON.parse(data);
-                (sel == 0 || e == 0) ? $("#form_save_data" + formId + " .select" + getList).append("<option value=''>SELECT</option>"): "";
+                let t = (txt == "" ? "" : " " + txt);
+                (sel == 0 || e == 0) ? $("#form_save_data" + formId + " .select" + getList).append("<option value=''>SELECT" + t + "</option>"): "";
                 for (var i = 0; i < result["data"].length; i++) {
                     $("#form_save_data" + formId + " .select" + getList).append("<option value='" + result["data"][i]['id'] + "'>" + result["data"][i]['item'] + "</option>");
                 }
@@ -766,6 +784,8 @@ $q_ = $getOnLoad["qrtrR"]; //$getOnLoad["sy_qrtr_e_g"];
         let formData = new FormData(this);
         formData.append('rsid', rsid);
 
+        $("#import_form .overlay").slideDown();
+
         event.preventDefault();
         // $(".submitBtnUpload").attr("disabled", true);
         $.ajax({
@@ -776,17 +796,32 @@ $q_ = $getOnLoad["qrtrR"]; //$getOnLoad["sy_qrtr_e_g"];
             contentType: false,
             cache: false,
             processData: false,
+            // data: formData,
+            // processData: false,
+            // contentType: false,
+            // xhr: function() {
+            //     var xhr = new window.XMLHttpRequest();
+            //     xhr.upload.addEventListener('progress', function(evt) {
+            //     if (evt.lengthComputable) {
+            //         var percentComplete = (evt.loaded / evt.total) * 100;
+            //         $('#progress').text(percentComplete.toFixed(2) + '%');
+            //         $('#progress').css('width', percentComplete + '%');
+            //     }
+            //     }, false);
+            //     return xhr;
+            // },
             success: function(data) {
                 // getTable("LearnersList", 0, -1);
-                getTable("AssignedSectionList", 0, -1);
+                getTable("AssignedSectionList", 0, 10);
                 // setTimeout(function() {
                 //     $(".form_save_dataSectionList #slctRmRadio" + rsid + rssaid).attr("checked", true).trigger("click");
                 // }, 1500);
                 $('#file').val('');
                 successAlert("Successfully Saved!");
+                $("#import_form .overlay").slideUp();
             },
             error: function(data) {}
-        })
+        });
     });
 
     function customTabViewAllGrades() {
@@ -1006,6 +1041,12 @@ $q_ = $getOnLoad["qrtrR"]; //$getOnLoad["sy_qrtr_e_g"];
         return fontSize;
     }
 
+    function closeCardBodyIfOpen() {
+        if ($('.collapse-body').css('display') === 'block') {
+            $('.collapse-header').addClass('collapsed-card');
+            $('.collapse-body').slideUp();
+        }
+    }
 
     $(".submitBtnPreviewID").click(function() {
         // alert(rsid)
@@ -1021,7 +1062,7 @@ $q_ = $getOnLoad["qrtrR"]; //$getOnLoad["sy_qrtr_e_g"];
         var maxFontSize = 24;
         var maxWidth = 360;
 
-        
+
 
         for (m = 0; m < q.length; m++) {
             var qqq = "Q" + q[m];
@@ -1029,8 +1070,8 @@ $q_ = $getOnLoad["qrtrR"]; //$getOnLoad["sy_qrtr_e_g"];
         }
 
         $("#modalPreviewID #tblPreviewID").empty();
-        // $(".submitBtnPreviewID").attr("disabled", true);
-        // $(".submitBtnPreviewID").html("<span class=\"fa fa-spinner fa-pulse\"></span>");
+        $(".submitBtnPreviewID").attr("disabled", true);
+        $(".submitBtnPreviewID").html("<span class=\"fa fa-spinner fa-pulse\"></span> Preview ID");
         $.get("<?= base_url($uri_reports . "/reports/getPreviewID") ?>", {
                 // sy: $("#form_report_dataGRADE_SLIP [name='sy']").val(),
                 // qrtr: q,
@@ -1079,12 +1120,13 @@ $q_ = $getOnLoad["qrtrR"]; //$getOnLoad["sy_qrtr_e_g"];
                         let img_path = d[ji]["img_path"];
                         let full_name = d[ji]["full_name"];
                         let birthdate = d[ji]["birthdate"];
-                        let g_sec = d[ji]["grade"] +' - '+ d[ji]["sctn_nm"];
+                        let g_sec = d[ji]["grade"] + ' - ' + d[ji]["sctn_nm"];
+                        let program = d[ji]["program"];
                         let advisory = d[ji]["advisory"];
                         let add_details = d[ji]["address_details"];
                         let other_details = d[ji]["other_details"];
                         let od = JSON.parse(other_details);
-                        let incase_emergency = ifnull(od['incase_emergency']);
+                        let incase_emergency = ifnull(od['ioe_name']);
                         let relation = ifnull(od['relation']);
                         let contact_number = ifnull(od['contact_number']);
                         // console.log(od)
@@ -1092,361 +1134,353 @@ $q_ = $getOnLoad["qrtrR"]; //$getOnLoad["sy_qrtr_e_g"];
                         // if (d.length <= i) {
                         //     break;
                         // } else {
-                            $("#modalPreviewID #tblPreviewID").append(
-                                '<td align="left" width="50%" class="p-2" style="border: 1px dashed #000;">' +
-                                    '<table width="100%" cellspacing="0" style="font-size:10px;border:2.5px solid #3786A3;background-image: url(<?= $system_bg_id ?>);background-repeat: no-repeat;background-size: cover;">' +
-                                        '<tr align="center" style="font-size:12px;color: rgba(0, 0, 0, 0);">' +
-                                            '<td>aa</td><td>aa</td><td>aa</td><td>aa</td><td>aa</td><td>aa</td><td>aa</td><td>aa</td><td>aa</td><td>aa</td><td>aa</td><td>aa</td><td>aa</td><td>aa</td><td>aa</td><td>aa</td><td>aa</td><td>aa</td><td>aa</td><td>aa</td>' +
-                                        '</tr>' +
-                                        '<tr align="center">' +
-                                            '<td colspan="4" rowspan="6" style="vertical-align: middle; text-align: center;"><img src="<?= $system_deped_1x1 ?>" width="65" height="65"/></td>' +
-                                            '<td colspan="12" style="padding:0px;font-weight:bold;font-family:Old English Text MT;font-size:15px;">Republic of the Philippines</td>' +
-                                            '<td colspan="4" rowspan="6" style="vertical-align: middle; text-align: center;"><img src="<?= $system_depeddiv_1x1 ?>" width="65" height="65"/></td>' +
-                                        '</tr>' +
-                                        '<tr align="center">' +
-                                            '<td colspan="12" style="padding:0px;font-weight:bold;font-family:Open Sans;font-size:14px;">DEPARTMENT OF EDUCATION</td>' +
-                                        '</tr>' +
-                                        '<tr align="center">' +
-                                            '<td colspan="12" style="padding:0px;font-weight:bold;font-family:Calibri;font-size:14px;">Division of Butuan City</td>' +
-                                        '</tr>' +
-                                        '<tr align="center">' +
-                                            '<td colspan="12" style="padding:0px;font-weight:bold;font-family:Book Antiqua;font-size:17px;">AGUSAN NATIONAL HIGH SCHOOL</td>' +
-                                        '</tr>' +
-                                        '<tr align="center">' +
-                                            '<td colspan="12" style="padding:0px;font-family:Open Sans;font-size:14px;">A.D. Curato St., Butuan City, 8600 Philippines</td>' +
-                                        '</tr>' +
-                                        '<tr align="center">' +
-                                            '<td colspan="12" style="padding:0px;font-family:Calibri;font-size:14px;">School ID: <b>304756</b></td>' +
-                                        '</tr>' +
-                                        '<tr align="center">' +
-                                            '<td colspan="20" style="padding:2px;"> </td>' +
-                                        '</tr>' +
-
-                                        
-                                        
-                                        //PICTURE
-                                        '<tr>'+
-                                            '<td colspan="20">'+
-                                                '<tr align="center">' +
-                                                    '<td></td>' +
-                                                    '<td></td>' +
-                                                    '<td colspan="8" rowspan="11" style="border:3px solid #000;height:14.3rem; width:10rem; padding:0px; vertical-align: middle; text-align: center;">'+
-                                                        '<img style="width:100%;height:100%;" src="'+img_path+'" alt="Image" />'+
-                                                    '</td>' +
-                                                    '<td> </td>' +
-                                                    '<td> </td>' +
-                                                    '<td colspan="8"> </td>' +
-                                                '</tr>' +
-                                                '<tr align="center">' +
-                                                    '<td></td>' +
-                                                    '<td></td>' +
-                                                    '<td> </td>' +
-                                                    '<td> </td>' +
-                                                    '<td colspan="7" rowspan="8" style="padding:0px; vertical-align: middle; text-align: center;">' +
-                                                        '<img style="width:125px;height:125px;" src="<?= $system_svg_1x1 ?>" alt="Image" />'+
-                                                    '</td>' +
-                                                    '<td></td>' +
-                                                '</tr>' +
-                                                '<tr align="center">' +
-                                                    '<td></td>' +
-                                                    '<td></td>' +
-                                                    '<td></td>' +
-                                                    '<td></td>' +
-                                                    '<td></td>' +
-                                                '</tr>' +
-                                                '<tr align="center">' +
-                                                    '<td></td>' +
-                                                    '<td></td>' +
-                                                    '<td></td>' +
-                                                    '<td></td>' +
-                                                    '<td></td>' +
-                                                '</tr>' +
-                                                '<tr align="center">' +
-                                                    '<td></td>' +
-                                                    '<td></td>' +
-                                                    '<td></td>' +
-                                                    '<td></td>' +
-                                                    '<td></td>' +
-                                                '</tr>' +
-                                                '<tr align="center">' +
-                                                    '<td></td>' +
-                                                    '<td></td>' +
-                                                    '<td></td>' +
-                                                    '<td></td>' +
-                                                    '<td></td>' +
-                                                '</tr>' +
-                                                '<tr align="center">' +
-                                                    '<td></td>' +
-                                                    '<td></td>' +
-                                                    '<td></td>' +
-                                                    '<td></td>' +
-                                                    '<td></td>' +
-                                                '</tr>' +
-                                                '<tr align="center">' +
-                                                    '<td></td>' +
-                                                    '<td></td>' +
-                                                    '<td></td>' +
-                                                    '<td></td>' +
-                                                    '<td></td>' +
-                                                '</tr>' +
-                                                '<tr align="center">' +
-                                                    '<td></td>' +
-                                                    '<td></td>' +
-                                                    '<td></td>' +
-                                                    '<td></td>' +
-                                                    '<td></td>' +
-                                                '</tr>' +
-
-                                                '<tr align="center">' +
-                                                    '<td></td>' +
-                                                    '<td></td>' +
-                                                    '<td></td>' +
-                                                    '<td></td>' +
-                                                    '<td colspan="7" style="border:1px solid #000;padding:0px;vertical-align:middle;font-size:18px;background-color:#fff;">'+lrn+'</td>' +
-                                                    '<td> </td>' +
-                                                '</tr>' +
-                                                '<tr align="center">' +
-                                                    '<td></td>' +
-                                                    '<td></td>' +
-                                                    '<td></td>' +
-                                                    '<td></td>' +
-                                                    // '<td colspan="6" style="padding:0px"><svg class="bbbb' + i + '" style="width:2rem;height:2rem;padding:0px;"></svg></td>' +
-                                                    // '<td colspan="7" style="padding:0px"><canvas class="barcode" class="bbbb' + i + '" style="width:100%;height:1.2rem;padding:0px;"></canvas></td>' +
-                                                    '<td colspan="7" style="padding:1px"><img id="bbbb1' + i + '" alt="Barcode Image" width="100%" height="25"></td>' +
-                                                    '<td> </td>' +
-                                                '</tr>' +
-                                            '</td>' +
-                                        '</tr>' +
-                                        //PICTURE
-
-                                        '<tr">' +
-                                            '<td colspan="20"> </td>' +
-                                        '</tr>' +
-                                        '<tr align="left">' +
-                                            '<td></td>' +
-                                            '<td colspan="18" style="padding:0px;font-weight:bold;font-family:Open Sans;font-size:'+autoSizeFont(full_name, 12, 24, 360)+'px;">'+full_name+'</td>' +
-                                            '<td></td>' +
-                                        '</tr>' +
-                                        '<tr align="left">' +
-                                            '<td colspan="14"></td>' +
-                                            '<td rowspan="3" colspan="5" style="border:1px solid #000;background-color: #fff;"></td>' +
-                                            '<td></td>' +
-                                        '</tr>' +
-                                        '<tr align="left">' +
-                                            '<td></td>' +
-                                            '<td colspan="13" style="padding:0px;font-family:Open Sans;font-size:19px;">Birthdate: <u>&nbsp;'+birthdate+'&nbsp;</u></td>' +
-                                            '<td></td>' +
-                                        '</tr>' +
-                                        '<tr align="left">' +
-                                            '<td colspan="14"></td>' +
-                                            '<td></td>' +
-                                        '</tr>' +
-                                        '<tr align="left">' +
-                                            '<td></td>' +
-                                            '<td colspan="13" style="padding:0px;font-family:Open Sans;font-size:19px;">Grade & Section: <u style="font-size:'+autoSizeFont(g_sec, 9, 19, 145)+'px;">'+g_sec+'</u></td>' +
-                                            '<td colspan="5" style="vertical-align: top; text-align: center;padding:0px;">Signature</td>' +
-                                            '<td></td>' +
-                                        '</tr>' +
-                                        '<tr align="left">' +
-                                            '<td colspan="14"></td>' +
-                                            '<td></td>' +
-                                            '<td></td>' +
-                                            '<td></td>' +
-                                            '<td></td>' +
-                                            '<td></td>' +
-                                            '<td></td>' +
-                                        '</tr>' +
-                                        '<tr align="left">' +
-                                            '<td></td>' +
-                                            '<td colspan="13" style="padding:0px;font-family:Open Sans;font-size:19px;">Program: <u>&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;</u></td>' +
-                                            '<td colspan="5" style="border:1px solid #000; vertical-align: middle; text-align: center;padding:0px;background-color:#0062A7;color:#fff;">SCHOOL YEAR<br/>VALIDATION</td>' +
-                                            // '<td colspan="5" style="border:1px solid #000; vertical-align: middle; text-align: center;padding:0px;">SCHOOL YEAR<br/>VALIDATION</td>' +
-                                            '<td></td>' +
-                                        '</tr>' +
-                                        '<tr>' +
-                                            '<td colspan="14"></td>' +
-                                            '<td></td>' +
-                                            '<td></td>' +
-                                            '<td></td>' +
-                                            '<td></td>' +
-                                            '<td></td>' +
-                                            '<td></td>' +
-                                        '</tr>' +
-                                        '<tr align="left">' +
-                                            '<td></td>' +
-                                            '<td colspan="13" style="padding:0px;font-family:Open Sans;font-size:19px;" height="20">Adviser: <u style="font-size:'+autoSizeFont(advisory, 9, 19, 200)+'px;">'+advisory+'</u></td>' +
-                                            '<td colspan="5" style="border: 1px solid #000;text-align:center;">|</td>' +
-                                            '<td></td>' +
-                                        '</tr>' +
-                                        '<tr align="center">' +
-                                            '<td colspan="14" style="font-size:15px"> </td>' +
-                                            '<td colspan="5" style="border: 1px solid #000;text-align:center;" height="20">|</td>' +
-                                            '<td></td>' +
-                                        '</tr>' +
-                                        '<tr align="center">' +
-                                            '<td colspan="20"> </td>' +
-                                        '<tr align="center">' +
-                                            '<td colspan="6"></td>' +
-                                            '<td colspan="8" class="image-cell" style="border-bottom:1px solid #000;position:relative;"> '+
-                                                '<img style="width:120;height:50px;position: absolute;left:25%;top:-5px;" src="<?= $system_esig ?>" alt="Image" />'+
-                                            '</td>' +
-                                            '<td colspan="6"></td>' +
-                                        '</tr>' +
-                                        '<tr align="center">' +
-                                            '<td colspan="6"></td>' +
-                                            '<td colspan="8" style="padding:0px;font-size:19px;">'+
-                                                'DENNIS R. ROA, DPA'+
-                                            '</td>' +
-                                            '<td colspan="6"></td>' +
-                                        '</tr>' +
-                                        '<tr align="center">' +
-                                            '<td colspan="6"></td>' +
-                                            '<td colspan="8" style="padding-top:0px;font-size:12px;">PRINCIPAL IV</td>' +
-                                            '<td colspan="6"></td>' +
-                                        '</tr>' +
-                                        '<tr style="font-size:15px;">' +
-                                            '<td colspan="20"> </td>' +
-                                        '</tr>' +
-                                    '</table>' +
-                                '</td>' +
-
-                                '<td align="right" width="50%" class="p-2" style="border: 1px dashed #000;">' +
-                                    '<table width="100%" cellspacing="0" style="font-size:10px;border:2.5px solid #3786A3;background-image: url(<?= $system_bg_id ?>);background-repeat: no-repeat;background-size: cover;">' +
-                                        '<tr align="center" style="font-size:12px;color: rgba(0, 0, 0, 0);">' +
-                                            '<td>aa</td><td>aa</td><td>aa</td><td>aa</td><td>aa</td><td>aa</td><td>aa</td><td>aa</td><td>aa</td><td>aa</td><td>aa</td><td>aa</td><td>aa</td><td>aa</td><td>aa</td><td>aa</td><td>aa</td><td>aa</td><td>aa</td><td>aa</td>' +
-                                        '</tr>' +
-                                        '<tr align="center">' +
-                                            '<td colspan="4" rowspan="6" style="vertical-align: middle; text-align: center;"><img src="<?= $system_deped_1x1 ?>" width="65" height="65"/></td>' +
-                                            '<td colspan="12" style="padding:0px;font-weight:bold;font-family:Old English Text MT;font-size:15px;">Republic of the Philippines</td>' +
-                                            '<td colspan="4" rowspan="6" style="vertical-align: middle; text-align: center;"><img src="<?= $system_depeddiv_1x1 ?>" width="65" height="65"/></td>' +
-                                        '</tr>' +
-                                        '<tr align="center">' +
-                                            '<td colspan="12" style="padding:0px;font-weight:bold;font-family:Open Sans;font-size:14px;">DEPARTMENT OF EDUCATION</td>' +
-                                        '</tr>' +
-                                        '<tr align="center">' +
-                                            '<td colspan="12" style="padding:0px;font-weight:bold;font-family:Calibri;font-size:14px;">Division of Butuan City</td>' +
-                                        '</tr>' +
-                                        '<tr align="center">' +
-                                            '<td colspan="12" style="padding:0px;font-weight:bold;font-family:Book Antiqua;font-size:17px;">AGUSAN NATIONAL HIGH SCHOOL</td>' +
-                                        '</tr>' +
-                                        '<tr align="center">' +
-                                            '<td colspan="12" style="padding:0px;font-family:Open Sans;font-size:14px;">A.D. Curato St., Butuan City, 8600 Philippines</td>' +
-                                        '</tr>' +
-                                        '<tr align="center">' +
-                                            '<td colspan="12" style="padding:0px;font-family:Calibri;font-size:14px;">School ID: <b>304756</b></td>' +
-                                        '</tr>' +
-                                        '<tr align="center">' +
-                                            '<td colspan="20" style="padding:2px;"> </td>' +
-                                        '</tr>' +
+                        $("#modalPreviewID #tblPreviewID").append(
+                            '<td align="left" width="50%" class="p-2" style="border: 1px dashed #000;">' +
+                            '<table width="100%" cellspacing="0" style="font-size:10px;border:2.5px solid #3786A3;background-image: url(<?= $system_bg_id ?>);background-repeat: no-repeat;background-size: cover;">' +
+                            '<tr align="center" style="font-size:12px;color: rgba(0, 0, 0, 0);">' +
+                            '<td>aa</td><td>aa</td><td>aa</td><td>aa</td><td>aa</td><td>aa</td><td>aa</td><td>aa</td><td>aa</td><td>aa</td><td>aa</td><td>aa</td><td>aa</td><td>aa</td><td>aa</td><td>aa</td><td>aa</td><td>aa</td><td>aa</td><td>aa</td>' +
+                            '</tr>' +
+                            '<tr align="center">' +
+                            '<td colspan="4" rowspan="6" style="vertical-align: middle; text-align: left;padding-left: 8px;"><img src="<?= $system_deped_1x1 ?>" width="65" height="65"/></td>' +
+                            '<td colspan="12" style="padding:0px;font-weight:bold;font-family:Old English Text MT;font-size:15px;">Republic of the Philippines</td>' +
+                            '<td colspan="4" rowspan="6" style="vertical-align: middle; text-align: right;padding-right: 8px;"><img src="<?= $system_depeddiv_1x1 ?>" width="65" height="65"/></td>' +
+                            '</tr>' +
+                            '<tr align="center">' +
+                            '<td colspan="12" style="padding:0px;font-weight:bold;font-family:Open Sans;font-size:14px;">DEPARTMENT OF EDUCATION</td>' +
+                            '</tr>' +
+                            '<tr align="center">' +
+                            '<td colspan="12" style="padding:0px;font-weight:bold;font-family:Calibri;font-size:14px;">Division of Butuan City</td>' +
+                            '</tr>' +
+                            '<tr align="center">' +
+                            '<td colspan="12" style="padding:0px;font-weight:bold;font-family:Book Antiqua;font-size:15px;">AGUSAN NATIONAL HIGH SCHOOL</td>' +
+                            '</tr>' +
+                            '<tr align="center">' +
+                            '<td colspan="12" style="padding:0px;font-family:Open Sans;font-size:13px;">A.D. Curato St., Butuan City, 8600 Philippines</td>' +
+                            '</tr>' +
+                            '<tr align="center">' +
+                            '<td colspan="12" style="padding:0px;font-family:Calibri;font-size:14px;">School ID: <b>304756</b></td>' +
+                            '</tr>' +
+                            '<tr align="center">' +
+                            '<td colspan="20" style="padding:2px;"> </td>' +
+                            '</tr>' +
 
 
 
-                                        '<tr align="center">' +
-                                            '<td colspan="6"></td>' +
-                                            // '<td colspan="8" rowspan="11" style="height:12rem; text-align: center;padding-left:7.5%;"><div id="qqqq'+i+'" style="text-align:center;width:100%;height:100%;"></div></td>' +
-                                            '<td colspan="8" rowspan="11" style="height:12rem; text-align: center;padding-left:7.5%;"><img id="bbbb0' + i + '" alt="Barcode Image" width="100%" height="100%"></td>' +
-                                            
-                                            '<td colspan="6"></td>' +
-                                        '</tr>' +
-                                        '<tr">' +
-                                            '<td colspan="6"></td>' +
-                                            '<td colspan="6"></td>' +
-                                        '</tr>' +
-                                        '<tr">' +
-                                            '<td colspan="6"></td>' +
-                                            '<td colspan="6"></td>' +
-                                        '</tr>' +
-                                        '<tr">' +
-                                            '<td colspan="6"></td>' +
-                                            '<td colspan="6"></td>' +
-                                        '</tr>' +
-                                        '<tr">' +
-                                            '<td colspan="6"></td>' +
-                                            '<td colspan="6"></td>' +
-                                        '</tr>' +
-                                        '<tr">' +
-                                            '<td colspan="6"></td>' +
-                                            '<td colspan="6"></td>' +
-                                        '</tr>' +
-                                        '<tr">' +
-                                            '<td colspan="6"></td>' +
-                                            '<td colspan="6"></td>' +
-                                        '</tr>' +
-                                        '<tr">' +
-                                            '<td colspan="6"></td>' +
-                                            '<td colspan="6"></td>' +
-                                        '</tr>' +
-                                        '<tr">' +
-                                            '<td colspan="6"></td>' +
-                                            '<td colspan="6"></td>' +
-                                        '</tr>' +
-                                        '<tr">' +
-                                            '<td colspan="6"></td>' +
-                                            '<td colspan="6"></td>' +
-                                        '</tr>' +
-                                        '<tr">' +
-                                            '<td colspan="6"></td>' +
-                                            '<td colspan="6"></td>' +
-                                        '</tr>' +
-                                        '<tr">' +
-                                            '<td colspan="20"> </td>' +
-                                        '</tr>' +
-                                        '<tr align="left">' +
-                                            '<td></td>' +
-                                            '<td></td>' +
-                                            '<td colspan="18" style="font-weight:bold;font-family:Open Sans;font-size:12px;">IN CASE OF EMERGENCY, PLEASE NOTIFY:</td>' +
-                                        '</tr>' +
-                                        '<tr align="center">' +
-                                            '<td></td>' +
-                                            '<td colspan="18" style="border:1px solid black;">'+
-                                                '<p class="my-n1" style="padding:0px;font-weight:bold;font-family:Open Sans;font-size:'+autoSizeFont(incase_emergency, 12, 25, 330)+'px;">'+incase_emergency+'</p>'+
-                                                '<p class="my-n1" style="padding:0px;font-weight:bold;font-family:Open Sans;font-size:'+autoSizeFont(relation, 10, 20, 310)+'px;">'+relation+'</p>'+
-                                                '<p class="my-n1" style="padding:0px;font-weight:bold;font-family:Open Sans;font-size:'+autoSizeFont(contact_number, 10, 20, 310)+'px;">'+contact_number+'</p>'+
-                                                '<p class="my-n1" style="padding:0px;font-weight:bold;font-family:Open Sans;font-size:'+autoSizeFont(add_details, 9, 19, 330)+'px;">'+add_details+'</p>'+
-                                            '</td>' +
-                                            '<td></td>' +
-                                        '</tr>' +
-                                        '<tr align="center">' +
-                                            '<td colspan="20"> </td>' +
-                                        '</tr>' +
-                                        '<tr align="center">' +
-                                            '<td></td>' +
-                                            '<td colspan="18" style="padding:0px;font-weight:bold;font-family:Open Sans;font-size:12px;">'+
-                                                '<p>THIS CERTIFIES THAT THE PERSON WHOSE PHOTO APPEARS ON<br/>'+
-                                                 'THIS IDENTIFICATION CARD IS A BONAFIDE STUDENT OF<br/>'+
-                                                 'AGUSAN NATIONAL HIGH SCHOOL. THE CARD IS  VALID</br>'+
-                                                 'FOR THE SCHOOL YEAR REFLECTED IN THE CARD.</p>'+
-                                            '</td>' +
-                                            '<td></td>' +
-                                        '</tr>' +
-                                        '<tr align="left">' +
-                                            '<td colspan="20" style="font-weight:bold;font-family:Open Sans;font-size:6px;"> </td>' +
-                                        '</tr>' +
-                                        '<tr align="center">' +
-                                            '<td colspan="6"></td>' +
-                                            '<td colspan="8" class="image-cell" style="border-bottom:1px solid #000;position:relative;"> '+
-                                                '<img style="width:120;height:50px;position: absolute;left:25%;top:-5px;" src="<?= $system_esig ?>" alt="Image" />'+
-                                            '</td>' +
-                                            '<td colspan="6"></td>' +
-                                        '</tr>' +
-                                        '<tr align="center">' +
-                                            '<td colspan="6"></td>' +
-                                            '<td colspan="8" style="padding:0px;font-size:19px;">DENNIS R. ROA, DPA</td>' +
-                                            '<td colspan="6"></td>' +
-                                        '</tr>' +
-                                        '<tr align="center">' +
-                                            '<td colspan="6"></td>' +
-                                            '<td colspan="8" style="padding-top:0px;font-size:12px;">PRINCIPAL IV</td>' +
-                                            '<td colspan="6"></td>' +
-                                        '</tr>' +
-                                        '<tr style="font-size:15px;">' +
-                                            '<td colspan="20"> </td>' +
-                                        '</tr>' +
-                                    '</table>' +
-                                '</td>');
-                            g = "";
+                            //PICTURE
+                            '<tr>' +
+                            '<td colspan="20">' +
+                            '<tr align="center">' +
+                            '<td></td>' +
+                            '<td></td>' +
+                            '<td colspan="8" rowspan="11" style="height:14.3rem; width:10rem; padding:0px; vertical-align: middle; text-align: center;">' +
+                            '<img style="width:100%;height:100%;" class="border rounded elevation-2" src="' + img_path + '" alt="Image" />' +
+                            '</td>' +
+                            '<td> </td>' +
+                            '<td colspan="8" rowspan="5" style="padding:0px; vertical-align: top; text-align: center;">' +
+                            '<img style="width:120px;height:120px;" src="<?= $system_svg_1x1 ?>" alt="Image" />' +
+                            '</td>' +
+                            '<td></td>' +
+                            '</tr>' +
+                            '<tr align="center">' +
+                            '<td></td>' +
+                            '<td></td>' +
+                            '<td></td>' +
+                            '<td></td>' +
+                            '</tr>' +
+                            '<tr align="center">' +
+                            '<td></td>' +
+                            '<td></td>' +
+                            '<td></td>' +
+                            '<td></td>' +
+                            '</tr>' +
+                            '<tr align="center">' +
+                            '<td></td>' +
+                            '<td></td>' +
+                            '<td></td>' +
+                            '<td></td>' +
+                            '</tr>' +
+                            '<tr align="center">' +
+                            '<td></td>' +
+                            '<td></td>' +
+                            '<td></td>' +
+                            '<td> </td>' +
+                            '</tr>' +
+                            '<tr align="center">' +
+                            '<td></td>' +
+                            '<td></td>' +
+                            '<td></td>' +
+                            '<td> </td>' +
+                            // '<td colspan="6" style="padding:0px"><svg class="bbbb' + i + '" style="width:2rem;height:2rem;padding:0px;"></svg></td>' +
+                            // '<td colspan="7" style="padding:0px"><canvas class="barcode" class="bbbb' + i + '" style="width:100%;height:1.2rem;padding:0px;"></canvas></td>' +
+                            // '<td> </td>' +
+                            '</tr>' +
+                            '<tr align="center">' +
+                            '<td></td>' +
+                            '<td></td>' +
+                            '<td></td>' +
+                            '<td colspan="8" style="border:1px solid #000;padding:0px;vertical-align:bottom;font-size:18px;background-color:#fff;">' + lrn + '</td>' +
+                            '<td></td>' +
+                            '</tr>' +
+                            '<tr align="center">' +
+                            '<td></td>' +
+                            '<td></td>' +
+                            '<td></td>' +
+                            // '<td></td>' +
+                            '<td colspan="8" rowspan="6" style="padding:1px;vertical-align:top;"><img id="bbbb1' + i + '" alt="Barcode Image" width="100%" height="60"></td>' +
+                            '<td></td>' +
+                            '</tr>' +
+                            '<tr align="center">' +
+                            '<td></td>' +
+                            '<td></td>' +
+                            '<td></td>' +
+                            '<td> </td>' +
+                            '</tr>' +
+                            '<tr align="center">' +
+                            '<td></td>' +
+                            '<td></td>' +
+                            '<td></td>' +
+                            '<td> </td>' +
+                            '</tr>' +
+
+                            '<tr align="center">' +
+                            '<td></td>' +
+                            '<td></td>' +
+                            '<td></td>' +
+                            '<td> </td>' +
+                            // '<td colspan="7" style="border:1px solid #000;padding:0px;vertical-align:middle;font-size:18px;background-color:#fff;">'+lrn+'</td>' +
+                            '</tr>' +
+                            '</td>' +
+                            '</tr>' +
+                            //PICTURE
+
+                            '<tr">' +
+                            '<td colspan="20"> </td>' +
+                            '</tr>' +
+                            '<tr align="left">' +
+                            '<td></td>' +
+                            '<td colspan="18" style="padding:0px;font-weight:bold;font-family:Open Sans;font-size:' + autoSizeFont(full_name, 12, 24, 360) + 'px;">' + full_name + '</td>' +
+                            '<td></td>' +
+                            '</tr>' +
+                            '<tr align="left">' +
+                            '<td colspan="13"></td>' +
+                            '<td rowspan="3" colspan="6" style="border:1px solid #000;background-color: #fff;"></td>' +
+                            '<td></td>' +
+                            '</tr>' +
+                            '<tr align="left">' +
+                            '<td></td>' +
+                            '<td colspan="13" style="padding:0px;font-family:Open Sans;font-size:19px;">Birthdate: <u>&nbsp;' + birthdate + '&nbsp;</u></td>' +
+                            '<td></td>' +
+                            '</tr>' +
+                            '<tr align="left">' +
+                            '<td colspan="14"></td>' +
+                            '<td></td>' +
+                            '</tr>' +
+                            '<tr align="left">' +
+                            '<td></td>' +
+                            '<td colspan="13" style="padding:0px;font-family:Open Sans;font-size:19px;">Grade & Section: <u style="font-size:' + autoSizeFont(g_sec, 9, 19, 145) + 'px;">' + g_sec + '</u></td>' +
+                            '<td colspan="5" style="vertical-align: top; text-align: left;padding:0px;padding-left:15px;">Signature</td>' +
+                            '<td></td>' +
+                            '</tr>' +
+                            '<tr align="left">' +
+                            '<td colspan="14"></td>' +
+                            '<td></td>' +
+                            '<td></td>' +
+                            '<td></td>' +
+                            '<td></td>' +
+                            '<td></td>' +
+                            '<td></td>' +
+                            '</tr>' +
+                            '<tr align="left">' +
+                            '<td></td>' +
+                            '<td colspan="13" style="padding:0px;font-family:Open Sans;font-size:19px;">Program/Strand: <u style="font-size:' + autoSizeFont(program, 9, 19, 145) + 'px;">' + program + '</u></td>' +
+                            '<td colspan="5" style="border:1px solid #000; vertical-align: middle; text-align: center;padding:0px;background-color:#0062A7;color:#fff;">SCHOOL YEAR<br/>VALIDATION</td>' +
+                            // '<td colspan="5" style="border:1px solid #000; vertical-align: middle; text-align: center;padding:0px;">SCHOOL YEAR<br/>VALIDATION</td>' +
+                            '<td></td>' +
+                            '</tr>' +
+                            '<tr>' +
+                            '<td colspan="14"></td>' +
+                            '<td></td>' +
+                            '<td></td>' +
+                            '<td></td>' +
+                            '<td></td>' +
+                            '<td></td>' +
+                            '<td></td>' +
+                            '</tr>' +
+                            '<tr align="left">' +
+                            '<td></td>' +
+                            '<td colspan="13" style="padding:0px;font-family:Open Sans;font-size:19px;" height="20">Adviser: <u style="font-size:' + autoSizeFont(advisory, 9, 19, 200) + 'px;">' + advisory + '</u></td>' +
+                            '<td colspan="5" style="border: 1px solid #000;text-align:center;">|</td>' +
+                            '<td></td>' +
+                            '</tr>' +
+                            '<tr align="center">' +
+                            '<td colspan="14" style="font-size:15px"> </td>' +
+                            '<td colspan="5" style="border: 1px solid #000;text-align:center;" height="20">|</td>' +
+                            '<td></td>' +
+                            '</tr>' +
+                            '<tr align="center">' +
+                            '<td colspan="20"> </td>' +
+                            '<tr align="center">' +
+                            '<td colspan="6"></td>' +
+                            '<td colspan="8" class="image-cell" style="border-bottom:1px solid #000;position:relative;"> ' +
+                            '<img style="width:120;height:50px;position: absolute;left:25%;top:-5px;" src="<?= $system_esig ?>" alt="Image" />' +
+                            '</td>' +
+                            '<td colspan="6"></td>' +
+                            '</tr>' +
+                            '<tr align="center">' +
+                            '<td colspan="6"></td>' +
+                            '<td colspan="8" style="padding:0px;font-size:19px;">' +
+                            'DENNIS R. ROA, DPA' +
+                            '</td>' +
+                            '<td colspan="6"></td>' +
+                            '</tr>' +
+                            '<tr align="center">' +
+                            '<td colspan="6"></td>' +
+                            '<td colspan="8" style="padding-top:0px;font-size:12px;">PRINCIPAL IV</td>' +
+                            '<td colspan="6"></td>' +
+                            '</tr>' +
+                            '<tr style="font-size:15px;">' +
+                            '<td colspan="20"> </td>' +
+                            '</tr>' +
+                            '</table>' +
+                            '</td>' +
+
+                            '<td align="right" width="50%" class="p-2" style="border: 1px dashed #000;">' +
+                            '<table width="100%" cellspacing="0" style="font-size:10px;border:2.5px solid #3786A3;background-image: url(<?= $system_bg_id ?>);background-repeat: no-repeat;background-size: cover;">' +
+                            '<tr align="center" style="font-size:12px;color: rgba(0, 0, 0, 0);">' +
+                            '<td>aa</td><td>aa</td><td>aa</td><td>aa</td><td>aa</td><td>aa</td><td>aa</td><td>aa</td><td>aa</td><td>aa</td><td>aa</td><td>aa</td><td>aa</td><td>aa</td><td>aa</td><td>aa</td><td>aa</td><td>aa</td><td>aa</td><td>aa</td>' +
+                            '</tr>' +
+                            '<tr align="center">' +
+                            '<td colspan="4" rowspan="6" style="vertical-align: middle; text-align: left;padding-left: 8px;"><img src="<?= $system_deped_1x1 ?>" width="65" height="65"/></td>' +
+                            '<td colspan="12" style="padding:0px;font-weight:bold;font-family:Old English Text MT;font-size:15px;">Republic of the Philippines</td>' +
+                            '<td colspan="4" rowspan="6" style="vertical-align: middle; text-align: right;padding-right: 8px;"><img src="<?= $system_depeddiv_1x1 ?>" width="65" height="65"/></td>' +
+                            '</tr>' +
+                            '<tr align="center">' +
+                            '<td colspan="12" style="padding:0px;font-weight:bold;font-family:Open Sans;font-size:14px;">DEPARTMENT OF EDUCATION</td>' +
+                            '</tr>' +
+                            '<tr align="center">' +
+                            '<td colspan="12" style="padding:0px;font-weight:bold;font-family:Calibri;font-size:14px;">Division of Butuan City</td>' +
+                            '</tr>' +
+                            '<tr align="center">' +
+                            '<td colspan="12" style="padding:0px;font-weight:bold;font-family:Book Antiqua;font-size:15px;">AGUSAN NATIONAL HIGH SCHOOL</td>' +
+                            '</tr>' +
+                            '<tr align="center">' +
+                            '<td colspan="12" style="padding:0px;font-family:Open Sans;font-size:13px;">A.D. Curato St., Butuan City, 8600 Philippines</td>' +
+                            '</tr>' +
+                            '<tr align="center">' +
+                            '<td colspan="12" style="padding:0px;font-family:Calibri;font-size:14px;">School ID: <b>304756</b></td>' +
+                            '</tr>' +
+                            '<tr align="center">' +
+                            '<td colspan="20" style="padding:2px;"> </td>' +
+                            '</tr>' +
+
+
+
+                            '<tr align="center">' +
+                            '<td colspan="6"></td>' +
+                            // '<td colspan="8" rowspan="11" style="height:12rem; text-align: center;padding-left:7.5%;"><div id="qqqq'+i+'" style="text-align:center;width:100%;height:100%;"></div></td>' +
+                            '<td colspan="8" rowspan="11" style="height:12rem; text-align: center;padding-left:7.5%;"><img id="bbbb0' + i + '" alt="Barcode Image" width="100%" height="100%"></td>' +
+
+                            '<td colspan="6"></td>' +
+                            '</tr>' +
+                            '<tr">' +
+                            '<td colspan="6"></td>' +
+                            '<td colspan="6"></td>' +
+                            '</tr>' +
+                            '<tr">' +
+                            '<td colspan="6"></td>' +
+                            '<td colspan="6"></td>' +
+                            '</tr>' +
+                            '<tr">' +
+                            '<td colspan="6"></td>' +
+                            '<td colspan="6"></td>' +
+                            '</tr>' +
+                            '<tr">' +
+                            '<td colspan="6"></td>' +
+                            '<td colspan="6"></td>' +
+                            '</tr>' +
+                            '<tr">' +
+                            '<td colspan="6"></td>' +
+                            '<td colspan="6"></td>' +
+                            '</tr>' +
+                            '<tr">' +
+                            '<td colspan="6"></td>' +
+                            '<td colspan="6"></td>' +
+                            '</tr>' +
+                            '<tr">' +
+                            '<td colspan="6"></td>' +
+                            '<td colspan="6"></td>' +
+                            '</tr>' +
+                            '<tr">' +
+                            '<td colspan="6"></td>' +
+                            '<td colspan="6"></td>' +
+                            '</tr>' +
+                            '<tr">' +
+                            '<td colspan="6"></td>' +
+                            '<td colspan="6"></td>' +
+                            '</tr>' +
+                            '<tr">' +
+                            '<td colspan="6"></td>' +
+                            '<td colspan="6"></td>' +
+                            '</tr>' +
+                            '<tr">' +
+                            '<td colspan="20"> </td>' +
+                            '</tr>' +
+                            '<tr align="left">' +
+                            '<td></td>' +
+                            '<td></td>' +
+                            '<td colspan="18" style="font-weight:bold;font-family:Open Sans;font-size:12px;">IN CASE OF EMERGENCY, PLEASE NOTIFY:</td>' +
+                            '</tr>' +
+                            '<tr align="center">' +
+                            '<td></td>' +
+                            '<td colspan="18" style="border:1px solid black;">' +
+                            '<p class="my-n1" style="padding:0px;font-weight:bold;font-family:Open Sans;font-size:' + autoSizeFont(incase_emergency, 12, 25, 330) + 'px;">' + incase_emergency + ' </p>' +
+                            '<p class="my-n1" style="padding:0px;font-weight:bold;font-family:Open Sans;font-size:' + autoSizeFont(relation, 10, 20, 310) + 'px;">' + relation + ' </p>' +
+                            '<p class="my-n1" style="padding:0px;font-weight:bold;font-family:Open Sans;font-size:' + autoSizeFont(contact_number, 10, 20, 310) + 'px;">' + contact_number + ' </p>' +
+                            '<p class="my-n1" style="padding:0px;font-weight:bold;font-family:Open Sans;font-size:' + autoSizeFont(add_details, 9, 19, 330) + 'px;">' + add_details + ' </p>' +
+                            '</td>' +
+                            '<td></td>' +
+                            '</tr>' +
+                            '<tr align="center">' +
+                            '<td colspan="20"> </td>' +
+                            '</tr>' +
+                            '<tr align="center">' +
+                            '<td></td>' +
+                            '<td colspan="18" style="padding:0px;font-weight:bold;font-family:Open Sans;font-size:12px;">' +
+                            '<p>THIS CERTIFIES THAT THE PERSON WHOSE PHOTO APPEARS ON<br/>' +
+                            'THIS IDENTIFICATION CARD IS A BONAFIDE STUDENT OF<br/>' +
+                            'AGUSAN NATIONAL HIGH SCHOOL. THE CARD IS  VALID</br>' +
+                            'FOR THE SCHOOL YEAR REFLECTED IN THE CARD.</p>' +
+                            '</td>' +
+                            '<td></td>' +
+                            '</tr>' +
+                            '<tr align="left">' +
+                            '<td colspan="20" style="font-weight:bold;font-family:Open Sans;font-size:6px;"> </td>' +
+                            '</tr>' +
+                            '<tr align="center">' +
+                            '<td colspan="6"></td>' +
+                            '<td colspan="8" class="image-cell" style="border-bottom:1px solid #000;position:relative;"> ' +
+                            '<img style="width:120;height:50px;position: absolute;left:28%;top:-5px;" src="<?= $system_esig ?>" alt="Image" />' +
+                            '</td>' +
+                            '<td colspan="6"></td>' +
+                            '</tr>' +
+                            '<tr align="center">' +
+                            '<td colspan="6"></td>' +
+                            '<td colspan="8" style="padding:0px;font-size:19px;">DENNIS R. ROA, DPA</td>' +
+                            '<td colspan="6"></td>' +
+                            '</tr>' +
+                            '<tr align="center">' +
+                            '<td colspan="6"></td>' +
+                            '<td colspan="8" style="padding-top:0px;font-size:12px;">PRINCIPAL IV</td>' +
+                            '<td colspan="6"></td>' +
+                            '</tr>' +
+                            '<tr style="font-size:15px;">' +
+                            '<td colspan="20"> </td>' +
+                            '</tr>' +
+                            '</table>' +
+                            '</td>');
+                        g = "";
                         // }
-                        QR_BAR_Generator(i,od['learner_uuid'],lrn)
+                        QR_BAR_Generator(i, od['learner_uuid'], lrn)
                     }
                     g = "";
 
@@ -1461,21 +1495,27 @@ $q_ = $getOnLoad["qrtrR"]; //$getOnLoad["sy_qrtr_e_g"];
                 $("#modalPreviewID").modal("show");
                 // $("#modalPreviewID .viewPreviewID").html(d);
                 $(".submitBtnPreviewID").attr("disabled", false);
-                $(".submitBtnPreviewID").html("<span class='fa fa-search'></span>");                
+                $(".submitBtnPreviewID").html("<span class='fa fa-user'></span> Preview ID");
             }).done(function() {
             $('[data-toggle="tooltip"]').tooltip()
         });
 
     });
 
-    function QR_BAR_Generator(a,b,c) {
+    function QR_BAR_Generator(a, b, c) {
         // var qrcode = new QRCode(document.getElementById("qqqq"+a), {
         //     text: b,
         //     height: 185,
         //     width: 187,
         // });
-        JsBarcode("#bbbb1"+a, '7'+c, { pixelRatio: 100 ,displayValue: false});
-        JsBarcode("#bbbb0"+a, '6'+c, { pixelRatio: 100 ,displayValue: false});
+        JsBarcode("#bbbb1" + a, '7' + c, {
+            pixelRatio: 100,
+            displayValue: false
+        });
+        JsBarcode("#bbbb0" + a, '6' + c, {
+            pixelRatio: 100,
+            displayValue: false
+        });
         // JsBarcode("#bbbb"+a, c,{displayValue: false});
         // $("#bbbb"+a).attr('src', z);
     }
@@ -1906,11 +1946,11 @@ $q_ = $getOnLoad["qrtrR"]; //$getOnLoad["sy_qrtr_e_g"];
         // dvExcel.append(table);
     };
 
-    function ifnull(a){
-        let b=a;
-        if((a=="null")||(a==null)||(a=="")){
+    function ifnull(a) {
+        let b = a;
+        if ((a == "null") || (a == null) || (a == "") || (a == '')) {
             // alert(a)
-            b='-';
+            b = '-';
         }
         return b;
     }

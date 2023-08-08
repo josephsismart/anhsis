@@ -196,7 +196,10 @@ scratch. This page gets rid of all links and provides the needed markup only.
                                             <h5>DENNIS R. ROA, DPA</h5>
                                             <span class="float-center text-muted">PRINCIPAL IV</span>
                                             <p class="card-text text-justify font-italic font-weight-lighter mt-3">
-                                                &emsp;&emsp;"Sed ut perspiciati Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem. Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam, nisi ut aliquid ex ea commodi consequatur? Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla pariatur?"
+                                                &emsp;&emsp;"Innovation is a key driver of progress and
+                                                            growth of our learners. We should foster a culture of innovation in our school to help our learners develop their creativity, critical thinking, and problem-solving skills that they need to come up with new and innovative ideas. To my dear teachers in Agusan National High School, encourage curiosity among our learners and provide them opportunities for exploration.
+                                                            Promote collaboration and
+                                                            teamwork in your classrooms and teach them to embrace failure as an opportunity for learning and growth."
                                             </p>
                                         </div>
                                     </div>

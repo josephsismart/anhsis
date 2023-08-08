@@ -447,9 +447,13 @@ class MY_Controller extends CI_Controller
             "v_grades" => $v_grades,
             "vgd" => $vgd,
             "input_grades_qrtr" => $input_grades_qrtr,
-            "sy_qrtr_e_g" => "<b>SY:</b> " . $sy . " | <b>Q:</b> " . $qrtrR .
-                ($enroll_stat == 't' ? " | <small class='text-success text-bold' style='white-space: nowrap;'><b>ENR: </b>" . $edl . "</small>" : "") .
-                ($grade_stat == 't' ? " | <small class='text-success text-bold' style='white-space: nowrap;'><b>GRD: </b>" . $gdl . "</small>" : ""),
+            // "sy_qrtr_e_g" => "<b>SY:</b> " . $sy . " | <b>Q:</b> " . $qrtrR,
+            "sy_qrtr_e_g" => "<b>SY:</b> " . $sy . " | <b>Q:</b> |" . $qrtrR .
+                "<div class='d-none d-sm-block d-lg-block'>".    
+                    ($enroll_stat == 't' ? " <small class='text-success text-bold' style='white-space: nowrap;'><b>ENR: </b>" . $edl . "</small>" : "") .
+                    ($grade_stat == 't' ? " | <small class='text-success text-bold' style='white-space: nowrap;'><b>GRD: </b>" . $gdl . "</small>" : "").
+                "</div>"
+            ,
         ];
         return $data;
     }
@@ -589,6 +593,13 @@ class MY_Controller extends CI_Controller
         }
     }
 
+    public function calculatePagination($requestData)
+    {
+        $limit = isset($requestData['length']) ? intval($requestData['length']) : 10;
+        $offset = isset($requestData['start']) ? intval($requestData['start']) : 0;
+        return array($limit, $offset);
+    }
+
     public function scanlog($x, $type, $scanned_id, $io, $g_name, $g_id)
     {
         $exist = false;
@@ -691,11 +702,11 @@ class MY_Controller extends CI_Controller
     public function enrollmentChecker($a, $b)
     {
         $sy = $this->getOnLoad()["sy_id"];
-        echo($a);
-        echo('<br/>');
-        if(!$b){
+        echo ($a);
+        echo ('<br/>');
+        if (!$b) {
             $query = $this->db->query("SELECT t1.id FROM sy$sy.bs_tbl_learner_enrollment t1 WHERE t1.learner_id=$a");
-        }else{
+        } else {
             $query = $this->db->query("SELECT t2.basic_info_id AS id FROM sy$sy.bs_tbl_learner_enrollment t1 
                                         LEFT JOIN profile.tbl_learners t2 ON t1.learner_id = t2.id 
                                         WHERE t1.learner_id=$a");
@@ -726,48 +737,86 @@ class MY_Controller extends CI_Controller
         }
     }
 
-    public function uploadImg($pic)
+    public function uploadImg($pic, $id)
     {
+        $s = $this->getOnLoad()["sy"];
+        $newImageName = null;
         // if (isset($_FILES['pic'])) {
-        if (isset($pic)) {
+        // Add a flag to check if the upload process has already been executed
+        $isUploaded = false;
+        if (isset($pic) && !$isUploaded) {
             //$thisPic=$this->do_blob($_FILES['pic']);
             // dist/img/icons
-            // dist/img/media/learner/2023/5
-            $config['upload_path'] = "dist/img/media/learner/2023/5/";
+            // dist/img/media/learner/2022-2023
+            // Create the directory if it doesn't exist
+            $config['upload_path'] = "dist/img/media/learner/" . $s . "/";
+
+            if (!is_dir($config['upload_path'])) {
+                mkdir($config['upload_path'], 0777, true);
+            }
+
             $config['allowed_types'] = 'gif|jpg|jpeg|png';
             $this->load->library('upload', $config);
 
             if (!$this->upload->do_upload('pic')) {
                 $myPic = null;
             } else {
+                $isUploaded = true;
                 $upData = $this->upload->data();
                 $myPic = $this->upload->data();
                 $config['image_library'] = 'gd2';
                 $config['encrypt_name'] = true;
-                $config['source_image'] = "dist/img/media/learner/2023/5/" . $myPic['file_name'];
-                $config['create_thumb'] = false;
-                $config['maintain_ratio'] = true;
-                $config['quality'] = '60%';
-                $config['width'] = 166;
-                $config['height'] = 166;
-                $config['new_image'] = "dist/img/media/learner/2023/5/" . $myPic['file_name'];
+
+
+
+                $config['source_image'] = $config['upload_path'] . $myPic['file_name'];
+                // $config['create_thumb'] = false;
+                // $config['maintain_ratio'] = true;
+                // $config['quality'] = '60%';
+                // $config['width'] = 166;
+                // $config['height'] = 166;
+
+                // $config['new_image'] = "dist/img/media/learner/2022-2023/" . $myPic['file_name'];
+
+                // $this->load->library('image_lib', $config);
+                // $this->image_lib->resize();
+
+                // Determine the file extension
+                $extension = pathinfo($myPic['file_name'], PATHINFO_EXTENSION);
+
+                // Modify the image name here
+                $newImageName = $id . "." . $extension;
+                $config['new_image'] = "dist/img/media/learner/" . $s . "/" . $newImageName;
 
                 $this->load->library('image_lib', $config);
                 $this->image_lib->resize();
             }
-            return $config['upload_path'] . $myPic['file_name'];
+            return $config['upload_path'] . $newImageName;
         }
     }
 
     public function getImg($a)
     {
-        $defaultImage = base_url('dist/img/media/icons/1x1.png');
-
-        if ($a && file_exists($a)) {
-            return base_url() . $a;
+        // Check if the provided path is a URL
+        if (filter_var($a, FILTER_VALIDATE_URL)) {
+            $pathExists = get_headers($a);
+            if ($pathExists && strpos($pathExists[0], '200')) {
+                return $a;
+            }
         } else {
-            return $defaultImage;
+            // Check if the provided path is a local file
+            $localPath = realpath($a);
+            if ($localPath && is_file($localPath)) {
+                // Check if the file is an image
+                $imageInfo = getimagesize($localPath);
+                if ($imageInfo !== false) {
+                    return base_url() . $a;
+                }
+            }
         }
+
+        // Return the default image URL
+        return base_url('dist/img/media/icons/1x1.png');
     }
 
     public function avg4($a, $b, $c, $d)
@@ -839,9 +888,10 @@ class MY_Controller extends CI_Controller
         return strtoUpper("<u style='font-size: " . $fontSize . "px'>" . $text . "</u>");
     }
 
-    function font_id($text, $minFontSize, $maxFontSize) {
+    function font_id($text, $minFontSize, $maxFontSize)
+    {
         $len = strlen($text);
-    
+
         if ($len <= 19) {
             $fontSize = $maxFontSize;
         } elseif ($len <= 25) {
@@ -855,7 +905,7 @@ class MY_Controller extends CI_Controller
         } else {
             $fontSize = $maxFontSize - ($len % $maxFontSize);
         }
-    
+
         return "<u style='font-size: " . $fontSize . "px'>" . $text . "</u>";
     }
 

@@ -7,7 +7,7 @@ if (!$this->session->schoolmis_login_level) {
 $uri = 'userteacher'; //$this->session->schoolmis_login_uri;
 ?>
 <!-- <div class="modal fade show" id="modalEnrollment" aria-modal="true" style="padding-right: 16px; display: block;"> -->
-<div class="modal fade" id="modalEnrollment" data-backdrop="static">
+<div class="modal fade" id="modalEnrollment" data-backdrop="static" tabindex="-1">
     <div class="modal-dialog modal-xl">
         <div class="modal-content">
             <div class="modal-header bg-gradient-primary p-2 px-3">
@@ -78,34 +78,46 @@ $uri = 'userteacher'; //$this->session->schoolmis_login_uri;
 
                             <!-- </div> -->
                             <div class="tab-pane fade active show" id="custom-tabs-four-new" role="tabpanel" aria-labelledby="custom-tabs-four-new-tab">
-                                <div class="row">
+                                <div class="row mb-n3">
                                     <?= form_open(base_url($uri . '/Dataentry/saveEnrollmentInfo'), 'id=form_save_dataEnrollmentInfo'); ?>
                                     <?php $this->load->view('interface/' . $uri . '/forms/LearnerDetails') ?>
                                     </form>
                                 </div>
                             </div>
                             <div class="tab-pane fade" id="custom-tabs-four-import" role="tabpanel" aria-labelledby="custom-tabs-four-import-tab">
+                                <div class="overlay-wrapper">
+                                    <form method="post" id="import_form" enctype="multipart/form-data">
+                                        <div class="overlay text-navy" style="display:none;"><i class="fas fa-3x fa-sync-alt fa-spin-puls fa-spin text-navy"></i>
+                                            <div class="text-bold pt-2">Loading...</div>
+                                        </div>
+                                        <p><button type="submit" name="import" class="btn btn-xs btn-info submitBtnUpload"><i class="fa fa-upload"></i> Import SF1 Excel</button>
+                                            <!-- <input type="file" name="file" id="file" required accept=".xlsm" /> -->
+                                            <input type="file" name="file" id="file" required accept=".xls" />
+                                        <div class="form-check">
+                                            <input type="text" class="form-check-input" name="batch_update" id="batch_update" hidden />
+                                            <input type="checkbox" onchange="$('#batch_update').val($('#batch_update').val()==''?'a':'');" class="form-check-input" name="batch_update_box" id="batch_update_box" />
+                                            <label class="form-check-label" for="batch_update_box">Update only
+                                                <span class="badge" data-toggle="tooltip" data-html="true" title="<em>Purpose:</em> By selecting this checkbox, you will have the ability to <b>UPDATE</b> the <b>LEARNERS' INFORMATION</b> only.">
+                                                    <i class="fa fa-question-circle"></i>
+                                                </span>
+                                            </label>
 
-                                <form method="post" id="import_form" enctype="multipart/form-data">
-                                    <p><button type="submit" name="import" class="btn btn-xs btn-info submitBtnUpload"><i class="fa fa-upload"></i> Import SF1 Excel</button>
-                                        <!-- <input type="file" name="file" id="file" required accept=".xlsm" /> -->
-                                        <input type="file" name="file" id="file" required accept=".xls" />
-                                    <div class="form-check">
-                                        <input type="text" class="form-check-input" name="batch_update" id="batch_update" hidden/>
-                                        <input type="checkbox" onchange="$('#batch_update').val($('#batch_update').val()==''?'a':'');" class="form-check-input" name="batch_update_box" id="batch_update_box"/>
-                                        <label class="form-check-label" for="batch_update_box">Update only 
-                                            <span class="badge" data-toggle="tooltip" data-html="true" title="<em>Purpose:</em> By selecting this checkbox, you will have the ability to <b>UPDATE</b> the <b>LEARNERS' INFORMATION</b> only.">
-                                                <i class="fa fa-question-circle"></i>
-                                            </span>
-                                        </label>
-
-                                    </div>
-                                    </p>
-                                </form>
+                                        </div>
+                                        </p>
+                                    </form>
+                                </div>
+                                <!--
+                                <div id="progressBar">
+                                    <div id="progress" style="width: 0%;">0%</div>
+                                </div> -->
                                 <!-- Morbi turpis dolor, vulputate vitae felis non, tincidunt congue mauris. Phasellus volutpat augue id mi placerat mollis. Vivamus faucibus eu massa eget condimentum. Fusce nec hendrerit sem, ac tristique nulla. Integer vestibulum orci odio. Cras nec augue ipsum. Suspendisse ut velit condimentum, mattis urna a, malesuada nunc. Curabitur eleifend facilisis velit finibus tristique. Nam vulputate, eros non luctus efficitur, ipsum odio volutpat massa, sit amet sollicitudin est libero sed ipsum. Nulla lacinia, ex vitae gravida fermentum, lectus ipsum gravida arcu, id fermentum metus arcu vel metus. Curabitur eget sem eu risus tincidunt eleifend ac ornare magna. -->
                             </div>
                         </div>
                     </div>
+                    <!-- <div class="card-footer">
+                        <button type="submit" class="btn btn-info submitBtnPrimary">Save Data</button>
+                        <button type="button" class="btn btn-default" onclick="clear_form('form_save_dataVariantCategory')"><i class="fa fa-times"></i> Cancel</button>
+                    </div> -->
                 </div>
                 <!-- /.card -->
             </div>

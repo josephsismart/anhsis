@@ -28,11 +28,9 @@ $uri = $this->session->schoolmis_login_uri;
         <?php $this->load->view('interface/' . $uri . '/layout/Header') ?>
         <div class="content-wrapper">
             <div class="content">
-                <div class="container p-0">
                     <?php foreach ($content as $data) : ?>
                         <?= $data ?>
                     <?php endforeach ?>
-                </div>
             </div>
         </div>
         <?php $this->load->view('interface/global/Footer') ?>

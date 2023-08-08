@@ -1972,17 +1972,18 @@ class Reports extends MY_Controller
         //                                     GROUP BY t2.enrollment_id,t2.sctn_nm,t2.sy,t2.lrn,t2.last_fullname
         // --                                    ORDER BY t1.order_by_sbjct
 
-        $query1 = $this->db->query("SELECT t2.grade,t2.enrollment_id,t2.sctn_nm,t2.sy,t2.lrn,t2.last_fullname,t2.full_name,t2.img_path,t2.birthdate,REPLACE(t2.address_details,' (Capital)','') AS address_details,t5.full_name AS adviser,t2.other_details
+        $query1 = $this->db->query("SELECT t2.grade,t2.enrollment_id,t2.sctn_nm,t5.program,t2.sy,t2.lrn,t2.last_fullname,t2.full_name,t2.img_path,to_char(t2.birthdate, 'Mon DD, YYYY') as birthdate,REPLACE(t2.address_details,' (Capital)','') AS address_details,t5.full_name AS adviser,t2.other_details
                                     FROM building_sectioning.view_subject_grdlvl_personnel_assgnmnt t1
                                             LEFT JOIN sy$sy.bs_view_enrollment t2 ON t1.room_section_id=t2.room_section_id AND t1.schl_yr_id=t2.schl_yr_id
                                             LEFT JOIN building_sectioning.view_room_section t5 ON t1.room_section_id=t5.id
                                             WHERE t1.room_section_id=$rmsid -- AND t4.q1 IS NOT NULL  -- AND t2.lrn ='214526130052' AND t1.schl_yr_id=1
-                                            GROUP BY t2.grade,t2.enrollment_id,t2.sctn_nm,t2.sy,t2.lrn,t2.last_fullname,t2.full_name,t2.img_path,t2.birthdate,t2.address_details,t5.full_name,t2.sex_bool,t2.other_details
-                                            ORDER BY t2.sex_bool DESC");
+                                            GROUP BY t2.grade,t2.enrollment_id,t2.sctn_nm,t5.program,t2.sy,t2.lrn,t2.last_fullname,t2.full_name,t2.img_path,t2.birthdate,t2.address_details,t5.full_name,t2.sex_bool,t2.other_details
+                                            ORDER BY t2.sex_bool DESC, t2.last_fullname ASC");
         foreach ($query1->result() as $key => $value) {
             $arr[] = [
                 "enrollment_id" => $value->enrollment_id,
                 "sctn_nm" => $value->sctn_nm,
+                "program" => $value->program,
                 "grade" => $value->grade,
                 "sy" => $value->sy,
                 "lrn" => $value->lrn,

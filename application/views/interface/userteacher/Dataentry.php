@@ -39,7 +39,7 @@ $uri = 'userteacher'; //$this->session->schoolmis_login_uri;
 						</div>
 					</div>
 					<!-- /.card-header -->
-					<div class="card-body p-0 table-responsive">
+					<div class="card-body p-0 pt-2 table-responsive">
 						<table class="table table-sm table-hover table-striped" id="tblAssignedSectionList" width="100%">
 							<thead>
 								<tr>
@@ -163,7 +163,7 @@ $uri = 'userteacher'; //$this->session->schoolmis_login_uri;
 																<tr>
 																	<td colspan="6">
 																		<form id="form_report_dataGRADE_SLIP">
-																			<div class="input-group input-group-sm" style="width: 100%;">
+																			<div class="input-group input-group-sm">
 																				<div class="input-group-prepend">
 																					<small class="input-group-text text-xs text-bold">QRTR</small>
 																				</div>
@@ -175,8 +175,10 @@ $uri = 'userteacher'; //$this->session->schoolmis_login_uri;
 																				</select>
 																				<div class="input-group-append text-sm">
 																					<button type="button" class="btn btn-warning btn-xs submitBtnGRADE_SLIP text-white"><i class="fa fa-search"></i></button>
-																					<button type="button" class="btn btn-info btn-xs submitBtnPreviewID text-white"><i class="fa fa-user"></i></button>
 																				</div>
+																			</div>
+																			<div class="input-group input-group-sm mt-2 w-100">
+																				<button type="button" class="btn btn-info btn-xs submitBtnPreviewID text-white"><i class="fa fa-user"></i> Preview ID</button>
 																			</div>
 																		</form>
 																	</td>
@@ -404,7 +406,7 @@ $uri = 'userteacher'; //$this->session->schoolmis_login_uri;
 		let f1 = "EnrollmentInfo";
 		let f2 = "GradeSecInfo";
 		let f3 = "UpdateLearnerInfo";
-		getTable("AssignedSectionList", 1, -1);
+		getTable("AssignedSectionList", 0, 10);
 		getTable("LearnersList", 0, -1);
 		getTable("Honors", 1, -1);
 		// getTable("SearchEnrollLearnersList", 0, 10, "", 1);
@@ -423,6 +425,13 @@ $uri = 'userteacher'; //$this->session->schoolmis_login_uri;
 		getFetchList(f1, "LearnerStatus", "StatusList", 0, {
 			v: 4
 		}, 1);
+		// getFetchList(f1, "LearnerMT", "PartyList", 1, {
+		// 	v: 6
+		// }, 1, 0, "MOTHER TONGUE");
+		// getFetchList(f1, "LearnerEG", "PartyList", 1, {
+		// 	v: 21
+		// }, 1, 0, "ETHNIC GROUP");
+
 		saveForm(f1, ["LearnersList"], null, 1, -1);
 		saveForm("GradesList", [null], null, 1, -1);
 		saveForm("GradesPSList", [null], null, 1, -1);

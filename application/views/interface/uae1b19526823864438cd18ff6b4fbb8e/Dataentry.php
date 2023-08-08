@@ -40,14 +40,14 @@ $uri = $this->session->schoolmis_login_uri;
 							Info alert preview. This alert is dismissable.
 						</div> -->
 			<div class="row">
-				<div class="col-1 col-lg-2 col-xl-3"></div>
-				<div class="col-10 col-lg-8 col-xl-6">
+				<div class="col-1 col-lg-2 col-xl-3 col-sm-1 col-xs-12"></div>
+				<div class="col-10 col-lg-8 col-xl-6 col-sm-10 col-xs-12">
 					<div class="callout callout-info get_selection">
 						<h5>Gate Assignment:</h5>
 						<div class="input-group input-group-lg mb-2" style="width: 100%;">
-							<div class="input-group-prepend">
+							<!-- <div class="input-group-prepend">
 								<small class="input-group-text text-lg text-bold">GATE</small>
-							</div>
+							</div> -->
 							<select class="form-control form-control-lg selectGateList" placeholder="GATE" name="gate_select" id="gate_select">
 							</select>
 
@@ -59,12 +59,12 @@ $uri = $this->session->schoolmis_login_uri;
 
 					</div>
 				</div>
-				<div class="col-1 col-lg-2 col-xl-3"></div>
+				<div class="col-1 col-lg-2 col-xl-3 col-sm-1 col-xs-12"></div>
 			</div>
 
 			<div class="row">
 				<div class="col-1 col-xs-0 col-sm-0"></div>
-				<div class="col-10 col-xs-12 col-sm-12">
+				<div class="col-12 col-xs-12 col-sm-12">
 					<div class="card card-navy view_details" style="display:none;">
 						<!-- <div class="card card-navy view_details"> -->
 						<div class="card-header">
@@ -129,11 +129,22 @@ $uri = $this->session->schoolmis_login_uri;
 									<!-- <div class="position-relative text-center">
 												<img name="previewPic" src="<?= base_url("dist/img/media/icons/1x1.png") ?>" style="border:3px solid #63a4ca;cursor:pointer" alt="Photo 1" width="250" class="img-fluid">
 											</div> -->
-									<div class="image">
-										<img name="previewPic" src="<?= base_url("dist/img/media/icons/1x1.png") ?>" style="border:3px solid #63a4ca;cursor:pointer;border-radius:20px;" class="elevation-2" width="280" height="280" alt="User Image">
+									<div class="row">
+										<div class="col-4 col-lg-4 col-sm-4">
+											<div class="image">
+												<img name="previewPic" src="<?= base_url("dist/img/media/icons/1x1.png") ?>" style="border:5% solid #63a4ca;cursor:pointer; width:95%;" class="rounded elevation-4 img-fluid"  alt="User Image">
+											</div>
+										</div>
+										<div class="col-8 col-lg-8 col-sm-8 text-left">
+
+											<dt style="font-size: 7.1vw;" class="mt-lg-n4 mt-xl-n4 mt-n4 mb-n2 mb-lg-n5 text-lg-lg mb-md-n4 mb-sm-n4 mb-n3" id="lname">-</dt>
+											<dd style="font-size: 5.5vw;" class="mb-n2 mb-lg-n4 text-lg-lg mb-md-n2 mb-sm-n2 mb-xs-n4" id="fname_mname">-</dd>
+											<dt style="font-size: 5vw;" class="mt-2 mt-xl-4 mt-lg-4 mb-n2 mb-lg-n4 text-lg-lg mb-md-n2 mb-sm-n2 mb-xs-n4" id="assignment">-</dt>
+											<!-- <dd style="font-size: 6vw;" class="mb-n2 mb-lg-n4 text-lg-lg mb-md-n2 mb-sm-n2 mb-xs-n4" id="sec_program">-</dd> -->
+											<dd style="font-size: 5vw;" class="mt-2 text-no-wrap mb-n2 mb-lg-n4 text-lg-lg mb-md-n2 mb-sm-n2 mb-xs-n4" id="io_time"></dd>
+										</div>
 									</div>
-									<dt style="font-size: 5.1rem;" id="name">-</dt>
-									<dd style="font-size: 4rem;" id="type">-</dd>
+
 								</dl>
 							</div>
 						</div>

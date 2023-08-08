@@ -116,7 +116,9 @@
         display: none;
     }
 
-    .custom-radio,input[type=radio] {
+    .custom-radio,
+    input[type=radio] {
         transform: scale(1.3);
     }
+
 </style>

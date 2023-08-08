@@ -109,7 +109,7 @@ $uri = 'userteacher'; //$this->session->schoolmis_login_uri;
     <!-- /.modal-dialog -->
 </div>
 
-<div class="modal fade" id="modalPreviewID">
+<div class="modal fade" id="modalPreviewID" data-backdrop="static" tabindex="-1">
     <div class="modal-dialog modal-xl">
         <div class="modal-content">
             <div class="modal-header no-print">

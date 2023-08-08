@@ -19,7 +19,7 @@ class Learner extends MY_Controller
         $uri = 'userteacher';
         $page_data += [
             "page_title"        => "Learners",
-            "current_location"  => "learner_entry",
+            "current_location"  => "learner",
             "content"           =>  [$this->load->view('interface/' . $uri . '/Dataentry', [
                 "getOnLoad" => $this->getOnLoad(),
             ], TRUE)]

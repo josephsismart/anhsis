@@ -41,11 +41,11 @@ $uri = $this->session->schoolmis_login_uri;
             $(".view_details .header").text($("#gate_select option:selected").text())
             $(".view_details").toggle("slow", function() {});
             $(".get_selection").toggle("slow", function() {});
-            // if ($('#openreader-multi3').is(':hidden') == true) {
-            //     $('#openreader-multi3').trigger('click');
-            // }
+            if ($('#openreader-multi3').is(':hidden') == true) {
+                $('#openreader-multi3').trigger('click');
+            }
             // getQRPerson({
-            //     v: "712345676",
+            //     v: "7132118100017",
             //     g_id: $("#gate_select").val(),
             //     g_nm: $("#gate_select option:selected").text()
             // }, "GateSearch");
@@ -124,6 +124,7 @@ $uri = $this->session->schoolmis_login_uri;
     }
 
     function getQRPerson(where, form) {
+        var f = "#form_save_data" + form;
         if (!$("#gate_select").val() || $('.view_details').is(':hidden') == true) {
             failAlert('Please Select Gate')
         } else {
@@ -134,8 +135,13 @@ $uri = $this->session->schoolmis_login_uri;
                     var outt = new Audio("<?= base_url() ?>plugins/qrcode/audio/out.wav");
                     var toink = new Audio("<?= base_url() ?>plugins/qrcode/audio/toink.mp3");
                     if (result["data"].length > 0) {
-                        $("#form_save_data" + form + " #name").text(result["data"][0]['fullName']);
-                        $("#form_save_data" + form + " #type").html(result["data"][0]['description']);
+                        ioo  = result["data"][0]['io'];
+                        $(f + " #lname").text(result["data"][0]['lname']);
+                        $(f + " #fname_mname").html(result["data"][0]['fname_mname']);
+                        $(f + " #assignment").html(result["data"][0]['assignment']);
+                        $(f + " #io_time").html("<b class='rounded px-2 bg-"+(ioo=='IN'?'success':'danger')+"'>"+ioo+"</b>  "+result["data"][0]['time']);
+                        // $(f + " #time").html();
+                        
                         var reader = new FileReader();
                         // console.log(result["data"][0]['pic'])
                         let io = where['v'][0];
@@ -150,8 +156,8 @@ $uri = $this->session->schoolmis_login_uri;
                         failAlert("No Data found!");
                         toink.play();
                         $("[name=previewPic]").attr("src", "<?= base_url() ?>dist/img/media/icons/1x1.png");
-                        $("#form_save_data" + form + " #name").text("No Data found!");
-                        $("#form_save_data" + form + " #type").text("");
+                        $(f + " #name").text("No Data found!");
+                        $(f + " #type").text("");
                     }
                     $("#qr").val("");
                     $("#openreader-multi3").trigger("click");

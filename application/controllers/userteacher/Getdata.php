@@ -70,27 +70,69 @@ class Getdata extends MY_Controller
         $sy = $this->getOnLoad()["sy_id"];
         $enroll_stat = $this->getOnLoad()["enroll_stat"];
         $grade_stat = $this->getOnLoad()["grade_stat"];
+
+
+
+
+        $requestData = $_REQUEST;
+        $searchValue = isset($requestData['search']['value']) ? $requestData['search']['value'] : '';
+
+        // Calculate pagination parameters using the separate function
+        list($limit, $offset) = $this->calculatePagination($requestData);
+
+        
+        // $queryz = $this->db->query("SELECT * FROM global.tbl_party
+        //                             WHERE party_type_id=17 AND CONCAT(description,abbr,(CASE WHEN is_active = 't' THEN 'ACTIVE' ELSE 'INACTIVE' END)) ILIKE '%$searchValue%'
+        //                             ORDER BY order_by ASC
+        //                             LIMIT $limit OFFSET $offset");
+
+
         if ($uri == 'userteacher') {
-            $query = $this->db->query("SELECT t1.room_section_id,
-                                        t1.rm_sctn_sbjct_assgnmnt_id,
-                                        t1.grade,t1.schedule,t1.subject_abbr,
-                                        t1.sctn_nm,t1.full_name,t1.advisory 
-                                        FROM building_sectioning.view_subject_grdlvl_personnel_assgnmnt t1 
-                                        -- LEFT JOIN (SELECT * FROM building_sectioning.view_subject_grdlvl_personnel_assgnmnt
-                                        --                                         WHERE advisory=true
-                                        --                         ) t2 ON t1.room_section_id=t2.room_section_id
-                                        WHERE t1.schoolpersonnel_id=1 AND t1.schl_yr_id=$sy 
-                                        ORDER BY t1.advisory DESC,t1.sctn_nm,t1.order_by_sbjct");
+            // $query = $this->db->query("SELECT t1.room_section_id,
+            //                             t1.rm_sctn_sbjct_assgnmnt_id,
+            //                             t1.grade,t1.schedule,t1.subject_abbr,
+            //                             t1.sctn_nm,t1.full_name,t1.advisory 
+            //                             FROM building_sectioning.view_subject_grdlvl_personnel_assgnmnt t1 
+            //                             -- LEFT JOIN (SELECT * FROM building_sectioning.view_subject_grdlvl_personnel_assgnmnt
+            //                             --                                         WHERE advisory=true
+            //                             --                         ) t2 ON t1.room_section_id=t2.room_section_id
+            //                             WHERE t1.schoolpersonnel_id=1 AND t1.schl_yr_id=$sy 
+            //                             ORDER BY t1.advisory DESC,t1.sctn_nm,t1.order_by_sbjct");
+            
+            // Query to get total record count
+            $thisQuery = $this->db->query("SELECT count(1) AS total 
+                                            FROM building_sectioning.view_subject_grdlvl_personnel_assgnmnt t1 
+                                            WHERE t1.schoolpersonnel_id=$personnel_id AND t1.schl_yr_id=$sy AND CONCAT(t1.room_section_id, t1.rm_sctn_sbjct_assgnmnt_id, t1.grade,t1.schedule, t1.subject_abbr, t1.sctn_nm,t1.full_name,t1.advisory) ILIKE '%$searchValue%'");
+            $totalRecords = $thisQuery->row()->total;
+
+            $query = $this->db->query("SELECT t1.room_section_id, t1.rm_sctn_sbjct_assgnmnt_id, t1.grade,t1.schedule, t1.subject_abbr, t1.sctn_nm,t1.full_name,t1.advisory 
+                                            FROM building_sectioning.view_subject_grdlvl_personnel_assgnmnt t1 
+                                            WHERE t1.schoolpersonnel_id=$personnel_id AND t1.schl_yr_id=$sy AND CONCAT(t1.room_section_id, t1.rm_sctn_sbjct_assgnmnt_id, t1.grade,t1.schedule, t1.subject_abbr, t1.sctn_nm,t1.full_name,t1.advisory) ILIKE '%$searchValue%' 
+                                            ORDER BY t1.advisory DESC,t1.sctn_nm,t1.order_by_sbjct
+                                            LIMIT $limit OFFSET $offset");
+
         } elseif ($uri == 'userschooladmin') {
-            $query = $this->db->query("SELECT t1.room_section_id,
-                                        t1.rm_sctn_sbjct_assgnmnt_id,
-                                        t1.grade,t1.schedule,t1.subject_abbr,
-                                        t1.sctn_nm,t1.full_name,t1.advisory 
-                                        FROM building_sectioning.view_subject_grdlvl_personnel_assgnmnt t1
-                                        WHERE t1.schl_yr_id=1  AND t1.advisory = true
-                                        ORDER BY t1.advisory DESC,t1.sctn_nm,t1.order_by_sbjct");
+            // $query = $this->db->query("SELECT t1.room_section_id,
+            //                             t1.rm_sctn_sbjct_assgnmnt_id,
+            //                             t1.grade,t1.schedule,t1.subject_abbr,
+            //                             t1.sctn_nm,t1.full_name,t1.advisory 
+            //                             FROM building_sectioning.view_subject_grdlvl_personnel_assgnmnt t1
+            //                             WHERE t1.schl_yr_id=1  AND t1.advisory = true
+            //                             ORDER BY t1.advisory DESC,t1.sctn_nm,t1.order_by_sbjct");
+            $thisQuery = $this->db->query("SELECT count(1) AS total
+                                            FROM building_sectioning.view_subject_grdlvl_personnel_assgnmnt t1
+                                            WHERE t1.schl_yr_id=$sy  AND t1.advisory = true  AND CONCAT(t1.room_section_id, t1.rm_sctn_sbjct_assgnmnt_id, t1.grade,t1.schedule,t1.subject_abbr, t1.sctn_nm,t1.full_name,t1.advisory) ILIKE '%$searchValue%'");
+            $totalRecords = $thisQuery->row()->total;
+
+            $query = $this->db->query("SELECT t1.room_section_id, t1.rm_sctn_sbjct_assgnmnt_id, t1.grade,t1.schedule,t1.subject_abbr, t1.sctn_nm,t1.full_name,t1.advisory 
+                                            FROM building_sectioning.view_subject_grdlvl_personnel_assgnmnt t1
+                                            WHERE t1.schl_yr_id=$sy  AND t1.advisory = true  AND CONCAT(t1.room_section_id, t1.rm_sctn_sbjct_assgnmnt_id, t1.grade,t1.schedule,t1.subject_abbr, t1.sctn_nm,t1.full_name,t1.advisory) ILIKE '%$searchValue%'
+                                            ORDER BY t1.advisory DESC,t1.sctn_nm,t1.order_by_sbjct
+                                            LIMIT $limit OFFSET $offset");
         }
 
+        $data = array();
+        // $cc = $offset + 1;
         foreach ($query->result() as $key => $value) {
             $rmid = $value->room_section_id;
             $query1 = $this->db->query("SELECT t1.*,t2.male,t2.female,t2.total_enrollee FROM building_sectioning.view_room_section t1
@@ -113,10 +155,10 @@ class Getdata extends MY_Controller
             $t_enrollee = number_format($qrow->total_enrollee) ?? "-";
             $conso = ($advsry == 't') ? '<a class="dropdown-item text-xs" role="button" onclick="reportsConsoGrades()">CONSOLIDATED GRADES</a>' : '';
             $smea = ($advsry == 't') ? '<a class="dropdown-item text-xs" role="button" onclick="reportsConsoGrades()">CONSOLIDATED GRADES</a>' : '';
-            $enroll = ($advsry == 't' && $enroll_stat == 't') ? '<a class="dropdown-item bg-success text-xs" role="button" data-toggle="modal" onclick="clear_form1()" data-target="#modalEnrollment">ENROLLMENT</a>' : '';
-            $grade = ($grade_stat == 't') ? '<a class="dropdown-item bg-primary text-xs" role="button" data-toggle="modal" onclick="getGradesListFN();getGradesPSListFN();" data-target="#modalGradesList">GRADES & EXAM</a>' : '';
+            $enroll = ($advsry == 't' && $enroll_stat == 't') ? '<a class="dropdown-item bg-success text-xs" role="button" data-toggle="modal" onclick="clear_form1();closeCardBodyIfOpen();" data-target="#modalEnrollment">ENROLLMENT</a>' : '';
+            $grade = '';#($grade_stat == 't') ? '<a class="dropdown-item bg-primary text-xs" role="button" data-toggle="modal" onclick="getGradesListFN();getGradesPSListFN();" data-target="#modalGradesList">GRADES & EXAM</a>' : '';
             // $q_exam = '<a class="dropdown-item bg-pink text-xs" role="button" data-toggle="modal" onclick="getGradesPSListFN()" data-target="#modalGradesPSList">QUARTER EXAM/PS</a>';
-            $grade_all = ($advsry == 't') ? '<a class="dropdown-item bg-info text-xs" role="button" data-toggle="modal" onclick="customTabViewAllGrades()" data-target="#modalAllGrades">GRADES STATUS</a>' : '';
+            $grade_all = '';#($advsry == 't') ? '<a class="dropdown-item bg-info text-xs" role="button" data-toggle="modal" onclick="customTabViewAllGrades()" data-target="#modalAllGrades">GRADES STATUS</a>' : '';
 
             // $gradesDL = '<a class="dropdown-item bg-primary text-xs" role="button"' .
             //     " onclick=\"getGradesSMEAListFN(1)\">GRADES FORM</a>";
@@ -130,10 +172,10 @@ class Getdata extends MY_Controller
                 "male" => $male,
                 "female" => $female,
                 "total_enrollee" => $t_enrollee,
-                "reports" => '<div class="float-right ml-1">
-                            <button class="btn btn-xs bg-navy" data-toggle="dropdown"><b style="font-size:10px;"><i class="fa fa-file"></i> REPORTS</b> | <i class="fa fa-caret-down"></i></button>
-                            <div class="dropdown-menu p-0" role="menu">
-                            ' . $conso  . '</div></div>',
+                // "reports" => '<div class="float-right ml-1">
+                //             <button class="btn btn-xs bg-navy" data-toggle="dropdown"><b style="font-size:10px;"><i class="fa fa-file"></i> REPORTS</b> | <i class="fa fa-caret-down"></i></button>
+                //             <div class="dropdown-menu p-0" role="menu">
+                //             ' . $conso  . '</div></div>',
 
                 "forms" => '<div class="float-right ml-1">
                             <button class="btn btn-xs bg-navy" data-toggle="dropdown"><b style="font-size:10px;"><i class="fa fa-list-ul"></i> FORMS</b> | <i class="fa fa-caret-down"></i></button>
@@ -145,37 +187,43 @@ class Getdata extends MY_Controller
                 //             <div class="dropdown-menu p-0" role="menu">' .
                 //     $gradesDL  . $qeDL  . "</div></div>",
 
-                "others" => ($advsry == 't') ? '<button type="button" class="btn btn-xs text-sm float-right btn-outline-secondary rounded-circle border-0 ml-1" data-toggle="dropdown" aria-expanded="true">
-                                                    <span class="fa fa-ellipsis-h"></span>
-                                                </button>
-                                                <div class="dropdown-menu p-0" role="menu">
-                                                    <a class="dropdown-item text-xs" role="button" onclick="logsHideShow()">Logs & Account Settings</a>
-                                                    <a class="dropdown-item text-xs" role="button" onclick="allStudentLogs()">View All Student Logs</a>
-                                                </div>' : '',
+                // "others" => ($advsry == 't') ? '<button type="button" class="btn btn-xs text-sm float-right btn-outline-secondary rounded-circle border-0 ml-1" data-toggle="dropdown" aria-expanded="true">
+                //                                     <span class="fa fa-ellipsis-h"></span>
+                //                                 </button>
+                //                                 <div class="dropdown-menu p-0" role="menu">
+                //                                     <a class="dropdown-item text-xs" role="button" onclick="logsHideShow()">Logs & Account Settings</a>
+                //                                     <a class="dropdown-item text-xs" role="button" onclick="allStudentLogs()">View All Student Logs</a>
+                //                                 </div>' : '',
             ];
 
             $arr2 = json_encode($data2);
             $slct = ($advsry === 't' && $key === array_key_first($query->result()) ? 'slctdRadioAdvisory' : '');
-            $data["data"][] = [
+            $data[] = [
                 "<div class='row' style='white-space: nowrap;'>
                     <div class='col-12 " . ($advsry === 't' ? 'text-success' : '') . "'>
                         <input type='radio' id='slctRmRadio" . $rmid . $rssaid . "' class='" . $slct . "' name='slctRm' value='" . $rmid . "' 
                                 onclick='getLearnersListFN(\"LearnersList\"," . $rmid . "," . $rssaid . ",\"" . $advsry . "\",\"" . $s . "\");
                                         getDetails(\"PersonnelInfo\",$arr2,1,\".\");
                         '/>
-                        <label class='w-100'  style='cursor:pointer' for='slctRmRadio" . $rmid . $rssaid . "'>".
-                        ($uri == 'userteacher'?
-                            "<span class='badge text-sm pb-0'>$g - $s</span><small>$qrow->code - <i>$subject</i> | <i>$sched</i></small>
-                            <small class='float-right'><b class='text-primary'>" . $male . "</b> + <b class='text-pink'>" . $female . "</b> = <b>" . $t_enrollee . "</b></small><br/>":
+                        <label class='w-100'  style='cursor:pointer' for='slctRmRadio" . $rmid . $rssaid . "'>" .
+                    ($uri == 'userteacher' ?
+                        "<span class='badge text-sm pb-0'>$g - $s</span><small>$qrow->code - <i>$subject</i> | <i>$sched</i></small>
+                            <small class='float-right'><b class='text-primary'>" . $male . "</b> + <b class='text-pink'>" . $female . "</b> = <b>" . $t_enrollee . "</b></small><br/>" :
 
-                            "<span class='badge text-sm pb-0'>$g - $s</span><small>$qrow->code - </small>
-                            <small class='float-right'><b class='text-primary'>" . $male . "</b> + <b class='text-pink'>" . $female . "</b> = <b>" . $t_enrollee . "</b></small><br/>").
-                        "</label>
+                        "<span class='badge text-sm pb-0'>$g - $s</span><small>$qrow->code - </small>
+                            <small class='float-right'><b class='text-primary'>" . $male . "</b> + <b class='text-pink'>" . $female . "</b> = <b>" . $t_enrollee . "</b></small><br/>") .
+                    "</label>
                     </div>
                 </div>",
             ];
         }
-        echo json_encode($data);
+        $response = array(
+            'draw' => intval($requestData['draw']),
+            'recordsTotal' => intval($totalRecords),
+            'recordsFiltered' => intval($totalRecords), // For simplicity, assuming no filtering is applied
+            'data' => $data,
+        );
+        echo json_encode($response);
     }
 
     function getViewAllGrades()
@@ -425,8 +473,9 @@ class Getdata extends MY_Controller
             //LEARNER ID _&&_ LRN _&&_ BASIC INFO ID _&&_ ACCOUNT
             $val =  $value->learner_id . '_&&_' . $value->lrn  . '_&&_' . $value->basic_info_id . '_&&_' . ($value->learner_account ? 1 : 0);
             $brgy_city = '<p style="font-size:.8rem;white-space: nowrap;">' . $value->barangay_name  . '</p>';
-            $img_path = $value->img_path;
+            $img_path = $this->getImg($value->img_path);
 
+            $od = json_decode($value->other_details, true);
             $data1 = [
                 "details" => $value->enrollment_id . '|' . $value->learner_id . '|' . $value->basic_info_id,
                 "lrn" => $value->lrn,
@@ -441,6 +490,42 @@ class Getdata extends MY_Controller
                 "status" => $value->status_id,
                 "enrollDate" => $value->status_date,
                 "img_path" => $img_path,
+                // {
+                //     "father": "RAFAEL ABANERO",
+                //     "mother": "MIRIAM MAY HIDALGO",
+                //     "four_ps": null,
+                //     "remarks": "",
+                //     "guardian": "",
+                //     "relation": "",
+                //     "ethnic_group": null,
+                //     "learner_uuid": "f3f2f388-1efc-11ee-a03d-08979886cf75",
+                //     "religion_txt": "Christianity",
+                //     "mother_tongue": null,
+                //     "contact_number": "",
+                //     "incase_emergency": "MIRIAM MAY HIDALGO",
+                //     "mother_tongue_txt": "Cebuano / Sinugbuanong Binisay",
+                //     "ip_ethnic_group_txt": "",
+                //     "learning_modality_txt": "Modular (print)"
+                //   }
+                //other_info
+                "ffname" => $od["ffn"],
+                "fmname" => $od["fmn"],
+                "flname" => $od["fln"],
+                "mfname" => $od["mfn"],
+                "mmname" => $od["mmn"],
+                "mlname" => $od["mln"],
+                "guardianName" => $od["guardian"],
+                "relationship" => $od["g_relation"],
+                "contactNumber" => $od["contact_number"],
+                "ioe" => $od["incase_emergency"],
+                "mfg" => $od["ioe_name"],
+
+                "mother_tongue" => $od["mother_tongue_txt"],
+                "ip_ethnic_group" => $od["ip_ethnic_group_txt"],
+                "religion" => $od["religion_txt"],
+                "four_ps" => $od["four_ps"],
+                "learning_modality" => $od["learning_modality_txt"],
+                "remarks" => $od["remarks"],
             ];
             $data2 = [
                 "lrn" => $value->lrn,
@@ -481,7 +566,7 @@ class Getdata extends MY_Controller
                 
 
                 <div class="normal_view" style="white-space: nowrap;">
-                    ' . (($edit == 't'  && $advsry == 1) || ($uri=='userschooladmin') ? "<span class='fa fa-pencil-alt text-primary text-sm' style='cursor:pointer;' onclick='getDetails(\"UpdateLearnerInfo\",$arr1,1,\"#\");$(\"#modalEnrollment\").modal(\"show\");'></span> " : '') . $value->lrn . '
+                    ' . (($edit == 't'  && $advsry == 1) || ($uri == 'userschooladmin') ? "<span class='fa fa-pencil-alt text-primary text-sm' style='cursor:pointer;' onclick='getDetails(\"UpdateLearnerInfo\",$arr1,1,\"#\");$(\"#modalEnrollment\").modal(\"show\");closeCardBodyIfOpen();'></span> " : '') . $value->lrn . '
                 </div>',
                 '<p style="white-space: nowrap;">' . $value->last_fullname . '</p>',
                 $sex,

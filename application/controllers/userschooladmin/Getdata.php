@@ -132,26 +132,36 @@ class Getdata extends MY_Controller
 
     function getPersonnelInfo()
     {
-        parse_str($this->input->post("a"), $filter);
-        $limit = isset($filter['limit']) ? $filter['limit'] : 10;
-        $emp_type_id = isset($filter['emptype']) ? 'WHERE t1."employeeTypeId"=' . $filter['emptype'] . '' : 'WHERE t1."employeeTypeId"=4';
-        $data = ["data" => []];
-        // $thisQuery = $this->db->query("SELECT * FROM profile.view_schoolpersonnel ORDER BY schoolpersonnel_id DESC");
-        $thisQuery = $this->db->query("SELECT t1.* FROM profile.view_schoolpersonnel t1
-                                        $emp_type_id
-                                        ORDER BY t1.schoolpersonnel_id DESC LIMIT $limit");
-        $cc = 1;
-        foreach ($thisQuery->result() as $key => $value) {
+        $requestData = $_REQUEST;
+        $searchValue = isset($requestData['search']['value']) ? $requestData['search']['value'] : '';
+
+        // Calculate pagination parameters using the separate function
+        list($limit, $offset) = $this->calculatePagination($requestData);
+
+        // Query to get total record count
+        $thisQuery = $this->db->query("SELECT COUNT(*) AS total FROM profile.view_schoolpersonnel WHERE CONCAT(employee_type,full_name,personal_title,sex,user_description,username,dept_name,(CASE WHEN is_active_schl_personnel = 1 THEN 'ACTIVE' ELSE 'INACTIVE' END)) ILIKE '%$searchValue%'");
+        $totalRecords = $thisQuery->row()->total;
+
+        $query = $this->db->query("SELECT * FROM profile.view_schoolpersonnel WHERE CONCAT(employee_type,full_name,personal_title,sex,user_description,username,dept_name,(CASE WHEN is_active_schl_personnel = 1 THEN 'ACTIVE' ELSE 'INACTIVE' END)) ILIKE '%$searchValue%'
+                                    ORDER BY schoolpersonnel_id DESC
+                                    LIMIT $limit OFFSET $offset
+                                    ");
+
+        $data = array();
+        $cc = $offset + 1;
+        foreach ($query->result() as $key => $value) {
             $other_details = json_decode($value->other_details, true);
+            $img = $this->getImg($value->img_path);
             $id = $value->schoolpersonnel_id;
             $is_a_v = $value->is_active_schl_personnel;
-            $is_active = $is_a_v < 1 ? "<span class='badge bg-danger'>INACTIVE</span>" : "";
+            $is_active = $is_a_v < 1 ? "<span class='badge bg-danger'>INACTIVE</span>" : "<span class='badge bg-success'>ACTIVE</span>";
             if ($value->birthdate) {
                 $birthDate = date_create($value->birthdate);
                 $birthDate = strtoupper(date_format($birthDate, "M d, Y"));
             } else {
                 $birthDate = "-";
             }
+            $img_path = $this->getImg($value->img_path);
             $data1 = [
                 "personId" => $value->person_id,
                 "personnelId" => $id,
@@ -174,6 +184,8 @@ class Getdata extends MY_Controller
                 "personaltitle" => $value->personalTitleId,
                 "empstatus" => $value->status_id,
                 "employeeID" => $other_details["employee_id"],
+                
+                "img_path" => $img_path,
             ];
             $data2 = [
                 "userId" => $value->user_id,
@@ -185,65 +197,146 @@ class Getdata extends MY_Controller
             ];
             $arr1 = json_encode($data1);
             $arr2 = json_encode($data2);
-            $data["data"][] = [
+            $data[] = array(
                 $cc++,
-                "<span class='badge'>" . $value->employee_type . "</span><br/>
-                <span class='badge'>" . $value->status . "</span>",
-                "<div class='row'><div class='col-6'>
-                    <span class='badge text-md'>$value->full_name</span><span class='badge'>" . $value->personal_title . "</span>" . $is_active . "<br/>
-                    <span class='badge'>" . $value->address_details . "</span>,
-                    <span class='badge font-weight-light'>" . $value->sex . "</span>, 
-                    <span class='badge font-weight-light'>" . $birthDate . "</span>
+                // "<span class='badge'>" . $value->employee_type . "</span>",
+                "<div class='row'>".
+                
+                
+                "<div class='col-6'>
+                    <div class='d-flex'>
+                        <div class='image'>
+                            <img class='img-circle size-50 elevation-2 mr-2' src='$img' alt='user image'>
+                        </div>
+                        <div class='info'>
+                            <span class='badge text-md'>$value->full_name, <span class='badge font-weight-light'>$value->sex</span></span>
+                            <span class='badge pl-2'>$value->personal_title $is_active</span>".
+                            ($value->dept_name?"<span class='badge text-info'><b>" . $value->dept_name . "</b></span>":"").
+                        "</div>
+                    </div>
                 </div>
+
+                
                 <div class='col-6'>
-                    <button type='button' class='btn mt-3 btn-xs text-sm float-right btn-outline-secondary rounded-circle border-0' data-toggle='dropdown' aria-expanded='true'>
+                    <button type='button' class='btn btn-xs py-0 text-sm float-right btn-outline-secondary rounded-circle border-0' data-toggle='dropdown' aria-expanded='true'>
                         <span class='fa fa-ellipsis-h'></span>
                     </button>
                     <div class='dropdown-menu'>
-                        <button class='dropdown-item' onclick='getDetails(\"PersonnelInfo\",$arr1,1);delay($value->barangay_id,\"brgy\");delay($value->personalTitleId,\"personaltitle\")'>Edit Information</button>
+                        <a class='dropdown-item btn' onclick='getDetails(\"PersonnelInfo\",$arr1,1);delay(\"PersonnelInfo\",$value->barangay_id,\"brgy\");delay(\"PersonnelInfo\",$value->personalTitleId,\"personaltitle\");$(\"#form_save_dataPersonnelInfo [name=firstName]\").focus();$(\"#back-to-top\").trigger(\"click\");'>Edit Information</a>
                         " . ($value->level ? "" :
-                    "<button class='dropdown-item' onclick='clear_form(\"form_save_dataPersonnelAccount\");getDetails(\"PersonnelAccount\",$arr1,1);$(\"#modalPersonnelAccount\").modal(\"show\");'>Create User Account</button>") .
+                    "<a class='dropdown-item btn' onclick='clear_form(\"PersonnelAccount\");getDetails(\"PersonnelAccount\",$arr1,1);$(\"#modalPersonnelAccount\").modal(\"show\");'>Create User Account</a>") .
                     "</div>
                 </div></div>",
                 $value->level ?
                     "<div class='row'><div class='col-6'><span class='badge text-sm'>$value->username</span><br/>
-                    <span class='badge'>" . $value->user_description . "</span><br/>
-                    <span class='badge text-info'><b>" . $value->dept_name . "</b></span><br/>
-                </div>
+                    <span class='badge'>" . $value->user_description . "</span><br/>".
+                "</div>
                 <div class='col-6'>
-                    <button type='button' class='btn mt-3 btn-xs text-sm float-right btn-outline-secondary rounded-circle border-0' data-toggle='dropdown' aria-expanded='true'>
+                    <button type='button' class='btn btn-xs py-0 text-sm float-right btn-outline-secondary rounded-circle border-0' data-toggle='dropdown' aria-expanded='true'>
                         <span class='fa fa-ellipsis-h'></span>
                     </button>
                     <div class='dropdown-menu'>
-                        <button class='dropdown-item' onclick='clear_form(\"form_save_dataPersonnelAccount\");getDetails(\"PersonnelAccount\",$arr2,1);$(\"#modalPersonnelAccount\").modal(\"show\");'>Edit Account</button>
+                        <a class='dropdown-item btn' onclick='clear_form(\"PersonnelAccount\");getDetails(\"PersonnelAccount\",$arr2,1);$(\"#modalPersonnelAccount\").modal(\"show\");'>Edit Account</a>
                     </div>
                 </div></div>" : "-",
-            ];
-        }
-        echo json_encode($data);
+                
+                "<span class='badge'>" . $value->employee_type . "</span><br/>
+                <span class='badge'>" . $value->status . "</span>",
+            );
+        }// Prepare the response data in the required format
+        $response = array(
+            'draw' => intval($requestData['draw']),
+            'recordsTotal' => intval($totalRecords),
+            'recordsFiltered' => intval($totalRecords), // For simplicity, assuming no filtering is applied
+            'data' => $data,
+        );
+        echo json_encode($response);
     }
+
+    // function getProfileSample()
+    // {
+    //     $requestData = $_REQUEST;
+
+    //     $searchValue = isset($requestData['search']['value']) ? $requestData['search']['value'] : '';
+
+    //     // Paging
+    //     $limit = isset($requestData['length']) ? intval($requestData['length']) : 10;
+    //     $offset = isset($requestData['start']) ? intval($requestData['start']) : 0;
+    //     $page = $offset / $limit + 1; // Current page number
+
+    //     // Query to get total record count
+    //     $thisQuery = $this->db->query("SELECT COUNT(*) AS total FROM profile.view_basicinfo WHERE full_name ILIKE '%$searchValue%'");
+    //     $totalRecords = $thisQuery->row()->total;
+
+    //     // Query to get data with pagination
+    //     $query = $this->db->query("SELECT * FROM profile.view_basicinfo WHERE full_name ILIKE '%$searchValue%' LIMIT $limit OFFSET $offset");
+
+    //     $data = array();
+    //     $cc = $offset + 1;
+    //     foreach ($query->result() as $key => $value) {
+    //         // Your existing code to process each row's data
+
+    //         // ...
+
+    //         $data[] = array(
+    //             $cc++,
+    //             $value->full_name,
+    //             // Other columns' data goes here
+    //             // For example: $value->column_name, etc.
+    //         );
+    //     }
+
+    //     // Prepare the response data in the required format
+    //     $response = array(
+    //         'draw' => intval($requestData['draw']),
+    //         'recordsTotal' => intval($totalRecords),
+    //         'recordsFiltered' => intval($totalRecords), // For simplicity, assuming no filtering is applied
+    //         'data' => $data,
+    //     );
+
+    //     echo json_encode($response);
+    // }
 
     function getSubjectList()
     {
-        $data = ["data" => []];
-        $c = 1;
-        $thisQuery = $this->db->query("SELECT t1.* FROM global.tbl_party t1
-                                        WHERE t1.group_by=11 ORDER BY t1.order_by ASC");
+        $requestData = $_REQUEST;
+        $searchValue = isset($requestData['search']['value']) ? $requestData['search']['value'] : '';
 
-        foreach ($thisQuery->result() as $key => $value) {
+        // Calculate pagination parameters using the separate function
+        list($limit, $offset) = $this->calculatePagination($requestData);
+
+        // Query to get total record count
+        $thisQuery = $this->db->query("SELECT COUNT(1) AS total FROM global.tbl_party WHERE party_type_id=17 AND CONCAT(description,abbr,(CASE WHEN is_active = 't' THEN 'ACTIVE' ELSE 'INACTIVE' END)) ILIKE '%$searchValue%'");
+        $totalRecords = $thisQuery->row()->total;
+
+        $data = array();
+        $cc = $offset + 1;
+        $query = $this->db->query("SELECT * FROM global.tbl_party
+                                        WHERE party_type_id=17 AND CONCAT(description,abbr,(CASE WHEN is_active = 't' THEN 'ACTIVE' ELSE 'INACTIVE' END)) ILIKE '%$searchValue%'
+                                        ORDER BY order_by ASC
+                                        LIMIT $limit OFFSET $offset");
+
+        foreach ($query->result() as $key => $value) {
             $dscrpt = $value->description;
-            $active = $value->is_active == 't' ? true : false;
+            $active = $value->is_active != 't' ? "<span class='badge bg-danger'>INACTIVE</span>" : "<span class='badge bg-success'>ACTIVE</span>";
             $order = $value->order_by;
             $prtyindex = $value->party_index;
             $abbr = $value->abbr;
             $ppid = $value->parent_party_id;
-            $data["data"][] = [
-                $order . ".",
-                "<b>" . $dscrpt . "</b>",
+            $data[] = [
+                // $order . ".",
+                $cc++,
+                "<b>" . $dscrpt . "</b> ". $active,
                 $abbr
             ];
         }
-        echo json_encode($data);
+        $response = array(
+            'draw' => intval($requestData['draw']),
+            'recordsTotal' => intval($totalRecords),
+            'recordsFiltered' => intval($totalRecords), // For simplicity, assuming no filtering is applied
+            'data' => $data,
+        );
+        echo json_encode($response);
     }
 
     function getSbjctAssPrsnnl()
@@ -289,13 +382,35 @@ class Getdata extends MY_Controller
     function getDeptInfo()
     {
         $sy = $this->getOnLoad()["sy_id"];
-        $data = ["data" => []];
         $data2 = [];
-        $c = 1;
         $thisQuery = $this->db->query("SELECT t1.*,t2.full_name FROM profile.tbl_school_department t1
                                         LEFT JOIN profile.view_schoolpersonnel t2 ON t1.department_head_person_id=t2.schoolpersonnel_id
                                         ORDER BY t1.department_name");
-        foreach ($thisQuery->result() as $key => $value) {
+        
+        $requestData = $_REQUEST;
+        $searchValue = isset($requestData['search']['value']) ? $requestData['search']['value'] : '';
+
+        // Calculate pagination parameters using the separate function
+        list($limit, $offset) = $this->calculatePagination($requestData);
+
+        // Query to get total record count
+        $thisQuery = $this->db->query("SELECT count(1) as total FROM profile.tbl_school_department t1
+                                        LEFT JOIN profile.view_schoolpersonnel t2 ON t1.department_head_person_id=t2.schoolpersonnel_id 
+                                        WHERE CONCAT(t1.department_name,t2.full_name) 
+                                        ILIKE '%$searchValue%'
+                                        ");
+        $totalRecords = $thisQuery->row()->total;
+
+        $query = $this->db->query("SELECT t1.*,t2.full_name FROM profile.tbl_school_department t1
+                                    LEFT JOIN profile.view_schoolpersonnel t2 ON t1.department_head_person_id=t2.schoolpersonnel_id
+                                    WHERE CONCAT(t1.department_name,t2.full_name) 
+                                    ILIKE '%$searchValue%'
+                                    ORDER BY t1.department_name
+                                    LIMIT $limit OFFSET $offset");
+
+        $data = array();
+        $cc = $offset + 1;
+        foreach ($query->result() as $key => $value) {
             $duuid = $value->uuid;
             $dept_name = $value->department_name;
             $abbr = $value->abbr;
@@ -307,8 +422,8 @@ class Getdata extends MY_Controller
             ];
             $arr = json_encode($data2);
 
-            $data["data"][] = [
-                $c++,
+            $data[] = [
+                $cc++,
                 "<div class='row'><div class='col-11'>
                     <span class='badge text-sm pb-0'>$dept_name</span>
                     <small>$abbr</i></small><br/>
@@ -319,12 +434,80 @@ class Getdata extends MY_Controller
                         <span class='fa fa-ellipsis-h'></span>
                     </button>
                     <div class='dropdown-menu'>
-                        <a class='dropdown-item' href='#' onclick='getDetails(\"DeptInfo\",$arr,1)'>Edit Information</a>
+                        <a class='dropdown-item btn' onclick='getDetails(\"DeptInfo\",$arr,1)'>Edit Information</a>
                     </div>
                 </div></div>",
             ];
         }
-        echo json_encode($data);
+        $response = array(
+            'draw' => intval($requestData['draw']),
+            'recordsTotal' => intval($totalRecords),
+            'recordsFiltered' => intval($totalRecords), // For simplicity, assuming no filtering is applied
+            'data' => $data,
+        );
+        echo json_encode($response);
+    }
+
+    function getGateInfo()
+    {
+        $sy = $this->getOnLoad()["sy_id"];
+        // $data = ["data" => []];
+        $data2 = [];
+        // $c = 1;
+        // $thisQuery = $this->db->query("SELECT t1.* FROM global.tbl_party t1 WHERE t1.party_type_id=20 ORDER BY t1.description");
+
+
+        $requestData = $_REQUEST;
+        $searchValue = isset($requestData['search']['value']) ? $requestData['search']['value'] : '';
+
+        // Calculate pagination parameters using the separate function
+        list($limit, $offset) = $this->calculatePagination($requestData);
+
+        // Query to get total record count
+        $thisQuery = $this->db->query("SELECT COUNT(*) AS total FROM global.tbl_party WHERE party_type_id=20 AND CONCAT(description,abbr) ILIKE '%$searchValue%'");
+        $totalRecords = $thisQuery->row()->total;
+
+        $query = $this->db->query("SELECT * FROM global.tbl_party WHERE party_type_id=20 AND CONCAT(description,abbr) ILIKE '%$searchValue%'
+                                    ORDER BY description
+                                    LIMIT $limit OFFSET $offset
+                                    ");
+
+        $data = array();
+        $cc = $offset + 1;
+        foreach ($query->result() as $key => $value) {
+            $uuid = $value->party_index;
+            $dept_name = $value->description;
+            $abbr = $value->abbr;
+            $data2 = [
+                "uuid" => $uuid,
+                "name" => $dept_name,
+                "abbr" => $abbr,
+            ];
+            $arr = json_encode($data2);
+
+            $data[] = array(
+                $cc++,
+                "<div class='row'><div class='col-11'>
+                    <span class='badge text-sm pb-0'>$dept_name</span>
+                    <small>$abbr</i></small>" .
+                    "</div>
+                <div class='col-1'>
+                    <button type='button' class='btn btn-xs text-sm float-right btn-outline-secondary rounded-circle border-0' data-toggle='dropdown' aria-expanded='true'>
+                        <span class='fa fa-ellipsis-h'></span>
+                    </button>
+                    <div class='dropdown-menu'>
+                        <a class='dropdown-item btn' onclick='getDetails(\"DeptInfo\",$arr,1)'>Edit Information</a>
+                    </div>
+                </div></div>",
+            );
+        }
+        $response = array(
+            'draw' => intval($requestData['draw']),
+            'recordsTotal' => intval($totalRecords),
+            'recordsFiltered' => intval($totalRecords), // For simplicity, assuming no filtering is applied
+            'data' => $data,
+        );
+        echo json_encode($response);
     }
 
     function getGradeSecInfo()
@@ -332,39 +515,71 @@ class Getdata extends MY_Controller
         $sy = $this->getOnLoad()["sy_id"];
         $data = ["data" => []];
         $data2 = [];
-        $c = 1;
-        $thisQuery = $this->db->query("SELECT t1.*,t2.male,t2.female,t2.total_enrollee FROM building_sectioning.view_room_section t1
+        $requestData = $_REQUEST;
+        $searchValue = isset($requestData['search']['value']) ? $requestData['search']['value'] : '';
+
+        // Calculate pagination parameters using the separate function
+        list($limit, $offset) = $this->calculatePagination($requestData);
+
+        // Query to get total record count
+        $thisQuery = $this->db->query("SELECT COUNT(1) AS total FROM building_sectioning.view_room_section t1
                                         LEFT JOIN (SELECT t1.room_section_id,t1.schl_yr_id, SUM(CASE WHEN t1.sex_bool='t' THEN 1 ELSE 0 END) AS male,
                                         SUM(CASE WHEN t1.sex_bool='f' THEN 1 ELSE 0 END) AS female, SUM(1) AS total_enrollee
                                         FROM sy$sy.bs_view_enrollment t1
                                         GROUP by t1.room_section_id,t1.schl_yr_id) t2 ON t1.id=t2.room_section_id
                                         AND t1.schl_yr_id=t2.schl_yr_id
-                                        WHERE t1.schl_yr_id=$sy
+                                        WHERE t1.schl_yr_id=$sy AND CONCAT(grade,grd_lvl_id,id,sctn_nm,program,grd_lvl_group_id,sched,schedule_id,code,full_name,male,female,(CASE WHEN total_enrollee<1 THEN 'NO ENROLLEE' ELSE '' END)) ILIKE '%$searchValue%'");
+        $totalRecords = $thisQuery->row()->total;
+
+        $data = array();
+        $cc = $offset + 1;
+
+        $query = $this->db->query("SELECT t1.*,t2.male,t2.female,t2.total_enrollee FROM building_sectioning.view_room_section t1
+                                        LEFT JOIN (SELECT t1.room_section_id,t1.schl_yr_id, SUM(CASE WHEN t1.sex_bool='t' THEN 1 ELSE 0 END) AS male,
+                                        SUM(CASE WHEN t1.sex_bool='f' THEN 1 ELSE 0 END) AS female, SUM(1) AS total_enrollee
+                                        FROM sy$sy.bs_view_enrollment t1
+                                        GROUP by t1.room_section_id,t1.schl_yr_id) t2 ON t1.id=t2.room_section_id
+                                        AND t1.schl_yr_id=t2.schl_yr_id
+                                        WHERE t1.schl_yr_id=$sy AND CONCAT(grade,grd_lvl_id,id,sctn_nm,program,grd_lvl_group_id,sched,schedule_id,code,full_name,male,female,(CASE WHEN total_enrollee<1 THEN 'NO ENROLLEE' ELSE '' END)) ILIKE '%$searchValue%'
                                         ORDER BY t1.order_by DESC
-        -- SELECT t1.* FROM building_sectioning.view_room_section t1
-                                        -- WHERE t1.schl_yr_id=$sy
-                                        ");
-        foreach ($thisQuery->result() as $key => $value) {
+                                        LIMIT $limit OFFSET $offset");
+
+        foreach ($query->result() as $key => $value) {
             // $stat = $value->isactive;
             $g = $value->grade;
             $gid = $value->grd_lvl_id;
             $rmsecid = $value->id;
             $s = $value->sctn_nm;
+            $p = $value->program;
+            $g_group_id = $value->grd_lvl_group_id;
             $schd = $value->sched;
+            $sched = $value->schedule_id;
             $code = $value->code;
             $advsry = $value->full_name;
             $male = number_format($value->male) ?? "-";
             $female = number_format($value->female) ?? "-";
             $t_enrollee = number_format($value->total_enrollee) ?? "-";
+            $data1 = [
+                "id" => $rmsecid,
+                "room_id" => 1,
+                "gradelevel" => $g_group_id,
+                "grade" => $gid,
+                "schl_yr_id" => $sy,
+                "sectionName" => $s,
+                "programName" => $p,
+                "sched" => $sched,
+            ];
+
             $data2 = [
                 "rmsecid" => $value->id,
             ];
-            $arr = json_encode($data2);
+            $arr1 = json_encode($data1);
+            $arr2 = json_encode($data2);
 
-            $data["data"][] = [
-                $c++,
+            $data[] = array(
+                $cc++,
                 "<div class='row'><div class='col-11'>
-                    <span class='badge text-sm pb-0'>$g - $s</span>
+                    <span class='badge text-sm pb-0'>$g - $s <i>$p</i></span>
                     <small>$code<i> - $schd</i></small><br/>
                     " . ($advsry ? "<small class='ml-2 mr-2 text-success'><b> $advsry </b> - </small>" : "<b>NO ADVISORY</b> - ") . "
                     " . ($t_enrollee < 1 ? "<b>NO ENROLLEE</b>" :
@@ -375,13 +590,19 @@ class Getdata extends MY_Controller
                         <span class='fa fa-ellipsis-h'></span>
                     </button>
                     <div class='dropdown-menu'>
-                        <a class='dropdown-item' href='#' onclick='getSbjctAssPrsnnlFN(\"SbjctAssPrsnnl\"," . $gid . "," . $rmsecid . ");getDetails(\"SbjctAssPrsnnl\",$arr);'>Subject Assignment</a>
-                        <!-- <a class='dropdown-item' href='#' onclick='getDetails(\"MemberUser\",1)'>Edit Information</a> -->
+                        <a class='dropdown-item btn' onclick='getSbjctAssPrsnnlFN(\"SbjctAssPrsnnl\"," . $gid . "," . $rmsecid . ");getDetails(\"SbjctAssPrsnnl\",$arr2);'>Subject Assignment</a>
+                        <a class='dropdown-item btn' onclick='getDetails(\"GradeSecInfo\",$arr1,1);delay(\"GradeSecInfo\",$gid,\"grade\");'>Edit Information</a>
                     </div>
                 </div></div>",
-            ];
+            );
         }
-        echo json_encode($data);
+        $response = array(
+            'draw' => intval($requestData['draw']),
+            'recordsTotal' => intval($totalRecords),
+            'recordsFiltered' => intval($totalRecords), // For simplicity, assuming no filtering is applied
+            'data' => $data,
+        );
+        echo json_encode($response);
     }
 
     function getSYInfo()
@@ -429,7 +650,7 @@ class Getdata extends MY_Controller
                         <span class='fa fa-ellipsis-h'></span>
                     </button>
                     <div class='dropdown-menu'>
-                        <button class='dropdown-item' onclick='getDetails(\"QuarterInfo\",$arr1,1);$(\"#modalQuarterInfo\").modal(\"show\");'>Edit Details</button>
+                        <a class='dropdown-item btn' onclick='getDetails(\"QuarterInfo\",$arr1,1);$(\"#modalQuarterInfo\").modal(\"show\");'>Edit Details</a>
                     </div>
                 </div>",
 

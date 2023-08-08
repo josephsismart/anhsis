@@ -4,7 +4,7 @@ if (!$this->session->schoolmis_login_level) {
     redirect(base_url('login'));
 }
 $uri = $this->session->schoolmis_login_uri;
-$uri2 = $current_location=='learner_entry'?'userteacher':$uri;
+$uri2 = $current_location=='learner'?'userteacher':$uri;
 ?>
 <!DOCTYPE html>
 <html lang="en">

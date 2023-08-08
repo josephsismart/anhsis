@@ -25,6 +25,20 @@ $uri = $this->session->schoolmis_login_uri;
 <script src="<?= base_url() ?>dist/js/adminlte.min.js"></script>
 
 <script type="text/javascript">
+    $(".close-sidebar-btn").click(function() {
+        // $(".sidebar").slideToggle();
+        // $(".main-sidebar").slideToggle();
+    })
+    // document.getElementById('closeSidebarBtn').addEventListener('click', function() {
+    //     alert('a')
+    //     var sidebar = document.getElementById('sidebar');
+    //     if (sidebar.style.display === 'none') {
+    //         sidebar.style.display = 'block';
+    //     } else {
+    //         sidebar.style.display = 'none';
+    //     }
+    // });
+
     // setInterval(function() {
     //     $.post("<?= base_url('Main/allow') ?>");
     // }, 3000)
@@ -44,59 +58,89 @@ $uri = $this->session->schoolmis_login_uri;
         $('.select2bs4').select2({
             theme: 'bootstrap4'
         });
+        $('[data-toggle="tooltip"]').tooltip()
     });
 
     $("input[data-bootstrap-switch]").each(function() {
         $(this).bootstrapSwitch('state', $(this).prop('checked'));
     })
 
-    function clear_form(form_id) {
+    function clear_form(b) {
         let f1 = "PersonnelInfo";
-        $("#" + form_id)[0].reset();
-        $("#" + form_id).find("input[type='hidden']").each(function() {
+        let a = "form_save_data" + b;
+        $("#" + a)[0].reset();
+        $("#" + a).find("input[type='hidden']").each(function() {
             $(this).val("");
         });
-        $("#" + form_id).find("input[type='checkbox']").each(function() {
+        $("#" + a).find("input[type='checkbox']").each(function() {
             $(this).attr("checked", false);
         });
-        $("#" + form_id).find("select").each(function() {
-            $(this).trigger("change");
-        });
+        if (b == f1) {} else {
+            $("#" + a).find("select").each(function() {
+                $(this).trigger("change");
+            });
+        }
 
-        $("#" + form_id + " .submitBtnPrimary").attr("disabled", false);
-        $("#" + form_id + " .submitBtnPrimary").html("Save Data");
 
-        getFetchList(f1, "RegionList", null, 1, {
-            v: null
-        }, 1, 1);
-        getFetchList(f1, "ProvinceList", null, 1, {
-            v: 16
-        }, 1, 1);
-        getFetchList(f1, "CityMunList", null, 1, {
-            v: 1602
-        }, 1, 1);
-        getFetchList(f1, "BarangayList", null, 1, {
-            v: 160201
-        }, 1, 1);
+        $("#" + a + " .submitBtnPrimary").attr("disabled", false);
+        $("#" + a + " .submitBtnPrimary").html("Save Data");
+        $("#" + a + " .clearBtn").html("Clear");
+        $("#" + a + " .submitBtnPrimary").removeClass("btn-info").addClass("btn-primary");
+        $("#" + a + " .clearBtn").removeClass("btn-danger");
+
+        defaultImg('pic', 'previewPic', 'imgtargetLink', 'MALE');
+
+        // if (b == f1) {
+        //     getFetchList(f1, "RegionList", null, 1, {
+        //         v: null
+        //     }, 1, 1);
+        //     getFetchList(f1, "ProvinceList", null, 1, {
+        //         v: 16
+        //     }, 1, 1);
+        //     getFetchList(f1, "CityMunList", null, 1, {
+        //         v: 1602
+        //     }, 1, 1);
+        //     getFetchList(f1, "BarangayList", null, 1, {
+        //         v: 160201
+        //     }, 1, 1);
+        // }
     }
 
-    function delay(a, b) {
+    function delay(form, a, b) {
         setTimeout(function() {
-            $("#form_save_dataPersonnelInfo [name='" + b + "']").val(a);
-            $("#form_save_dataPersonnelInfo [name='" + b + "']").trigger("change");
+            $("#form_save_data" + form + " [name='" + b + "']").val(a);
+            $("#form_save_data" + form + " [name='" + b + "']").trigger("change");
         }, 1000)
     }
 
-    function getDetails(a, b) {
+    function getDetails(a, b, c) {
         // hideUpdate();
         // clear_form("form_save_data" + a);
-        // c == 1 ? $("#form_save_data" + a + " .submitBtnPrimary").html("Update Data") : $("#form_save_data" + a + " .submitBtnPrimary").html("Save Data");
+        $("#form_save_data" + a + " .submitBtnPrimary").html(c == 1 ? "Update Data" : "Save Data");
+        c == 1 ? $("#form_save_data" + a + " .submitBtnPrimary").removeClass("btn-primary").addClass("btn-info") : $("#form_save_data" + a + " .submitBtnPrimary").removeClass("btn-info").addClass("btn-primary");
+        $("#form_save_data" + a + " .clearBtn").html(c == 1 ? "cancel" : "clear");
+        c == 1 ? $("#form_save_data" + a + " .clearBtn").removeClass("btn-gray").addClass("btn-danger") : $("#form_save_data" + a + " .clearBtn").removeClass("btn-danger").addClass("btn-gray");
+
         $.each(b, function(k, v) {
             $("#form_save_data" + a).each(function() {
                 $("[name='" + k + "']").prop("checked", v);
                 $("[name='" + k + "']").val(v);
                 $("[class='" + k + "']").html(v);
                 $("[name='" + k + "']").trigger("change");
+                if (k == "img_path") {
+                    // console.log(v)
+                    if (v == null) {
+                        defaultImg('pic', 'previewPic', 'imgtargetLink', 'MALE');
+                    } else {
+                        var reader = new FileReader();
+                        $("[name=pic]").val("");
+                        // $("[name=previewPic]").attr("src", "<?= base_url() ?>" + v);
+                        $("[name=previewPic]").attr("src", v);
+                        reader.onload = function(e) {
+                            document.getElementById(b).src = e.target.result;
+                        };
+                    }
+                }
             });
         });
     }
@@ -235,7 +279,7 @@ $uri = $this->session->schoolmis_login_uri;
                     fillIn();
                     return false;
                 }
-                a = $("#form_save_data" + formId + " .submitBtnPrimary").text();
+                // a = $("#form_save_data" + formId + " .submitBtnPrimary").text();
                 $("#form_save_data" + formId + " .submitBtnPrimary").attr("disabled", true);
                 $("#form_save_data" + formId + " .submitBtnPrimary").html("<span class=\"fa fa-spinner fa-pulse\"></span>");
             },
@@ -243,7 +287,7 @@ $uri = $this->session->schoolmis_login_uri;
                 var d = JSON.parse(data);
                 if (d.success == true) {
                     successAlert("Successfully Saved!");
-                    clear_form("form_save_data" + formId);
+                    clear_form(formId);
                     $("#modal" + formId).modal('hide');
                     for (var i = 0; i < tblId.length; i++) {
                         getTable(tblId[i], dtd, pl);
@@ -258,13 +302,14 @@ $uri = $this->session->schoolmis_login_uri;
                     failAlert("Something went wrong!");
                 }
                 $("#form_save_data" + formId + " .submitBtnPrimary").attr("disabled", false);
-                $("#form_save_data" + formId + " .submitBtnPrimary").html(a);
+                // $("#form_save_data" + formId + " .submitBtnPrimary").html(a);
             }
         };
         $("#form_save_data" + formId).ajaxForm(saveData);
     }
 
     function getTable(tableId, dtd, pl) {
+        var drawCounter = 0;
         $("#tbl" + tableId).DataTable().destroy();
         var table, table_data = $("#tbl" + tableId).DataTable({
             "order": [
@@ -279,23 +324,37 @@ $uri = $this->session->schoolmis_login_uri;
             "oLanguage": {
                 "sSearch": ""
             },
+            "processing": true,
+            "serverSide": true,
             language: {
                 searchPlaceholder: "Search...",
             },
-            pageLength: pl,
-            lengthMenu: [
-                [10, 25, 50, 100],
-                [10, 25, 50, 100]
-            ],
+            // pageLength: pl,// Options for records per page
+            // lengthMenu: [
+            //     [10, 25, 50, 100],
+            //     [10, 25, 50, 100]
+            // ],
             ajax: {
                 url: "<?= base_url($uri . '/getdata/get') ?>" + tableId,
                 type: "POST",
                 data: function(d) {
-                    if (tableId == "PersonnelInfo") {
-                        d.a = $("#form_save_dataPersonnelSearch").serialize();
-                    }
+                    drawCounter++;
+                    d.length = pl;
+                    d.draw = drawCounter;
+                    d.search.value = $('#tbl' + tableId + '_filter input').val();
+                    // if (tableId == "PersonnelInfo") {
+                    //     d.a = $("#form_save_dataPersonnelSearch").serialize();
+                    // }
+                    // if (tableId == "PersonnelInfo") {
+                    //     d.search.value = $('#searchTable1').val();
+                    // } else if (tableId == "GateInfo") {
+                    //     d.search.value = $('#searchTable2').val();
+                    // }
                 }
-            }
+            },
+
+            // "lengthMenu": [5, 10, 25, 50, 100], 
+            "pageLength": pl,
         });
 
         $("#tbl" + tableId).on('draw.dt', function() {
@@ -305,8 +364,8 @@ $uri = $this->session->schoolmis_login_uri;
             $(".collapse" + tableId).trigger('click');
         });
         $("#tbl" + tableId + "_filter").addClass("row");
-        $("#tbl" + tableId + "_filter label").css("width", "99.3%");
-        $("#tbl" + tableId + "_filter .form-control-sm").css("width", "99.3%");
+        $("#tbl" + tableId + "_filter label").css("width", "98.3%");
+        $("#tbl" + tableId + "_filter .form-control-sm").css("width", "98.3%");
 
         if (tableId == "SubjectList") {
             getFetchList('GradeSubject', "SubjectList", "PartyList", 0, {
@@ -324,6 +383,71 @@ $uri = $this->session->schoolmis_login_uri;
 
         }
     }
+
+    function imageView(a, b, c) {
+        // var reader = new FileReader();
+        // var fh = filehandler($('#' + a).val());
+        // reader.onload = function(e) {
+        //     document.getElementById(b).src = e.target.result;
+        // };
+        // reader.readAsDataURL(document.getElementById(a).files[0]);
+
+        var fileInput = $("[name=" + a + "]")[0]; // Get the file input element
+        var file = fileInput.files[0]; // Get the selected file
+
+        if (file.size > 25 * 1024 * 1024) {
+            // Picture size is above 2MB
+            alert("Picture must be less than 2MB");
+            return; // You can handle this case according to your requirements
+        }
+
+        var reader = new FileReader();
+
+        reader.onload = function(e) {
+            $("[name=" + b + "]").attr('src', e.target.result); // Set the source of the image element
+        };
+
+        reader.readAsDataURL(file);
+    }
+
+    function defaultImg(a, b, c, d) {
+        var reader = new FileReader();
+        $("[name=pic]").val("");
+        // img = (d == 'FEMALE' ? 'defaultf.png' : 'defaultm.png');
+        $("[name=previewPic]").attr("src", "<?= $system_svg_1x1 ?>");
+        reader.onload = function(e) {
+            document.getElementById(b).src = e.target.result;
+        };
+    }
+
+    // function getTablez(tableId, dtd, pl) {
+    //     var drawCounter = 0;
+    //     $("#tbl" + tableId).DataTable().destroy();
+    //     var table_data = $("#tbl" + tableId).DataTable({
+
+    //         "processing": true,
+    //         "serverSide": true,
+    //         ajax: {
+    //             url: "<?= base_url($uri . '/getdata/get') ?>" + tableId,
+    //             type: "POST",
+    //             data: function(d) {
+    //                 // Calculate the offset (start) based on the page number
+    //                 // d.start = (d.start / d.length) + 1;
+    //                 // d.length = pl; // Set the limit (length) to the desired value
+    //                 // d.draw = d.draw || 1; // Set the default value to 1 if not provided
+
+    //                 drawCounter++;
+    //                 d.draw = drawCounter;
+    //                 // Include the search value in the AJAX request
+    //                 d.search.value = $('.dataTables_filter input').val();
+    //             }
+    //         },
+    //         "lengthMenu": [10, 25, 50, 100], // Options for records per page
+    //         "pageLength": 10,
+    //     });
+
+    //     // Rest of your code...
+    // }
 
     function searchPersonnel() {
         alert('a')
@@ -424,7 +548,6 @@ $uri = $this->session->schoolmis_login_uri;
             s2 == 1 ? $("#form_save_data" + formId + " .select" + getList).select2() : "";
         });
     }
-
 
     $('#form_save_dataGradeSubject .selectSubjectList').on("select2:select", function(e) {
         // console.log('a')
