@@ -151,6 +151,10 @@ class Getdata extends MY_Controller
         $cc = $offset + 1;
         foreach ($query->result() as $key => $value) {
             $other_details = json_decode($value->other_details, true);
+            $poi = null;
+            if ($other_details["person_other_info"] != null) {
+                $poi = $other_details["person_other_info"];
+            }
             $img = $this->getImg($value->img_path);
             $id = $value->schoolpersonnel_id;
             $is_a_v = $value->is_active_schl_personnel;
@@ -184,7 +188,12 @@ class Getdata extends MY_Controller
                 "personaltitle" => $value->personalTitleId,
                 "empstatus" => $value->status_id,
                 "employeeID" => $other_details["employee_id"],
-                
+
+                #incase of emergency personnel
+                "ioeName" => $poi ? $poi["ioeName"] : null,
+                "ioeAddress" => $poi ? $poi["ioeAddress"] : null,
+                "ioeNumber" => $poi ? $poi["ioeNumber"] : null,
+
                 "img_path" => $img_path,
             ];
             $data2 = [
@@ -200,19 +209,19 @@ class Getdata extends MY_Controller
             $data[] = array(
                 $cc++,
                 // "<span class='badge'>" . $value->employee_type . "</span>",
-                "<div class='row'>".
-                
-                
-                "<div class='col-6'>
+                "<div class='row'>" .
+
+
+                    "<div class='col-6'>
                     <div class='d-flex'>
                         <div class='image'>
                             <img class='img-circle size-50 elevation-2 mr-2' src='$img' alt='user image'>
                         </div>
                         <div class='info'>
                             <span class='badge text-md'>$value->full_name, <span class='badge font-weight-light'>$value->sex</span></span>
-                            <span class='badge pl-2'>$value->personal_title $is_active</span>".
-                            ($value->dept_name?"<span class='badge text-info'><b>" . $value->dept_name . "</b></span>":"").
-                        "</div>
+                            <span class='badge pl-2'>$value->personal_title $is_active</span>" .
+                    ($value->dept_name ? "<span class='badge text-info'><b>" . $value->dept_name . "</b></span>" : "") .
+                    "</div>
                     </div>
                 </div>
 
@@ -224,13 +233,13 @@ class Getdata extends MY_Controller
                     <div class='dropdown-menu'>
                         <a class='dropdown-item btn' onclick='getDetails(\"PersonnelInfo\",$arr1,1);delay(\"PersonnelInfo\",$value->barangay_id,\"brgy\");delay(\"PersonnelInfo\",$value->personalTitleId,\"personaltitle\");$(\"#form_save_dataPersonnelInfo [name=firstName]\").focus();$(\"#back-to-top\").trigger(\"click\");'>Edit Information</a>
                         " . ($value->level ? "" :
-                    "<a class='dropdown-item btn' onclick='clear_form(\"PersonnelAccount\");getDetails(\"PersonnelAccount\",$arr1,1);$(\"#modalPersonnelAccount\").modal(\"show\");'>Create User Account</a>") .
+                        "<a class='dropdown-item btn' onclick='clear_form(\"PersonnelAccount\");getDetails(\"PersonnelAccount\",$arr1,1);$(\"#modalPersonnelAccount\").modal(\"show\");'>Create User Account</a>") .
                     "</div>
                 </div></div>",
                 $value->level ?
                     "<div class='row'><div class='col-6'><span class='badge text-sm'>$value->username</span><br/>
-                    <span class='badge'>" . $value->user_description . "</span><br/>".
-                "</div>
+                    <span class='badge'>" . $value->user_description . "</span><br/>" .
+                    "</div>
                 <div class='col-6'>
                     <button type='button' class='btn btn-xs py-0 text-sm float-right btn-outline-secondary rounded-circle border-0' data-toggle='dropdown' aria-expanded='true'>
                         <span class='fa fa-ellipsis-h'></span>
@@ -239,11 +248,11 @@ class Getdata extends MY_Controller
                         <a class='dropdown-item btn' onclick='clear_form(\"PersonnelAccount\");getDetails(\"PersonnelAccount\",$arr2,1);$(\"#modalPersonnelAccount\").modal(\"show\");'>Edit Account</a>
                     </div>
                 </div></div>" : "-",
-                
+
                 "<span class='badge'>" . $value->employee_type . "</span><br/>
                 <span class='badge'>" . $value->status . "</span>",
             );
-        }// Prepare the response data in the required format
+        } // Prepare the response data in the required format
         $response = array(
             'draw' => intval($requestData['draw']),
             'recordsTotal' => intval($totalRecords),
@@ -253,49 +262,87 @@ class Getdata extends MY_Controller
         echo json_encode($response);
     }
 
-    // function getProfileSample()
-    // {
-    //     $requestData = $_REQUEST;
+    function getPreviewPersonnelID()
+    {
+        $tab = null;
+        $arr = null;
+        // $sy = $this->input->get("sy");
+        // $qrtr = $this->input->get("qrtr");
+        $rmsid = $this->input->get("rmsid");
+        // $ssy = 'sy' . $sy;
+        $sy = $this->getOnLoad()["sy_id"];
 
-    //     $searchValue = isset($requestData['search']['value']) ? $requestData['search']['value'] : '';
+        $query1 = $this->db->query("SELECT * FROM profile.view_schoolpersonnel
+                                    ORDER BY schoolpersonnel_id DESC");
+        foreach ($query1->result() as $key => $value) {
+            $other_details = json_decode($value->other_details, true);
+            $poi = null;
+            if ($other_details["person_other_info"] != null) {
+                $poi = $other_details["person_other_info"];
+            }
 
-    //     // Paging
-    //     $limit = isset($requestData['length']) ? intval($requestData['length']) : 10;
-    //     $offset = isset($requestData['start']) ? intval($requestData['start']) : 0;
-    //     $page = $offset / $limit + 1; // Current page number
+            $arr[] = [
+                // "personId" => $value->person_id,
+                // "personnelId" => $id,
+                // "partyType" => $value->personalTitleId,
+                // "firstName" => $value->first_name,
+                // "middleName" => $value->middle_name,
+                // "lastName" => $value->last_name,
+                // "extName" => $value->suffix,
+                // // "sex" => $value->sex_bool == 't' ? 1 : 0,
+                // "sex" => $value->sex_bool,
+                // "birthdate" => $value->birthdate,
+                // "homeAddress" => $value->address_info,
+                // "is_active" => $is_a_v,
+                // "cty" => $value->citymun_id,
+                // "brgy" => $value->barangay_id,
+                // "personName" => $value->full_name,
+                // "basicInfoId" => $value->person_id,
 
-    //     // Query to get total record count
-    //     $thisQuery = $this->db->query("SELECT COUNT(*) AS total FROM profile.view_basicinfo WHERE full_name ILIKE '%$searchValue%'");
-    //     $totalRecords = $thisQuery->row()->total;
+                // "emptype" => $value->employeeTypeId,
+                // "personaltitle" => $value->personalTitleId,
+                // "empstatus" => $value->status_id,
+                // "employeeID" => $other_details["employee_id"],
 
-    //     // Query to get data with pagination
-    //     $query = $this->db->query("SELECT * FROM profile.view_basicinfo WHERE full_name ILIKE '%$searchValue%' LIMIT $limit OFFSET $offset");
+                // #incase of emergency personnel
+                // "ioeName" => $poi ? $poi["ioeName"] : null,
+                // "ioeAddress" => $poi ? $poi["ioeAddress"] : null,
+                // "ioeNumber" => $poi ? $poi["ioeNumber"] : null,
 
-    //     $data = array();
-    //     $cc = $offset + 1;
-    //     foreach ($query->result() as $key => $value) {
-    //         // Your existing code to process each row's data
+                // "img_path" => $img_path,
 
-    //         // ...
 
-    //         $data[] = array(
-    //             $cc++,
-    //             $value->full_name,
-    //             // Other columns' data goes here
-    //             // For example: $value->column_name, etc.
-    //         );
-    //     }
-
-    //     // Prepare the response data in the required format
-    //     $response = array(
-    //         'draw' => intval($requestData['draw']),
-    //         'recordsTotal' => intval($totalRecords),
-    //         'recordsFiltered' => intval($totalRecords), // For simplicity, assuming no filtering is applied
-    //         'data' => $data,
-    //     );
-
-    //     echo json_encode($response);
-    // }
+                // "sctn_nm" => $value->first_name,
+                // "program" => $value->first_name,
+                // "program_strand" => $value->first_name,
+                // "program_strand_color" => $value->first_name,
+                // "grade" => $value->first_name,
+                "sy" => $value->first_name,
+                "empid" => $other_details["employee_id"],
+                "emp_type" => $value->employee_type,
+                "title" => $value->personal_title,
+                "last_name" => $value->last_name,
+                "first_name" => $value->first_name,
+                "middle_name" => $value->middle_name,
+                "first_minitial" => $value->first_name . ($value->middle_name != '' ? ($value->middle_name != '-' ? ' ' . $value->middle_name[0] . '.' : '') : ''),
+                "lrn" => $value->first_name,
+                "last_fullname" => $value->first_name,
+                "full_name" => $value->first_name,
+                "img_path" => $this->getImg($value->img_path),
+                "birthdate" => $value->first_name,
+                "advisory" => $value->first_name,
+                "grade_k" => $value->first_name,
+                "color_k" => $value->first_name,
+                "address_details" => $value->first_name,
+                "other_details" => $value->other_details,
+                
+                "ioeName" => $poi ? $poi["ioeName"] : null,
+                "ioeAddress" => $poi ? $poi["ioeAddress"] : null,
+                "ioeNumber" => $poi ? $poi["ioeNumber"] : null,
+            ];
+        }
+        echo json_encode($arr);
+    }
 
     function getSubjectList()
     {
@@ -326,7 +373,49 @@ class Getdata extends MY_Controller
             $data[] = [
                 // $order . ".",
                 $cc++,
-                "<b>" . $dscrpt . "</b> ". $active,
+                "<p style='width: 17rem;' class='mb-n1'>" . $dscrpt . " " . $active . "</p> ",
+                $abbr
+            ];
+        }
+        $response = array(
+            'draw' => intval($requestData['draw']),
+            'recordsTotal' => intval($totalRecords),
+            'recordsFiltered' => intval($totalRecords), // For simplicity, assuming no filtering is applied
+            'data' => $data,
+        );
+        echo json_encode($response);
+    }
+
+    function getProgramList()
+    {
+        $requestData = $_REQUEST;
+        $searchValue = isset($requestData['search']['value']) ? $requestData['search']['value'] : '';
+
+        // Calculate pagination parameters using the separate function
+        list($limit, $offset) = $this->calculatePagination($requestData);
+
+        // Query to get total record count
+        $thisQuery = $this->db->query("SELECT COUNT(1) AS total FROM global.tbl_party WHERE party_type_id=22 AND CONCAT(description,abbr,(CASE WHEN is_active = 't' THEN 'ACTIVE' ELSE 'INACTIVE' END)) ILIKE '%$searchValue%'");
+        $totalRecords = $thisQuery->row()->total;
+
+        $data = array();
+        $cc = $offset + 1;
+        $query = $this->db->query("SELECT * FROM global.tbl_party
+                                        WHERE party_type_id=22 AND CONCAT(description,abbr,(CASE WHEN is_active = 't' THEN 'ACTIVE' ELSE 'INACTIVE' END)) ILIKE '%$searchValue%'
+                                        ORDER BY order_by ASC
+                                        LIMIT $limit OFFSET $offset");
+
+        foreach ($query->result() as $key => $value) {
+            $dscrpt = $value->description;
+            $active = $value->is_active != 't' ? "<span class='badge bg-danger'>INACTIVE</span>" : "<span class='badge bg-success'>ACTIVE</span>";
+            $order = $value->order_by;
+            $prtyindex = $value->party_index;
+            $abbr = $value->abbr;
+            $ppid = $value->parent_party_id;
+            $data[] = [
+                // $order . ".",
+                $cc++,
+                "<p style='width: 17rem;' class='mb-n1'>" . $dscrpt . " " . $active . "</p> ",
                 $abbr
             ];
         }
@@ -386,7 +475,7 @@ class Getdata extends MY_Controller
         $thisQuery = $this->db->query("SELECT t1.*,t2.full_name FROM profile.tbl_school_department t1
                                         LEFT JOIN profile.view_schoolpersonnel t2 ON t1.department_head_person_id=t2.schoolpersonnel_id
                                         ORDER BY t1.department_name");
-        
+
         $requestData = $_REQUEST;
         $searchValue = isset($requestData['search']['value']) ? $requestData['search']['value'] : '';
 
@@ -528,7 +617,7 @@ class Getdata extends MY_Controller
                                         FROM sy$sy.bs_view_enrollment t1
                                         GROUP by t1.room_section_id,t1.schl_yr_id) t2 ON t1.id=t2.room_section_id
                                         AND t1.schl_yr_id=t2.schl_yr_id
-                                        WHERE t1.schl_yr_id=$sy AND CONCAT(grade,grd_lvl_id,id,sctn_nm,program,grd_lvl_group_id,sched,schedule_id,code,full_name,male,female,(CASE WHEN total_enrollee<1 THEN 'NO ENROLLEE' ELSE '' END)) ILIKE '%$searchValue%'");
+                                        WHERE t1.schl_yr_id=$sy AND CONCAT(grade,grd_lvl_id,id,sctn_nm,program_strand_id,grd_lvl_group_id,sched,schedule_id,code,full_name,male,female,(CASE WHEN total_enrollee<1 THEN 'NO ENROLLEE' ELSE '' END)) ILIKE '%$searchValue%'");
         $totalRecords = $thisQuery->row()->total;
 
         $data = array();
@@ -540,7 +629,7 @@ class Getdata extends MY_Controller
                                         FROM sy$sy.bs_view_enrollment t1
                                         GROUP by t1.room_section_id,t1.schl_yr_id) t2 ON t1.id=t2.room_section_id
                                         AND t1.schl_yr_id=t2.schl_yr_id
-                                        WHERE t1.schl_yr_id=$sy AND CONCAT(grade,grd_lvl_id,id,sctn_nm,program,grd_lvl_group_id,sched,schedule_id,code,full_name,male,female,(CASE WHEN total_enrollee<1 THEN 'NO ENROLLEE' ELSE '' END)) ILIKE '%$searchValue%'
+                                        WHERE t1.schl_yr_id=$sy AND CONCAT(grade,grd_lvl_id,id,sctn_nm,program_strand_id,grd_lvl_group_id,sched,schedule_id,code,full_name,male,female,(CASE WHEN total_enrollee<1 THEN 'NO ENROLLEE' ELSE '' END)) ILIKE '%$searchValue%'
                                         ORDER BY t1.order_by DESC
                                         LIMIT $limit OFFSET $offset");
 
@@ -550,7 +639,10 @@ class Getdata extends MY_Controller
             $gid = $value->grd_lvl_id;
             $rmsecid = $value->id;
             $s = $value->sctn_nm;
-            $p = $value->program;
+            $p = $value->program_strand_id;
+            $pname = $value->program_strand;
+            $pcolor = $value->program_strand_color;
+            $pabbr = $value->program_strand_abbr;
             $g_group_id = $value->grd_lvl_group_id;
             $schd = $value->sched;
             $sched = $value->schedule_id;
@@ -567,6 +659,7 @@ class Getdata extends MY_Controller
                 "schl_yr_id" => $sy,
                 "sectionName" => $s,
                 "programName" => $p,
+                "program_strand" => $p,
                 "sched" => $sched,
             ];
 
@@ -579,7 +672,7 @@ class Getdata extends MY_Controller
             $data[] = array(
                 $cc++,
                 "<div class='row'><div class='col-11'>
-                    <span class='badge text-sm pb-0'>$g - $s <i>$p</i></span>
+                    <span class='badge text-sm pb-0'>$g - $s | <i style='color:$pcolor'>$pabbr</i></span>
                     <small>$code<i> - $schd</i></small><br/>
                     " . ($advsry ? "<small class='ml-2 mr-2 text-success'><b> $advsry </b> - </small>" : "<b>NO ADVISORY</b> - ") . "
                     " . ($t_enrollee < 1 ? "<b>NO ENROLLEE</b>" :

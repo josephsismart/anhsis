@@ -50,83 +50,86 @@ class Dataentry extends MY_Controller
         $emptype = $this->input->post("emptype");
         $personaltitle = $this->input->post("personaltitle");
         $empstatus = $this->input->post("empstatus");
-        $employeeID = $this->input->post("employeeID");
+        $employeeID = strtoupper($this->input->post("employeeID"));
+
+        #other details
+        $ioeName = strtoupper($this->input->post("ioeName"));
+        $ioeAddress = strtoupper($this->input->post("ioeAddress"));
+        $ioeNumber = strtoupper($this->input->post("ioeNumber"));
+
         $login_id = $this->session->schoolmis_login_id;
         $inid = null;
         $dateNow = $this->now();
         $true = ["success"   => true];
         $false = ["success"   => false];
+        $cc = 0;
 
-        $data = [
-            "first_name" => $firstName,
-            "middle_name" => $middleName,
-            "last_name" => $lastName,
-            "suffix" => $extName,
-            "sex" => $sex,
-            "birthdate" => $birthdate ? $birthdate : null,
-            "address_info" => $homeAddress,
-            "barangay_id" => $brgy,
-            // "purok_id" => $prk != "" ? $prk : null,
-            // "address_info" => $homeAddress,
-            // "email_address" => $emailAddress,
-            $id ? "updated_by" : "added_by" => $login_id,
-            $id ? "date_updated" : "date_added" => $dateNow,
-        ];
-
-        if (isset($_FILES['pic'])) {
-            $data += [
-                "img_path" => $this->uploadImg($_FILES['pic'], $employeeID)
-            ];
-        }
-        
-        // else{
-        //     $data += [
-        //         "img_path" => 'dist/img/media/personnel/' . $sy_desc . '/' . $employeeID . '.jpg',
-        //     ];
-        // }
-
-        // $data_e = json_encode($data);
-
-        if ($id && $firstName && $lastName && $sex && $brgy && $login_id) {
-            if (!$this->mainModel->update("profile.tbl_basicinfo", $data, "id", $id)) {
-                // $this->userlog("UPDATED PERSONNEL DETAILS " . $data_e);
-                $ret = $true;
-                $data2 = [
-                    "school_id" => $this->session->schoolmis_login_school_id,
-                    "employee_type_id" => $emptype,
-                    "personal_title_id" => $personaltitle,
-                    "is_active" => $is_active,
-                    "status_id" => $empstatus,
-                    "employee_id" => $employeeID,
-                    
-                ];
-                // $data2_e = json_encode($data2);
-                if (!$this->mainModel->update("profile.tbl_schoolpersonnel", $data2, "basic_info_id", $id)) {
-                    // $this->userlog("UPDATED PERSONNEL DETAILS " . $data2_e);
-                    $ret = $true;
-                } else {
-                    $ret = $false;
-                }
+        $exist = $this->db->query("SELECT * FROM profile.tbl_schoolpersonnel t1 WHERE t1.employee_id='$employeeID'");
+        if ($id && $exist->num_rows() > 0) {
+            if ($exist->num_rows() > 1) {
+                $cc = 1;
             } else {
-                $ret = $false;
+                if ($exist->row()->employee_id == $employeeID) {
+                    $cc = 0;
+                } else {
+                    $cc = 1;
+                }
             }
-        } else if ($firstName && $lastName && $sex && $brgy && $login_id) {
-            if ($this->db->insert("profile.tbl_basicinfo", $data)) {
-                $inid = $this->db->insert_id();
-                $data2 = [
-                    "school_id" => $this->session->schoolmis_login_school_id,
-                    "employee_type_id" => $emptype,
-                    "basic_info_id" => $inid,
-                    "personal_title_id" => $personaltitle,
-                    "is_active" => $is_active,
-                    "status_id" => $empstatus,
-                    "employee_id" => $employeeID,
+        } else if ($exist->num_rows() > 0) {
+            $cc = 1;
+        }
+        // $cc = $userId ? 0 : $exist->num_rows();
+        if ($cc == 0) {
+
+            $oi = '{"ioeName":"' . $ioeName . '","ioeAddress":"' . $ioeAddress . '","ioeNumber":"' . $ioeNumber . '"}';
+
+            $data = [
+                "first_name" => $firstName,
+                "middle_name" => $middleName,
+                "last_name" => $lastName,
+                "suffix" => $extName,
+                "sex" => $sex,
+                "birthdate" => $birthdate ? $birthdate : null,
+                "address_info" => $homeAddress,
+                "barangay_id" => $brgy,
+                "other_information" => $oi,
+                // "purok_id" => $prk != "" ? $prk : null,
+                // "address_info" => $homeAddress,
+                // "email_address" => $emailAddress,
+                $id ? "updated_by" : "added_by" => $login_id,
+                $id ? "date_updated" : "date_added" => $dateNow,
+            ];
+
+            if (isset($_FILES['pic'])) {
+                $data += [
+                    "img_path" => $this->uploadImg($_FILES['pic'], $employeeID, 'personnel')
                 ];
-                // $data2_e = json_encode($data2);
-                // $this->userlog("INSERTED PERSONNEL " . $inid . " " . json_encode($data));
-                if ($inid) {
-                    if ($this->db->insert("profile.tbl_schoolpersonnel", $data2)) {
-                        // $this->userlog("INSERTED PERSONNEL DETAILS " . $data2_e);
+            }
+
+            // else{
+            //     $data += [
+            //         "img_path" => 'dist/img/media/personnel/' . $sy_desc . '/' . $employeeID . '.jpg',
+            //     ];
+            // }
+
+            // $data_e = json_encode($data);
+
+            if ($id && $firstName && $lastName && $sex && $brgy && $login_id) {
+                if (!$this->mainModel->update("profile.tbl_basicinfo", $data, "id", $id)) {
+                    // $this->userlog("UPDATED PERSONNEL DETAILS " . $data_e);
+                    $ret = $true;
+                    $data2 = [
+                        "school_id" => $this->session->schoolmis_login_school_id,
+                        "employee_type_id" => $emptype,
+                        "personal_title_id" => $personaltitle,
+                        "is_active" => $is_active,
+                        "status_id" => $empstatus,
+                        "employee_id" => $employeeID,
+
+                    ];
+                    // $data2_e = json_encode($data2);
+                    if (!$this->mainModel->update("profile.tbl_schoolpersonnel", $data2, "basic_info_id", $id)) {
+                        // $this->userlog("UPDATED PERSONNEL DETAILS " . $data2_e);
                         $ret = $true;
                     } else {
                         $ret = $false;
@@ -134,19 +137,50 @@ class Dataentry extends MY_Controller
                 } else {
                     $ret = $false;
                 }
+            } else if ($firstName && $lastName && $sex && $brgy && $login_id) {
+                if ($this->db->insert("profile.tbl_basicinfo", $data)) {
+                    $inid = $this->db->insert_id();
+                    $data2 = [
+                        "school_id" => $this->session->schoolmis_login_school_id,
+                        "employee_type_id" => $emptype,
+                        "basic_info_id" => $inid,
+                        "personal_title_id" => $personaltitle,
+                        "is_active" => $is_active,
+                        "status_id" => $empstatus,
+                        "employee_id" => $employeeID,
+                    ];
+                    // $data2_e = json_encode($data2);
+                    // $this->userlog("INSERTED PERSONNEL " . $inid . " " . json_encode($data));
+                    if ($inid) {
+                        if ($this->db->insert("profile.tbl_schoolpersonnel", $data2)) {
+                            // $this->userlog("INSERTED PERSONNEL DETAILS " . $data2_e);
+                            $ret = $true;
+                        } else {
+                            $ret = $false;
+                        }
+                    } else {
+                        $ret = $false;
+                    }
+                }
+            } else {
+                $ret = $false;
             }
+
+            if ($this->db->trans_status() === false) {
+                $this->db->trans_rollback();
+            } else {
+                $this->db->trans_commit();
+            }
+            $this->db->query("REFRESH MATERIALIZED VIEW profile.view_basicinfo;");
         } else {
             $ret = $false;
-        }
-
-        if ($this->db->trans_status() === false) {
-            $this->db->trans_rollback();
-        } else {
-            $this->db->trans_commit();
+            $ret += [
+                "exist"   => true,
+                "message"   => "Employee ID already exist!"
+            ];
         }
 
         echo json_encode($ret);
-        $this->db->query("REFRESH MATERIALIZED VIEW profile.view_basicinfo;");
     }
 
     function savePersonnelAccount()
@@ -172,7 +206,7 @@ class Dataentry extends MY_Controller
         }
 
         $deptId = ($deptId ? $deptId : null);
-        
+
         // $confirmpwd $pwd
         $exist = $this->db->query("SELECT * FROM account.tbl_useraccount t1 WHERE t1.username='$email'");
         if ($userId && $exist->num_rows() > 0) {
@@ -318,7 +352,8 @@ class Dataentry extends MY_Controller
         $sy = $this->getOnLoad()["sy_id"];
         $grade = $this->input->post("grade");
         $sectionName = strtoupper($this->input->post("sectionName"));
-        $programName = strtoupper($this->input->post("programName"));
+        // $programName = strtoupper($this->input->post("programName"));
+        $program_strand = strtoupper($this->input->post("program_strand"));
         $sched = $this->input->post("sched");
         $login_id = $this->session->schoolmis_login_id;
         $true = ["success"   => true];
@@ -329,7 +364,8 @@ class Dataentry extends MY_Controller
             "grd_lvl_id" => $grade,
             "schl_yr_id" => $sy,
             "sctn_nm" => $sectionName,
-            "program" => $programName,
+            // "program" => $programName,
+            "program_strand_id" => $program_strand,
             "schedule_id" => $sched,
         ];
         if ($id && $grade && $sy && $sectionName && $sched && $login_id) {
@@ -537,6 +573,58 @@ class Dataentry extends MY_Controller
         echo json_encode($ret);
     }
 
+    function saveProgram()
+    {
+        $this->db->trans_begin();
+        $index = $this->input->post("index");
+        $sbjctnm = $this->input->post("sbjctnm");
+        $abbr = $this->input->post("abbr");
+        $ordr = $this->input->post("ordr");
+        $login_id = $this->session->schoolmis_login_id;
+        $true = ["success"   => true];
+        $false = ["success"   => false];
+
+        $exist = $this->db->query("SELECT * FROM global.tbl_party t1 WHERE t1.description='$sbjctnm'");
+        if ($exist->num_rows() == 0) {
+            $data = [
+                "party_type_id" => 22,
+                "description" => $sbjctnm,
+                "is_active" => true,
+                "order_by" => $ordr,
+                "abbr" => $abbr,
+                "group_by" => null,
+            ];
+            if ($index && $sbjctnm && $abbr && $ordr && $login_id) {
+                if (!$this->mainModel->update("global.tbl_party", $data, "party_index", $index)) {
+                    // $this->userlog("UPDATED SUBJECT " . json_encode($data));
+                    $ret = $true;
+                }
+            } else if ($sbjctnm && $abbr && $ordr && $login_id) {
+                if ($this->db->insert("global.tbl_party", $data)) {
+                    // $this->userlog("INSERTED SUBJECT " . json_encode($data));
+                    $ret = $true;
+                } else {
+                    $ret = $false;
+                }
+            } else {
+                $ret = $false;
+            }
+
+            if ($this->db->trans_status() === false) {
+                $this->db->trans_rollback();
+            } else {
+                $this->db->trans_commit();
+            }
+        } else {
+            $ret = $false;
+            $ret += [
+                "exist"   => true,
+                "message"   => "Program Name already exist!"
+            ];
+        }
+        echo json_encode($ret);
+    }
+
     function saveSbjctAssPrsnnl1()
     {
         $this->db->trans_begin();
@@ -708,35 +796,35 @@ class Dataentry extends MY_Controller
 
         // $exist = $this->db->query("SELECT * FROM global.tbl_party t1 WHERE t1.party_type_id=20 AND t1.description='$name'");
         // if ($exist->num_rows() == 0) {
-            $data = [
-                "party_type_id" => 20,
-                "description" => $name,
-                "is_active" => true,
-                // "order_by" => $ordr,
-                "abbr" => $abbr,
-                // "group_by" => 11,
-            ];
-            if ($uuid && $name && $abbr && $login_id) {
-                if (!$this->mainModel->update("global.tbl_party", $data, "party_index", $uuid)) {
-                    // $this->userlog("UPDATED DEPARTMENT " . json_encode($data));
-                    $ret = $true;
-                }
-            } else if ($name && $abbr && $login_id) {
-                if ($this->db->insert("global.tbl_party", $data)) {
-                    // $this->userlog("INSERTED DEPARTMENT " . json_encode($data));
-                    $ret = $true;
-                } else {
-                    $ret = $false;
-                }
+        $data = [
+            "party_type_id" => 20,
+            "description" => $name,
+            "is_active" => true,
+            // "order_by" => $ordr,
+            "abbr" => $abbr,
+            // "group_by" => 11,
+        ];
+        if ($uuid && $name && $abbr && $login_id) {
+            if (!$this->mainModel->update("global.tbl_party", $data, "party_index", $uuid)) {
+                // $this->userlog("UPDATED DEPARTMENT " . json_encode($data));
+                $ret = $true;
+            }
+        } else if ($name && $abbr && $login_id) {
+            if ($this->db->insert("global.tbl_party", $data)) {
+                // $this->userlog("INSERTED DEPARTMENT " . json_encode($data));
+                $ret = $true;
             } else {
                 $ret = $false;
             }
+        } else {
+            $ret = $false;
+        }
 
-            if ($this->db->trans_status() === false) {
-                $this->db->trans_rollback();
-            } else {
-                $this->db->trans_commit();
-            }
+        if ($this->db->trans_status() === false) {
+            $this->db->trans_rollback();
+        } else {
+            $this->db->trans_commit();
+        }
         // } else {
         //     $ret = $false;
         //     $ret += [

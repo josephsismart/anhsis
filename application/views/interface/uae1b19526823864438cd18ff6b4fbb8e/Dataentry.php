@@ -132,7 +132,7 @@ $uri = $this->session->schoolmis_login_uri;
 									<div class="row">
 										<div class="col-4 col-lg-4 col-sm-4">
 											<div class="image">
-												<img name="previewPic" src="<?= base_url("dist/img/media/icons/1x1.png") ?>" style="border:5% solid #63a4ca;cursor:pointer; width:95%;" class="rounded elevation-4 img-fluid"  alt="User Image">
+												<img name="previewPic" src="<?= base_url("dist/img/media/icons/1x1.png") ?>" style="border:5% solid #63a4ca;cursor:pointer; width:95%; height:27vw;" class="rounded elevation-4 img-fluid"  alt="User Image">
 											</div>
 										</div>
 										<div class="col-8 col-lg-8 col-sm-8 text-left">

@@ -1932,7 +1932,7 @@ class Reports extends MY_Controller
         // echo json_encode($data);
     }
 
-       function getPreviewID()
+    function getPreviewID()
     {
         $tab = null;
         $arr = null;
@@ -1972,26 +1972,35 @@ class Reports extends MY_Controller
         //                                     GROUP BY t2.enrollment_id,t2.sctn_nm,t2.sy,t2.lrn,t2.last_fullname
         // --                                    ORDER BY t1.order_by_sbjct
 
-        $query1 = $this->db->query("SELECT t2.grade,t2.enrollment_id,t2.sctn_nm,t5.program,t2.sy,t2.lrn,t2.last_fullname,t2.full_name,t2.img_path,to_char(t2.birthdate, 'Mon DD, YYYY') as birthdate,REPLACE(t2.address_details,' (Capital)','') AS address_details,t5.full_name AS adviser,t2.other_details
+        $query1 = $this->db->query("SELECT t2.grade,t2.enrollment_id,t2.sctn_nm,t5.program_strand,t5.program_strand_color,t5.program,t5.grade_k,t5.color_k,t2.sy,t2.lrn,t2.last_name,t2.first_name,COALESCE(t2.middle_name) AS middle_name,t2.last_fullname,t2.full_name,t2.img_path,to_char(t2.birthdate, 'Mon DD, YYYY') as birthdate,REPLACE(t2.address_details,' (Capital)','') AS address_details,t5.full_name AS adviser,t2.other_details
                                     FROM building_sectioning.view_subject_grdlvl_personnel_assgnmnt t1
                                             LEFT JOIN sy$sy.bs_view_enrollment t2 ON t1.room_section_id=t2.room_section_id AND t1.schl_yr_id=t2.schl_yr_id
                                             LEFT JOIN building_sectioning.view_room_section t5 ON t1.room_section_id=t5.id
                                             WHERE t1.room_section_id=$rmsid -- AND t4.q1 IS NOT NULL  -- AND t2.lrn ='214526130052' AND t1.schl_yr_id=1
-                                            GROUP BY t2.grade,t2.enrollment_id,t2.sctn_nm,t5.program,t2.sy,t2.lrn,t2.last_fullname,t2.full_name,t2.img_path,t2.birthdate,t2.address_details,t5.full_name,t2.sex_bool,t2.other_details
+                                            GROUP BY t2.grade,t2.enrollment_id,t2.sctn_nm,t5.program_strand,t5.program_strand_color,t5.program,t5.grade_k,t5.color_k,t2.sy,t2.lrn,t2.last_name,t2.first_name,COALESCE(t2.middle_name),t2.last_fullname,t2.full_name,t2.img_path,t2.birthdate,t2.address_details,t5.full_name,t2.sex_bool,t2.other_details
                                             ORDER BY t2.sex_bool DESC, t2.last_fullname ASC");
         foreach ($query1->result() as $key => $value) {
             $arr[] = [
                 "enrollment_id" => $value->enrollment_id,
                 "sctn_nm" => $value->sctn_nm,
                 "program" => $value->program,
+                "program_strand" => $value->program_strand,
+                "program_strand_color" => $value->program_strand_color,
                 "grade" => $value->grade,
                 "sy" => $value->sy,
+                "lrn" => $value->lrn,
+                "last_name" => $value->last_name,
+                "first_name" => $value->first_name,
+                "middle_name" => $value->middle_name,
+                "first_minitial" => $value->first_name . ($value->middle_name != '' ? ($value->middle_name != '-' ? ' ' . $value->middle_name[0] . '.' : '') : ''),
                 "lrn" => $value->lrn,
                 "last_fullname" => $value->last_fullname,
                 "full_name" => $value->full_name,
                 "img_path" => $this->getImg($value->img_path),
                 "birthdate" => $value->birthdate,
-                "advisory" => $value->adviser,//$this->font_id(, 15, 19, 10),
+                "advisory" => $value->adviser, //$this->font_id(, 15, 19, 10),
+                "grade_k" => $value->grade_k,
+                "color_k" => $value->color_k,
                 "address_details" => $value->address_details,
                 "other_details" => $value->other_details,
             ];

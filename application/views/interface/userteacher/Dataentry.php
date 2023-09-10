@@ -146,7 +146,7 @@ $uri = 'userteacher'; //$this->session->schoolmis_login_uri;
 													</div>
 
 													<div class="col-12 col-xl-5 col-lg-6 col-md-12 col-sm-12 small header1" style="display:none;overflow:auto">
-														<table class="table table-sm" id="tblHonors" width="30">
+														<!-- <table class="table table-sm" id="tblHonors" width="30">
 															<thead>
 																<tr>
 																	<th width="150">Honors</th>
@@ -184,7 +184,7 @@ $uri = 'userteacher'; //$this->session->schoolmis_login_uri;
 																	</td>
 																</tr>
 															</tfoot>
-														</table>
+														</table> -->
 													</div>
 
 													<div class="col-lg-4 col-md-4 small table-responsive" hidden>
@@ -408,7 +408,7 @@ $uri = 'userteacher'; //$this->session->schoolmis_login_uri;
 		let f3 = "UpdateLearnerInfo";
 		getTable("AssignedSectionList", 0, 10);
 		getTable("LearnersList", 0, -1);
-		getTable("Honors", 1, -1);
+		// getTable("Honors", 1, -1);
 		// getTable("SearchEnrollLearnersList", 0, 10, "", 1);
 		// getFetchList('TransferConfirm', "BarangayList", null, 1, {
 		// 	v: 160201

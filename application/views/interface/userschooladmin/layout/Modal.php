@@ -7,7 +7,7 @@ if (!$this->session->schoolmis_login_level) {
 $uri = $this->session->schoolmis_login_uri;
 ?>
 <!-- <div class="modal fade show" id="modalSbjctAssPrsnnl" aria-modal="true" style="padding-right: 16px; display: block;"> -->
-<div class="modal fade" id="modalSbjctAssPrsnnl">
+<div class="modal fade" id="modalSbjctAssPrsnnl"  data-backdrop="static" tabindex="-1">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header bg-success">
@@ -70,7 +70,7 @@ $uri = $this->session->schoolmis_login_uri;
 <!-- /.modal -->
 <!-- <div class="modal fade show" id="modalSbjctAssPrsnnl" aria-modal="true" style="padding-right: 16px; display: block;"> -->
 
-<div class="modal fade" id="modalPersonnelAccount">
+<div class="modal fade" id="modalPersonnelAccount"  data-backdrop="static" tabindex="-1">
     <div class="modal-dialog modal-sm">
         <div class="modal-content">
             <div class="modal-header bg-info py-1 px-2">
@@ -171,7 +171,7 @@ $uri = $this->session->schoolmis_login_uri;
 
 
 <!-- <div class="modal fade show" id="modalSbjctAssPrsnnl" aria-modal="true" style="padding-right: 16px; display: block;"> -->
-<div class="modal fade" id="modalQuarterInfo">
+<div class="modal fade" id="modalQuarterInfo"  data-backdrop="static" tabindex="-1">
     <div class="modal-dialog modal-sm">
         <div class="modal-content">
             <div class="modal-header bg-info p-2">
@@ -327,11 +327,11 @@ $uri = $this->session->schoolmis_login_uri;
 <!-- /.modal -->
 
 <!-- <div class="modal fade show" id="modalSbjctAssPrsnnl" aria-modal="true" style="padding-right: 16px; display: block;"> -->
-<div class="modal fade" id="modalSubjectList">
+<div class="modal fade" id="modalSubjectList"  data-backdrop="static" tabindex="-1">
     <div class="modal-dialog modal-md">
         <div class="modal-content">
-            <div class="modal-header bg-info">
-                <h5 class="modal-title p-0 mb-n3 mt-n1">
+            <div class="modal-header bg-info py-1">
+                <h5 class="modal-title">
                     <small><i class='fa fa-book'></i> Subject details</small>
                 </h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
@@ -365,12 +365,72 @@ $uri = $this->session->schoolmis_login_uri;
                                 </div>
                             </div>
                             </form>
-                            <table id="tblSubjectList" style="width:100%;" class="table table-sm table-striped table-hover">
+                            <table id="tblSubjectList" style="width:100%;" class="table-sm table-striped table-hover">
                                 <thead>
                                     <tr>
-                                        <th width="1">#</th>
+                                        <th>#</th>
                                         <th>Name</th>
-                                        <th>Abbreviation</th>
+                                        <th>Abbr</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- /.modal-content -->
+</div>
+<!-- /.modal-dialog -->
+
+<!-- <div class="modal fade show" id="modalSbjctAssPrsnnl" aria-modal="true" style="padding-right: 16px; display: block;"> -->
+<div class="modal fade" id="modalProgramList"  data-backdrop="static" tabindex="-1">
+    <div class="modal-dialog modal-md">
+        <div class="modal-content">
+            <div class="modal-header bg-primary py-1">
+                <h5 class="modal-title">
+                    <small><i class='fa fa-book'></i> Program/Strand details</small>
+                </h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body p-2">
+                <div class="card-body p-0">
+                    <div class="table-responsive table-hover">
+                        <div class="col-12">
+                            <?= form_open(base_url($uri . '/Dataentry/saveProgram'), 'id=form_save_dataProgram'); ?>
+                            <span class='badge bg-navy personName'></span>
+                            <div class="input-group mt-2 mb-2">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text firstName"><i class="fas fa-book-open"></i></span>
+                                </div>
+                                <input type="text" class="form-control form-control-sm" name="sbjctnm" placeholder="PROGRAM NAME" autocomplete="off">
+                            </div>
+                            <div class="input-group mt-2 mb-2">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text firstName"><i class="fas fa-font"></i></span>
+                                </div>
+                                <input type="text" class="form-control form-control-sm mr-2" name="abbr" placeholder="ABREVIATION" autocomplete="off">
+
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text firstName"><i class="fas fa-sort-numeric-down"></i></span>
+                                </div>
+                                <input type="number" class="form-control form-control-sm" name="ordr" placeholder="SEQUENCE" autocomplete="off">
+                                <div class="input-group-append">
+                                    <button type="submit" class="btn btn-info btn-sm submitBtnPrimary">SAVE</button>
+                                </div>
+                            </div>
+                            </form>
+                            <table id="tblProgramList" style="width:100%;" class="table-sm table-striped table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Name</th>
+                                        <th>Abbr</th>
                                     </tr>
                                 </thead>
                                 <tbody>

@@ -239,15 +239,15 @@ class Dataentry extends MY_Controller
 
         $ioe = $this->input->post("ioe");
         $contact = $this->input->post("contactNumber");
-        
+
         $mother_tongue = $this->input->post("mother_tongue");
         $ip_ethnic_group = $this->input->post("ip_ethnic_group");
         $religion = $this->input->post("religion");
         $four_ps = $this->input->post("four_ps");
         $learning_modality = $this->input->post("learning_modality");
         $remarks = $this->input->post("remarks");
-        
-        
+
+
 
         $login_id = $this->session->schoolmis_login_id;
         $dateNow = $this->now();
@@ -295,9 +295,9 @@ class Dataentry extends MY_Controller
 
         if (isset($_FILES['pic'])) {
             $data += [
-                "img_path" => $this->uploadImg($_FILES['pic'], $lrn)
+                "img_path" => $this->uploadImg($_FILES['pic'], $lrn, 'learner')
             ];
-        }else{
+        } else {
             $data += [
                 "img_path" => 'dist/img/media/learner/' . $sy_desc . '/' . $lrn . '.jpg',
             ];
@@ -321,7 +321,7 @@ class Dataentry extends MY_Controller
                         $ret = $false;
                     }
 
-                    
+
 
                     $this->db->where('lrn', $lrn);
                     if ($this->db->update("profile.tbl_learners", $data2)) {
@@ -329,7 +329,7 @@ class Dataentry extends MY_Controller
                         $ret = $true;
                     } else {
                         $ret = $false;
-                    } 
+                    }
                 } else {
                     $ret = $false;
                 }
@@ -489,7 +489,7 @@ class Dataentry extends MY_Controller
 
                         // echo " BDATE: " . $bdate;
 
-                        $birthdate = $bdate ? DateTime::createFromFormat('m-d-Y', $bdate)->format('Y-m-d') : null;
+                        $birthdate = $this->filterAndFormatDate($bdate); #$bdate ? DateTime::createFromFormat('m-d-Y', $bdate)->format('Y-m-d') : null;
                         // echo " STRTOTIME: " . $stringtoTime;
                         // $birthdate = $bdate ? date('Y-m-d', $stringtoTime) : null;
                         // echo " BIRTHDATE: " . $birthdate;
@@ -531,12 +531,8 @@ class Dataentry extends MY_Controller
                             $checkLearner = $this->learnerChecker($LRN, null);
                             // echo $checkLearner . ' aa \n ';
                             if ($checkLearner) { //IF LEARNER EXIST IN TBL_LEARNER
-                                echo (' ddfdfd ');
                                 $checkEnrollemnt = $this->enrollmentChecker($checkLearner, $batch_update);
                                 if ($checkEnrollemnt) { //IF LEARNER EXIST IN TBL_ENROLLMENT THEN DO NOTHING
-                                    echo (' ffff');
-                                    echo ('<b/>');
-                                    echo ($checkEnrollemnt);
                                     $ret = $false;
                                 } else {
                                     $enrollmentData[] = [
@@ -560,7 +556,7 @@ class Dataentry extends MY_Controller
                                     $this->db->where('id', $checkEnrollemnt);
                                     if ($this->db->update("profile.tbl_basicinfo", $basicInfoData)) {
                                         $ret = $true;
-                                        if ($basicInfoId) { //IF THE VALUE OF BASICINO ID HAS DATA THEN PREPARATION FOR A NEW LEARNER
+                                        if ($checkEnrollemnt) { //IF THE VALUE OF BASICINO ID HAS DATA THEN PREPARATION FOR A NEW LEARNER
                                             // $learnerData = array(
                                             //     // "lrn" => $LRN,
                                             //     // "basic_info_id" => $basicInfoId,
@@ -580,7 +576,7 @@ class Dataentry extends MY_Controller
                                             //     "remarks" => $rmrks,
                                             //     "ioe" => $mfname ? 'M' : ($mfname ? 'F' : 'G'),
                                             // );
-                                            $this->db->where('basic_info_id', $basicInfoId);
+                                            $this->db->where('basic_info_id', $checkEnrollemnt);
                                             if ($this->db->update("profile.tbl_learners", $learnerData)) {
                                                 $ret = $true;
                                             } else {

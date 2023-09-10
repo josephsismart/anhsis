@@ -16,7 +16,10 @@ class MY_Controller extends CI_Controller
             "system_svg"    => base_url("dist/img/media/icons/icon_svg.png"),
             "system_op"    => base_url("dist/img/media/icons/icon_op.png"),
             "system_svg_1x1"    => base_url("dist/img/media/icons/1x1.png"),
-            "system_bg_id"    => base_url("dist/img/media/bg/id/2023/v1/v1.png"),
+            "system_bg_l_front_id"    => base_url("dist/img/media/bg/id/2023/learner/v2/v2_front.png"),
+            "system_bg_l_back_id"    => base_url("dist/img/media/bg/id/2023/learner/v2/v2_back.png"),
+            "system_bg_nt_front_id"    => base_url("dist/img/media/bg/id/2023/non-teaching/v1/v1_front.png"),
+            "system_bg_nt_back_id"    => base_url("dist/img/media/bg/id/2023/non-teaching/v1/v1_back.png"),
             "system_esig"    => base_url("dist/img/media/esig/roa.png"),
 
             "system_deped_1x1"    => base_url("dist/img/media/icons/deped_1x1.png"),
@@ -270,14 +273,14 @@ class MY_Controller extends CI_Controller
 
     public function getBarangay_City($brgy, $city)
     {
-        $brgy_id = 160202054;
+        $brgy_id = 160202038;#160202054;
         if (strtoUpper($city) == 'BUTUAN CITY (CAPITAL)') {
             $query = $this->db->query("SELECT t1.id FROM address.tbl_barangay t1 WHERE t1.citymun_id=160201
                                         AND orig_desc ILIKE '%$brgy%' LIMIT 1");
             if ($query->num_rows() > 0) {
                 $brgy_id = $query->row()->id;
             } else {
-                $brgy_id = 160202054;
+                $brgy_id = 160202038;#160202054;
             }
         } else {
             $query = $this->db->query("SELECT t2.id FROM address.tbl_citymun t1 
@@ -286,7 +289,7 @@ class MY_Controller extends CI_Controller
             if ($query->num_rows() > 0) {
                 $brgy_id = $query->row()->id;
             } else {
-                $brgy_id = 160202054;
+                $brgy_id = 160202038;#160202054;
             }
         }
         return $brgy_id;
@@ -449,11 +452,10 @@ class MY_Controller extends CI_Controller
             "input_grades_qrtr" => $input_grades_qrtr,
             // "sy_qrtr_e_g" => "<b>SY:</b> " . $sy . " | <b>Q:</b> " . $qrtrR,
             "sy_qrtr_e_g" => "<b>SY:</b> " . $sy . " | <b>Q:</b> |" . $qrtrR .
-                "<div class='d-none d-sm-block d-lg-block'>".    
-                    ($enroll_stat == 't' ? " <small class='text-success text-bold' style='white-space: nowrap;'><b>ENR: </b>" . $edl . "</small>" : "") .
-                    ($grade_stat == 't' ? " | <small class='text-success text-bold' style='white-space: nowrap;'><b>GRD: </b>" . $gdl . "</small>" : "").
-                "</div>"
-            ,
+                "<div class='d-none d-sm-block d-lg-block'>" .
+                ($enroll_stat == 't' ? " <small class='text-success text-bold' style='white-space: nowrap;'><b>ENR: </b>" . $edl . "</small>" : "") .
+                ($grade_stat == 't' ? " | <small class='text-success text-bold' style='white-space: nowrap;'><b>GRD: </b>" . $gdl . "</small>" : "") .
+                "</div>",
         ];
         return $data;
     }
@@ -516,6 +518,22 @@ class MY_Controller extends CI_Controller
             "learner" => $learner,
         ];
         return $data;
+    }
+
+    public function filterAndFormatDate($date) {
+        // Define an array of possible date format patterns
+        $dateFormats = array('m-d-Y', 'm/d/Y');
+    
+        foreach ($dateFormats as $format) {
+            $parsedDate = DateTime::createFromFormat($format, $date);
+            if ($parsedDate !== false) {
+                // Successfully parsed the date, now format it as 'Y-m-d'
+                return $parsedDate->format('Y-m-d');
+            }
+        }
+    
+        // Return null if none of the formats matched
+        return "2001-10-10";
     }
 
     public function get_ip()
@@ -737,7 +755,7 @@ class MY_Controller extends CI_Controller
         }
     }
 
-    public function uploadImg($pic, $id)
+    public function uploadImg($pic, $id, $path_)
     {
         $s = $this->getOnLoad()["sy"];
         $newImageName = null;
@@ -749,7 +767,7 @@ class MY_Controller extends CI_Controller
             // dist/img/icons
             // dist/img/media/learner/2022-2023
             // Create the directory if it doesn't exist
-            $config['upload_path'] = "dist/img/media/learner/" . $s . "/";
+            $config['upload_path'] = "dist/img/media/$path_/" . $s . "/";
 
             if (!is_dir($config['upload_path'])) {
                 mkdir($config['upload_path'], 0777, true);
@@ -786,7 +804,7 @@ class MY_Controller extends CI_Controller
 
                 // Modify the image name here
                 $newImageName = $id . "." . $extension;
-                $config['new_image'] = "dist/img/media/learner/" . $s . "/" . $newImageName;
+                $config['new_image'] = "dist/img/media/$path_/$s/$newImageName";
 
                 $this->load->library('image_lib', $config);
                 $this->image_lib->resize();

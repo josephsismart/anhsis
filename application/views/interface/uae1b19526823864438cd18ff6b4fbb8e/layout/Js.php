@@ -44,11 +44,11 @@ $uri = $this->session->schoolmis_login_uri;
             if ($('#openreader-multi3').is(':hidden') == true) {
                 $('#openreader-multi3').trigger('click');
             }
-            // getQRPerson({
-            //     v: "7132118100017",
-            //     g_id: $("#gate_select").val(),
-            //     g_nm: $("#gate_select option:selected").text()
-            // }, "GateSearch");
+            getQRPerson({
+                v: "72212321dsd",
+                g_id: $("#gate_select").val(),
+                g_nm: $("#gate_select option:selected").text()
+            }, "GateSearch");
         }
     }
 

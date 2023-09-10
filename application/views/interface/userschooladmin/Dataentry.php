@@ -197,6 +197,42 @@ $uri = $this->session->schoolmis_login_uri;
 										</div>
 									</div>
 								</div>
+
+								<div class="card w-100 collapse-header collapsed-card">
+									<!-- <div class="card w-100"> -->
+									<div class="card-header p-1 pr-2 pl-2 rounded bg-gradient-purple" role="button" data-card-widget="collapse">
+										<h3 class="card-title lead">Other Information goes here (<i>click here</i>)</h3>
+										<!-- <div class="card-tools mt-n1 pb-0">
+											<button type="button" class="btn btn-tool btn-xs"><i class="fas fa-plus"></i></button>
+											<button type="button" class="btn btn-tool" data-card-widget="remove"><i class="fas fa-remove"></i></button>
+										</div> -->
+									</div>
+									<!-- <div class="card-body collapse-body p-2 mb-n3"> -->
+
+									<div class="card-body collapse-body p-2 mb-n3" style="overflow: auto;display: none;">
+										<div class="card card-navy card-outline w-100">
+											<div class="row p-2">
+												<div class="col-lg-12 col-12">
+													<div class="tab-custom-content w-100">
+														<p class="lead mb-0">Incase of Emergency please contact</p>
+													</div>
+													<div class="row">
+														<div class="col-lg-4 col-md-4 col-sm-12 mb-2">
+															<input type="text" class="form-control form-control-sm text-uppercase" name="ioeName" placeholder="FULL NAME" autocomplete="off" nr="1">
+														</div>
+														<div class="col-lg-4 col-md-4 col-sm-12 mb-2">
+															<input type="text" class="form-control form-control-sm text-uppercase" name="ioeAddress" placeholder="ADDRESS" autocomplete="off" nr="1">
+														</div>
+														<div class="col-lg-4 col-md-4 col-sm-12">
+															<input type="number" class="form-control form-control-sm text-uppercase" name="ioeNumber" placeholder="NUMBER" autocomplete="off" nr="1">
+														</div>
+													</div>
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+
 							</div>
 							<!-- /.card-body -->
 							<div class="card-footer p-1 pr-2 pl-2">
@@ -298,7 +334,7 @@ $uri = $this->session->schoolmis_login_uri;
 										</div>
 										<div class="col-lg-12 col-md-12 col-sm-12 mb-2 sbj">
 											<div class="input-group">
-												<select style="width:75%" class="form-control form-control-sm select2 selectSubjectList" multiple="multiple" data-placeholder="SUBJECT LISTS" name="subjectlist[]" nr="1"></select>
+												<select style="width:60%" class="form-control form-control-sm select2 selectSubjectList" multiple="multiple" data-placeholder="SUBJECT LISTS" name="subjectlist[]" nr="1"></select>
 												<div class="input-group-append">
 													<button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="#modalSubjectList">
 														<span class="badge" data-placement="left" data-toggle="tooltip" data-html="true" title="View Subjects created.">
@@ -341,7 +377,18 @@ $uri = $this->session->schoolmis_login_uri;
 											<input type="text" class="form-control form-control-sm text-uppercase" name="sectionName" placeholder="SECTION NAME" autocomplete="off">
 										</div>
 										<div class="col-7 mb-2">
-											<input type="text" class="form-control form-control-sm text-uppercase" name="programName" placeholder="PROGRAM NAME **optional**" autocomplete="off" nr="1">
+											<div class="input-group">
+												<select class="form-control form-control-sm select2 selectProgStranList" data-placeholder="PROGRAM/STRAND" name="program_strand"></select>
+												<!-- <select style="width:60%" class="form-control form-control-sm select2 selectSubjectList" multiple="multiple" data-placeholder="SUBJECT LISTS" name="subjectlist[]" nr="1"></select> -->
+												<div class="input-group-append">
+													<button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="#modalProgramList">
+														<span class="badge" data-placement="top" data-toggle="tooltip" data-html="true" title="View Program/Strand created.">
+															<i class="fa fa-pen text-primary text-sm"></i>
+														</span>
+													</button>
+												</div>
+											</div>
+											<!-- <input type="text" class="form-control form-control-sm text-uppercase" name="programName" placeholder="PROGRAM NAME **optional**" autocomplete="off" nr="1"> -->
 										</div>
 										<div class="col-5">
 											<div class="input-group mb-2">
@@ -517,6 +564,7 @@ $uri = $this->session->schoolmis_login_uri;
 		// getTable("SYInfo", 0, 5);
 		getTable("GateInfo", 0, 5);
 		getTable("SubjectList", 0, 10);
+		getTable("ProgramList", 0, 10);
 		getTable("DeptInfo", 0, 5);
 		// getTablez("ProfileSample", 0, 10);
 		getSbjctAssPrsnnl("SbjctAssPrsnnl");
@@ -568,13 +616,16 @@ $uri = $this->session->schoolmis_login_uri;
 
 		getFetchList(f2, "GLevelList", "PartyTypeList", 0, {
 			v: 5
-		}, 0);
+		}, 1);
 		getFetchList('GradeSubject', "GLevelList", "PartyTypeList", 0, {
 			v: 5
 		}, 0);
 		getFetchList(f2, "GradeList", "PartyList", 0, {
 			v: 14
-		}, 0);
+		}, 1);
+		getFetchList(f2, "ProgStranList", "PartyList", 0, {
+			v: 22
+		}, 1);
 		getFetchList('GradeSubject', "GradeList", "PartyList", 0, {
 			v: 14
 		}, 0);
@@ -592,6 +643,7 @@ $uri = $this->session->schoolmis_login_uri;
 		saveForm("GradeSubject", [""], null);
 		saveForm("PersonnelAccount", [f1, "DeptInfo"], null, 0, 5);
 		saveForm("Subject", ["SubjectList"], null);
+		saveForm("Program", ["ProgramList"], null);
 		saveForm("DeptInfo", ["DeptInfo"], null);
 		saveForm("QuarterInfo", ["SYInfo"], null);
 

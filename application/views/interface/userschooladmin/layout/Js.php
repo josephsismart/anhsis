@@ -4,6 +4,8 @@ if (!$this->session->schoolmis_login_level) {
     redirect(base_url('login'));
 }
 $uri = $this->session->schoolmis_login_uri;
+$uri_reports = "reports";
+$sy_ = $getOnLoad["sy"]; //$getOnLoad["sy_qrtr_e_g"];
 ?>
 <!-- Bootstrap 4 -->
 
@@ -14,6 +16,11 @@ $uri = $this->session->schoolmis_login_uri;
 <!-- DataTables -->
 <script src="<?= base_url() ?>plugins/datatables/jquery.dataTables.js"></script>
 <script src="<?= base_url() ?>plugins/datatables-bs4/js/dataTables.bootstrap4.js"></script>
+<script src="<?= base_url() ?>plugins/datatables/extensions/buttons/js/dataTables.buttons.min.js"></script>
+<script src="<?= base_url() ?>plugins/datatables/extensions/buttons/js/buttons.print.min.js"></script>
+<script src="<?= base_url() ?>plugins/datatables/extensions/buttons/js/jszip.min.js"></script>
+<script src="<?= base_url() ?>plugins/datatables/extensions/buttons/js/buttons.flash.min.js"></script>
+<script src="<?= base_url() ?>plugins/datatables/extensions/buttons/js/buttons.html5.min.js"></script>
 <script src="<?= base_url() ?>plugins/bootstrap-switch/js/bootstrap-switch.min.js"></script>
 <script src="<?= base_url() ?>plugins/datatables/extensions/buttons/js/dataTables.buttons.min.js"></script>
 <script src="<?= base_url() ?>plugins/datatables/extensions/responsive/js/dataTables.responsive.min.js"></script>
@@ -21,6 +28,7 @@ $uri = $this->session->schoolmis_login_uri;
 <script src="<?= base_url() ?>plugins/sweetalert2/sweetalert2.min.js"></script>
 <!-- Toastr -->
 <script src="<?= base_url() ?>plugins/toastr/toastr.min.js"></script>
+<script src="<?= base_url() ?>plugins/qrcode_generator/qrcode.min.js"></script>
 <!-- AdminLTE App -->
 <script src="<?= base_url() ?>dist/js/adminlte.min.js"></script>
 
@@ -279,7 +287,7 @@ $uri = $this->session->schoolmis_login_uri;
                     fillIn();
                     return false;
                 }
-                // a = $("#form_save_data" + formId + " .submitBtnPrimary").text();
+                a = $("#form_save_data" + formId + " .submitBtnPrimary").text();
                 $("#form_save_data" + formId + " .submitBtnPrimary").attr("disabled", true);
                 $("#form_save_data" + formId + " .submitBtnPrimary").html("<span class=\"fa fa-spinner fa-pulse\"></span>");
             },
@@ -302,7 +310,7 @@ $uri = $this->session->schoolmis_login_uri;
                     failAlert("Something went wrong!");
                 }
                 $("#form_save_data" + formId + " .submitBtnPrimary").attr("disabled", false);
-                // $("#form_save_data" + formId + " .submitBtnPrimary").html(a);
+                $("#form_save_data" + formId + " .submitBtnPrimary").html(a);
             }
         };
         $("#form_save_data" + formId).ajaxForm(saveData);
@@ -316,7 +324,39 @@ $uri = $this->session->schoolmis_login_uri;
                 [0, "asc"]
             ],
             dom: 'Bfrtip',
-            buttons: [],
+            buttons: tableId == 'PersonnelInfo' ? [
+                    // {
+                    //     text: "<i class='fa fa-cog'></i> Account",
+                    //     action: function(e, dt, node, config) {
+                    //         validateTable(tableId);
+                    //     }
+                    // }, 
+
+                    // {
+                    //     extend: 'print',
+                    //     text: '<i class="fa fa-print"></i> Print',
+                    //     header: "_excel"
+
+                    // },
+                    {
+                        text: '<i class="fa fa-user"></i> Preview ID',
+                        action: function(e, dt, node, config) {
+                            PreviewID();
+                        }
+
+                    }
+                ] : [] &&
+                tableId == 'AllStudentLogs' ? [{
+                    extend: 'print',
+                    text: '<i class="fa fa-print"></i> Print',
+                    header: "_excel"
+
+                }, {
+                    extend: 'excel',
+                    text: '<i class="fa fa-file-excel"></i> Export Excel',
+                    header: "_excel"
+
+                }] : [],
             // searching: tableId == 'GradesList' ? false : true,
             "info": pl == -1 ? false : true,
             "paging": pl == -1 ? false : true,
@@ -353,7 +393,7 @@ $uri = $this->session->schoolmis_login_uri;
                 }
             },
 
-            // "lengthMenu": [5, 10, 25, 50, 100], 
+            "lengthMenu": [5, 10, 25, 50, 100], 
             "pageLength": pl,
         });
 
@@ -364,8 +404,8 @@ $uri = $this->session->schoolmis_login_uri;
             $(".collapse" + tableId).trigger('click');
         });
         $("#tbl" + tableId + "_filter").addClass("row");
-        $("#tbl" + tableId + "_filter label").css("width", "98.3%");
-        $("#tbl" + tableId + "_filter .form-control-sm").css("width", "98.3%");
+        $("#tbl" + tableId + "_filter label").css("width", "97%");
+        $("#tbl" + tableId + "_filter .form-control-sm").css("width", "97%");
 
         if (tableId == "SubjectList") {
             getFetchList('GradeSubject', "SubjectList", "PartyList", 0, {
@@ -382,6 +422,272 @@ $uri = $this->session->schoolmis_login_uri;
             // }, 3000);
 
         }
+
+        if (tableId == "ProgramList") {
+            getFetchList('GradeSecInfo', "ProgStranList", "PartyList", 0, {
+                v: 22
+            }, 0);
+        }
+    }
+
+    function PreviewID(){
+        var g = "";
+        var g = "";
+        var c = [];
+        var e = "";
+        var ee = "";
+        var grd_q = "";
+
+        var minFontSize = 12;
+        var maxFontSize = 24;
+        var maxWidth = 360;
+
+
+        $("#modalPreviewID #tblPreviewID").empty();
+        $.get("<?= base_url($uri . '/getdata/getPreviewPersonnelID') ?>", {
+                // rmsid: 6,
+            },
+            function(data) {
+                var d = JSON.parse(data);
+                let z = 0;
+                let x = 0;
+                for (let i = 0; i < d.length; i++) {
+                    x = i;
+
+
+                    $("#modalPreviewID #tblPreviewID").append('<tr>');
+                    for (let j = 1; j <= 1; j++) {
+                        let ji = i;
+                        g_s = d[ji]["grade"] + ' - ' + d[ji]["sctn_nm"];
+                        let empid = d[ji]["empid"];
+                        let img_path = d[ji]["img_path"];
+                        let full_name = d[ji]["full_name"];
+                        let last_name = d[ji]["last_name"];
+                        let first_minitial = d[ji]["first_minitial"];
+                        let birthdate = d[ji]["birthdate"];
+                        let emp_type = d[ji]["emp_type"];
+                        let title = d[ji]["title"];
+                        let add_details = d[ji]["address_details"];
+                        let other_details = d[ji]["other_details"];
+                        let od = JSON.parse(other_details);
+                        let ioeName = ifnull(d[ji]['ioeName']);
+                        let ioeNumber = ifnull(d[ji]['ioeNumber']);
+                        let ioeAddress = ifnull(d[ji]['ioeAddress']);
+                        $("#modalPreviewID #tblPreviewID").append(
+                            '<td align="left" width="50%" style="border: 1px dashed #000;padding: 2.5px;">'+
+                                '<table cellspacing="0" style="font-size:10px;border:2.5px solid #3786A3;background-image: url(<?= $system_bg_nt_front_id ?>);background-repeat: no-repeat;background-size: 100% 100%;width: 360px;height: 530px;">'+
+                                    '<tr align="center" style="height:5.5rem; border: 1px solid #000;font-size:12px;color: rgba(0, 0, 0, 0);">'+
+                                        '<td class="border border-transparent" width="5%">  </td>'+
+                                        '<td class="border border-transparent" width="5%">  </td>'+
+                                        '<td class="border border-transparent" width="5%">  </td>'+
+                                        '<td class="border border-transparent" width="5%">  </td>'+
+                                        '<td class="border border-transparent" width="5%">  </td>'+
+                                        '<td class="border border-transparent" width="5%">  </td>'+
+                                        '<td class="border border-transparent" width="5%">  </td>'+
+                                        '<td class="border border-transparent" width="5%">  </td>'+
+                                        '<td class="border border-transparent" width="5%">  </td>'+
+                                        '<td class="border border-transparent" width="5%">  </td>'+
+                                        '<td class="border border-transparent" width="5%">  </td>'+
+                                        '<td class="border border-transparent" width="5%">  </td>'+
+                                        '<td class="border border-transparent" width="5%">  </td>'+
+                                        '<td class="border border-transparent" width="5%">  </td>'+
+                                        '<td class="border border-transparent" width="5%">  </td>'+
+                                        '<td class="border border-transparent" width="5%">  </td>'+
+                                        '<td class="border border-transparent" width="5%">  </td>'+
+                                        '<td class="border border-transparent" width="5%">  </td>'+
+                                        '<td class="border border-transparent" width="5%">  </td>'+
+                                        '<td class="border border-transparent" width="5%">  </td>'+
+                                    '</tr>'+
+                                    '<!-- img -->'+
+                                    '<tr align="center" style="height:1rem;border: 1px solid #000;font-size:5px;">'+
+                                        '<td class="border border-transparent"></td>'+
+                                        '<td rowspan="4" colspan="10" class="border border-transparent" style="padding:0;vertical-align: top;width:1rem;">'+
+                                            '<img name="previewPic" src="' + img_path + '" class="" alt="User Image" style="border:2px solid #007bff;border-radius:5px;padding:0;margin:0;vertical-align:top;width:100%;height:11.1rem;">'+
+                                        '</td>'+
+                                        '<td class="border border-transparent"></td>'+
+                                        '<td colspan="6" class="border border-transparent" style="font-family:Montserrat, sans-serif;font-weight:bold;font-size:10px;vertical-align:bottom;">'+
+                                        '</td>'+
+                                        '<td class="border border-transparent"></td>'+
+                                        '<td class="border border-transparent"></td>'+
+                                    '</tr>'+
+                                    '<tr align="center" style="height:1rem;border: 1px solid #000;font-size:5px;">'+
+                                        '<td class="border border-transparent"></td>'+
+                                        '<td class="border border-transparent"></td>'+
+                                        '<td colspan="6" class="border border-transparent" style="font-family:Montserrat, sans-serif;font-weight:bold;font-size:10px;vertical-align:bottom;">'+
+                                            '<p style="padding:0;margin-bottom:-1px;color:#240AA2">S.Y. <?= $sy_; ?></p>'+
+                                        '</td>'+
+                                        '<td class="border border-transparent"></td>'+
+                                        '<td class="border border-transparent"></td>'+
+                                    '</tr>'+
+                                    '<tr align="center" style="height:1rem; border: 1px solid #000;font-size:7px;">'+
+                                        '<td class="border border-transparent"> </td>'+
+                                        '<td class="border border-transparent"> </td>'+
+                                        '<td colspan="6" style="background-color:#fff">'+
+                                            '<div id="qqqq1'+i+'" style="padding:4px;"></div>'+
+                                        '</td>' +
+                                        '<td class="border border-transparent"> </td>'+
+                                        '<td class="border border-transparent"> </td>'+
+                                    '</tr>'+
+                                    '<!-- barcode -->'+
+                                    '<!-- empid -->'+
+                                    '<tr align="center" style="height:1rem; border: 1px solid #000;font-size:7px;">'+
+                                        '<td class="border border-transparent"></td>'+
+                                        '<td colspan="8" class="border border-transparent" style="font-family:Montserrat, sans-serif;font-weight:800;font-size:12px;vertical-align:bottom;">'+
+                                            '<p style="padding:0;letter-spacing:1px; display: inline;">' + empid + '</p><br/>'+
+                                            '<p style="padding:0;font-family:Montserrat, sans-serif;font-weight:600;font-size:12px;display: inline;color:#E82B2B">'+ emp_type +'</p>'+
+                                        '</td>'+
+                                        '<td class="border border-transparent"> </td>'+
+                                    '</tr>'+
+                                    '<!-- signature -->'+
+                                    '<tr align="center" style="height:1.1rem; border: 1px solid #000;font-size:7px;">'+
+                                        '<td class="border border-transparent"> </td>'+
+                                        '<td class="border border-transparent"> </td>'+
+                                        '<td colspan="6" class="border border-transparent"> </td>'+
+                                        '<td class="border border-transparent"> </td>'+
+                                        '<td class="border border-transparent"> </td>'+
+                                    '</tr>'+
+                                    '<!-- lastname -->'+
+                                    '<tr align="center" style="height:1.4rem; border: 1px solid #000;padding:0">'+
+                                        '<td class="border border-transparent"> </td>'+
+                                        '<td colspan="18" class="border border-transparent text-left" style="font-family:Montserrat, sans-serif;color:#102C3D;font-weight:800;font-size:' + autoSizeFont(last_name, 12, 32, 175) + 'px;padding:0 0 5px 0;">'+
+                                            '<p class="mb-n4 mt-n1">'+ last_name +'</p>'+
+                                        '</td>'+
+                                        '<td class="border border-transparent"> </td>'+
+                                    '</tr>'+
+                                    '<!-- firstname middleinitial -->'+
+                                    '<tr align="center" style="height:1rem; border: 1px solid #000;">'+
+                                        '<td class="border border-transparent"> </td>'+
+                                        '<!-- <td colspan="18" class="border border-transparent"> </td> -->'+
+                                        '<td colspan="18" class="border border-transparent text-left" style="font-family:Montserrat, sans-serif;color:#102C3D;font-weight:300;font-size:' + autoSizeFont(first_minitial, 12, 28, 200) + 'px;padding:0;">'+
+                                            '<p class="mb-n3">'+ first_minitial +'</p>'+
+                                        '</td>'+
+                                        '<td class="border border-transparent"> </td>'+
+                                    '</tr>'+
+                                    '<!-- grade section League Gothic -->'+
+                                    '<tr align="center" style="height:1.2rem; border: 1px solid #000;">'+
+                                        '<td class="border border-transparent"> </td>'+
+                                        '<td colspan="18" class="border border-transparent text-left" style="font-family:League Gothic, sans-serif;color:#E82B2B;font-size:1.5rem;padding-top:10px;">'+
+                                            '<p class="mb-n2">' + title +'</p>'+
+                                        '</td>'+
+                                        // '<td colspan="13" class="border border-transparent text-left" style="font-family:League Gothic, sans-serif;font-weight:300;font-size:' + autoSizeFont(g_sec, 14, 18, 175) + 'px;padding-top:10px;">'+
+                                            // '<p class="mb-n2">'+g_sec+'</p>'+
+                                        // '</td>'+
+                                        '<td class="border border-transparent"> </td>'+
+                                    '</tr>'+
+                                    '<!-- program/strand -->'+
+                                    '<tr align="center" style="height:1.2rem; border: 1px solid #000;">'+
+                                        '<td class="border border-transparent"> </td>'+
+                                        '<td colspan="5" class="border border-transparent text-left" style="font-family:League Gothic, sans-serif;color:#41A1DF;font-size:1.1rem;padding-top:0px;">'+
+                                            // '<p class="mb-n2">Program/Strand:</p>'+
+                                        '</td>'+
+                                        '<td colspan="13" class="border border-transparent text-left" style="font-family:League Gothic, sans-serif;color:forestgreen;font-weight:300;font-size:1px;padding:0;">'+
+                                            // '<p class="mb-n2" style="color:'+program_strand_color+'">'+program_strand+'</p>'+
+                                        '</td>'+
+                                        '<td class="border border-transparent"> </td>'+
+                                    '</tr>'+
+                                    '<!-- adviser -->'+
+                                    '<tr align="center" style="height:1.2rem; border: 1px solid #000;">'+
+                                        '<td class="border border-transparent"> </td>'+
+                                        '<td colspan="5" class="border border-transparent text-left" style="font-family:League Gothic, sans-serif;color:#41A1DF;font-size:1.1rem;padding-top:0px;">'+
+                                            // '<p class="mb-n2">Adviser:</p>'+
+                                        '</td>'+
+                                        '<td colspan="13" class="border border-transparent text-left" style="font-family:League Gothic, sans-serif;font-weight:300;font-size:1px;padding:0;">'+
+                                            // '<p class="mb-n2">'+advisory+'</p>'+
+                                        '</td>'+
+                                        '<td class="border border-transparent"> </td>'+
+                                    '</tr>'+
+                                    '<!-- school year -->'+
+                                    '<!-- qrcode -->'+
+                                    '<tr stye="border: 1px solid #000;font-size:1px;height:1rem;">'+
+                                        '<td colspan="20"> </td>'+
+                                    '</tr>'+
+                                '</table>'+
+                            '</td>'+
+
+                            '<td align="right" width="50%" style="border: 1px dashed #000;padding: 2.5px;">'+
+                                '<table cellspacing="0" style="font-size:10px;border:2.5px solid #3786A3;background-image: url(<?= $system_bg_nt_back_id ?>);background-repeat: no-repeat;background-size: 100% 100%;width: 360px;height: 530px;">'+
+                                    '<tr align="center" style="height:5.5rem; border: 1px solid #000;font-size:12px;color: rgba(0, 0, 0, 0);">'+
+                                        '<td class="border border-transparent" width="5%">  </td>'+
+                                        '<td class="border border-transparent" width="5%">  </td>'+
+                                        '<td class="border border-transparent" width="5%">  </td>'+
+                                        '<td class="border border-transparent" width="5%">  </td>'+
+                                        '<td class="border border-transparent" width="5%">  </td>'+
+                                        '<td class="border border-transparent" width="5%">  </td>'+
+                                        '<td class="border border-transparent" width="5%">  </td>'+
+                                        '<td class="border border-transparent" width="5%">  </td>'+
+                                        '<td class="border border-transparent" width="5%">  </td>'+
+                                        '<td class="border border-transparent" width="5%">  </td>'+
+                                        '<td class="border border-transparent" width="5%">  </td>'+
+                                        '<td class="border border-transparent" width="5%">  </td>'+
+                                        '<td class="border border-transparent" width="5%">  </td>'+
+                                        '<td class="border border-transparent" width="5%">  </td>'+
+                                        '<td class="border border-transparent" width="5%">  </td>'+
+                                        '<td class="border border-transparent" width="5%">  </td>'+
+                                        '<td class="border border-transparent" width="5%">  </td>'+
+                                        '<td class="border border-transparent" width="5%">  </td>'+
+                                        '<td class="border border-transparent" width="5%">  </td>'+
+                                        '<td class="border border-transparent" width="5%">  </td>'+
+                                    '</tr>'+
+                                    '<!-- qrcode back -->'+
+                                    '<tr align="center" style="height:4rem; border: 1px solid #000;font-size:5px;">'+
+                                        '<td colspan="6" class="border border-transparent"></td>'+
+                                        '<td colspan="8" class="border border-transparent" style="vertical-align: top;width:1rem;background-color:#fff;">'+
+                                            '<div id="qqqq2'+i+'" style="text-align:center;width:100%;height:100%;padding:5px;"></div>'+
+                                        '</td>'+
+                                        '<td colspan="6" class="border border-transparent"></td>'+
+                                    '</tr>'+
+                                    '<tr align="center" style="height:1.4rem; border: 1px solid #000;font-size:7px;">'+
+                                        '<td colspan="20" class="border border-transparent"></td>'+
+                                    '</tr>'+
+                                    '<tr align="center" style="height:1.45rem; border: 1px solid #000;font-size:7px;">'+
+                                        '<td colspan="2" class="border border-transparent"></td>'+
+                                        '<td colspan="16" class="border border-transparent" style="font-family:Montserrat, sans-serif;color:#000;font-weight:800;font-size:' + autoSizeFont(ioeName, 9, 20, 190) + 'px;padding:0;">'+
+                                            '<p class="mb-n2 mt-n1">'+ioeName.toUpperCase()+'</p>'+
+                                        '</td>'+
+                                        '<td colspan="2" class="border border-transparent"></td>'+
+                                    '</tr>'+
+                                    '<tr align="center" style="height:1rem; border: 1px solid #000;">'+
+                                        '<td colspan="2" class="border border-transparent"></td>'+
+                                        '<td colspan="16" class="border border-transparent" style="font-family:League Gothic, sans-serif;color:#1E34AB;font-weight:300;font-size:15px;padding:0;">'+
+                                            '<p class="mb-n2 mt-n2">CONTACT PERSON</p>'+
+                                        '</td>'+
+                                        '<td colspan="2" class="border border-transparent"></td>'+
+                                    '</tr>'+
+                                    '<tr align="center" style="height:1rem; border: 1px solid #000;">'+
+                                        '<td colspan="2" class="border border-transparent"></td>'+
+                                        '<td colspan="16" class="border border-transparent" style="font-family:League Gothic, sans-serif;color:#000;font-weight:300;font-size:' + autoSizeFont(ioeNumber, 9, 15, 190) + 'px;padding:0;">'+
+                                            '<p class="mb-n2 mt-n2">'+ioeNumber.toUpperCase()+'</p>'+
+                                        '</td>'+
+                                        '<td colspan="2" class="border border-transparent"></td>'+
+                                    '</tr>'+
+                                    '<tr align="center" style="height:1rem; border: 1px solid #000;">'+
+                                        '<td colspan="2" class="border border-transparent"></td>'+
+                                        '<td colspan="16" class="border border-transparent" style="font-family:League Gothic, sans-serif;color:#000;font-weight:300;font-size:' + autoSizeFont(ioeAddress, 9, 15, 190) + 'px;padding:0;">'+
+                                            '<p class="mb-n2 mt-n2">'+ioeAddress.toUpperCase()+'</p>'+
+                                        '</td>'+
+                                        '<td colspan="2" class="border border-transparent"></td>'+
+                                    '</tr>'+
+
+                                    '<tr stye="border: 1px solid #000">'+
+                                        '<td colspan="20"></td>'+
+                                    '</tr>'+
+                                '</table>'+
+                            '</td>'
+                        );
+                        g = "";
+                        // }
+                        QR_BAR_Generator(i, od['uuid'], empid)
+                    }
+                    g = "";
+                    $("#modalPreviewID #tblPreviewID").append('</tr>');
+
+                }
+                $("#modalPreviewID .header").html("Student ID preview")
+                $("#modalPreviewID").modal("show");
+            }).done(function() {
+            $('[data-toggle="tooltip"]').tooltip()
+        });
+
     }
 
     function imageView(a, b, c) {
@@ -513,6 +819,58 @@ $uri = $this->session->schoolmis_login_uri;
         // $("#tbl"+tableId+"_filter").addClass("row");
         // $("#tbl"+tableId+"_filter label").css("width","99%");
         // $("#tbl"+tableId+"_filter .form-control-sm").css("width","99%");
+    }
+
+    function QR_BAR_Generator(a, b, c) {
+        var qrcode = new QRCode(document.getElementById("qqqq1"+a), {
+            text: '7' + c,
+            height: 100,
+            width: 100
+        });
+        var qrcode = new QRCode(document.getElementById("qqqq2"+a), {
+            text: '6' + c,
+            height: 133,
+            width: 133,
+        });
+        // JsBarcode("#bbbb1" + a, '7' + c, {
+        //     pixelRatio: 80,
+        //     displayValue: false,
+        //     margin: 0
+        // });
+        // JsBarcode("#bbbb0" + a, '6' + c, {
+        //     pixelRatio: 100,
+        //     displayValue: false
+        // });
+        // JsBarcode("#bbbb"+a, c,{displayValue: false});
+        // $("#bbbb"+a).attr('src', z);
+    }
+
+    function autoSizeFont(text, minFontSize, maxFontSize, maxWidth) {
+        var $tempElement = $('<span>').text(text).hide().appendTo('body');
+        var fontSize = maxFontSize;
+
+        // Set the initial font size
+        $tempElement.css('font-size', fontSize + 'px');
+
+        // Check if the text width exceeds the maximum width
+        while ($tempElement.width() > maxWidth && fontSize > minFontSize) {
+            fontSize--;
+            $tempElement.css('font-size', fontSize + 'px');
+        }
+
+        // Clean up the temporary element
+        $tempElement.remove();
+
+        return fontSize;
+    }
+
+    function ifnull(a) {
+        let b = a;
+        if ((a == "null") || (a == null) || (a == "") || (a == '')) {
+            // alert(a)
+            b = '-';
+        }
+        return b;
     }
 
     function getLocation(a, b, c, e) {

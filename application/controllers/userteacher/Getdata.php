@@ -573,7 +573,7 @@ class Getdata extends MY_Controller
                 $birthDate,
                 $brgy_city,
                 '<div class="normal_view" style="white-space: nowrap;">
-                    ' . $value->enrollment_status . ($unenroll == 't' && $advsry == 1 ?
+                    ' . $value->enrollment_status . (($unenroll == 't' && $advsry == 1) || ($uri=='userschooladmin') ?
                     // " <span class='fa fa-trash-alt text-danger text-sm' style='cursor:pointer' onclick='getDetails(\"UnenrollConfirm\",$arr2,1,\"#\");setTimeout(function(){ $(\".passwordUnenroll\").val(\"\").focus(); } ,200);$(\"#modalLearnersUnenroll\").modal(\"show\");'>
                     // </span>"
                     '<button type="button" class="btn btn-xs text-sm float-right btn-outline-secondary rounded-circle border-0 ml-1" data-toggle="dropdown" aria-expanded="true">
@@ -581,7 +581,7 @@ class Getdata extends MY_Controller
                     </button>
                     <div class="dropdown-menu p-0" role="menu">' .
                     "<a class='dropdown-item text-xs bg-danger' role='button' onclick='getDetails(\"UnenrollConfirm\",$arr2,1,\"#\");setTimeout(function(){ $(\".passwordUnenroll\").val(\"\").focus(); } ,200);$(\"#modalLearnersUnenroll\").modal(\"show\");'><span class='fa fa-trash-alt'></span> UNENROLL</a>" .
-                    "<a class='dropdown-item text-xs' role='button' onclick='getDetails(\"UnenrollConfirm\",$arr2,1,\"#\");setTimeout(function(){ $(\".passwordUnenroll\").val(\"\").focus(); } ,200);$(\"#modalLearnersSF1\").modal(\"show\");'><span class='fa fa-folder-open'></span> FORM 1</a>" .
+                    // "<a class='dropdown-item text-xs' role='button' onclick='getDetails(\"UnenrollConfirm\",$arr2,1,\"#\");setTimeout(function(){ $(\".passwordUnenroll\").val(\"\").focus(); } ,200);$(\"#modalLearnersSF1\").modal(\"show\");'><span class='fa fa-folder-open'></span> FORM 1</a>" .
                     // "<a class='dropdown-item text-xs bg-info' role='button' onclick='alert()'><span class='fa fa-list'></span> GENERATE</a>" .
                     // "<a class='dropdown-item text-xs bg-info' role='button' onclick='getDetails(\"TransferConfirm\",$arr2,1,\"#\");setTimeout(function(){ $(\".passwordTransfer\").val(\"\").focus(); } ,200);$(\"#modalLearnersTransfer\").modal(\"show\");'><span class='fa fa-arrow-right'></span> TRANSFER</a>
                     "</div>"

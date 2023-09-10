@@ -41,12 +41,13 @@ class Getdata extends MY_Controller
 
         if ($thisQuery) {
             foreach ($thisQuery->result() as $key => $value) {
+                $mn = $value->mname;
                 $data["data"][] = [
                     // "fullName" => $value->full_name,
                     // "description" => $value->type_ . " " . $io,
 
                     "lname"  => $value->last_name,
-                    "fname_mname"  => $value->first_name . ' ' . ($value->mname == '-' ? '-' : ($value->mname[0] . '.')),
+                    "fname_mname"  => $value->first_name . ' ' . ($mn ? ($mn == '-' ? '-' : ($mn[0] . '.')) : ''),
                     "assignment"  => $value->assignment_,
                     "type"  => $value->type_,
                     "io" => $z,
