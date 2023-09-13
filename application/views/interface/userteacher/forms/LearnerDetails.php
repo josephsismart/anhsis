@@ -104,7 +104,7 @@
 
         <div class="card w-100 collapse-header collapsed-card">
             <!-- <div class="card w-100"> -->
-            <div class="card-header p-1 pr-2 pl-2 bg-gray rounded" role="button" data-card-widget="collapse">
+            <div class="card-header p-1 pr-2 pl-2 bg-gradient-purple rounded" role="button" data-card-widget="collapse">
                 <h3 class="card-title lead text-white">Other Information goes here (<i>click here</i>)</h3>
                 <!-- <div class="card-tools mt-n1 pb-0">
                     <button type="button" class="btn btn-tool btn-xs"><i class="fas fa-plus"></i></button>
@@ -192,7 +192,7 @@
 
         <div class="card w-100 collapse-header collapsed-card">
             <!-- <div class="card w-100"> -->
-            <div class="card-header p-1 pr-2 pl-2 bg-gray rounded" role="button" data-card-widget="collapse">
+            <div class="card-header p-1 pr-2 pl-2 bg-gradient-purple rounded" role="button" data-card-widget="collapse">
                 <h3 class="card-title lead text-white">Additional Information goes here (<i>click here</i>)</h3>
                 <!-- <div class="card-tools mt-n1 pb-0">
                     <button type="button" class="btn btn-tool btn-xs"><i class="fas fa-plus"></i></button>

@@ -339,9 +339,16 @@ $sy_ = $getOnLoad["sy"]; //$getOnLoad["sy_qrtr_e_g"];
 
                     // },
                     {
-                        text: '<i class="fa fa-user"></i> Preview ID',
+                        text: '<i class="fa fa-user"></i> NON-TEACHING ID',
                         action: function(e, dt, node, config) {
-                            PreviewID();
+                            PreviewID('NT');
+                        }
+
+                    },
+                    {
+                        text: '<i class="fa fa-user"></i> TEACHING ID',
+                        action: function(e, dt, node, config) {
+                            PreviewID('T');
                         }
 
                     }
@@ -430,7 +437,9 @@ $sy_ = $getOnLoad["sy"]; //$getOnLoad["sy_qrtr_e_g"];
         }
     }
 
-    function PreviewID(){
+    function PreviewID(aa){
+        var bg_url_f = (aa=='T'?'url(<?= $system_bg_t_front_id ?>)':'url(<?= $system_bg_nt_front_id ?>)')
+        var bg_url_b = (aa=='T'?'url(<?= $system_bg_t_back_id ?>)':'url(<?= $system_bg_nt_back_id ?>)')
         var g = "";
         var g = "";
         var c = [];
@@ -445,7 +454,7 @@ $sy_ = $getOnLoad["sy"]; //$getOnLoad["sy_qrtr_e_g"];
 
         $("#modalPreviewID #tblPreviewID").empty();
         $.get("<?= base_url($uri . '/getdata/getPreviewPersonnelID') ?>", {
-                // rmsid: 6,
+                f: aa,
             },
             function(data) {
                 var d = JSON.parse(data);
@@ -475,7 +484,7 @@ $sy_ = $getOnLoad["sy"]; //$getOnLoad["sy_qrtr_e_g"];
                         let ioeAddress = ifnull(d[ji]['ioeAddress']);
                         $("#modalPreviewID #tblPreviewID").append(
                             '<td align="left" width="50%" style="border: 1px dashed #000;padding: 2.5px;">'+
-                                '<table cellspacing="0" style="font-size:10px;border:2.5px solid #3786A3;background-image: url(<?= $system_bg_nt_front_id ?>);background-repeat: no-repeat;background-size: 100% 100%;width: 360px;height: 530px;">'+
+                                '<table cellspacing="0" style="font-size:10px;border:2.5px solid #3786A3;background-image: '+bg_url_f+';background-repeat: no-repeat;background-size: 100% 100%;width: 360px;height: 530px;">'+
                                     '<tr align="center" style="height:5.5rem; border: 1px solid #000;font-size:12px;color: rgba(0, 0, 0, 0);">'+
                                         '<td class="border border-transparent" width="5%">  </td>'+
                                         '<td class="border border-transparent" width="5%">  </td>'+
@@ -539,7 +548,7 @@ $sy_ = $getOnLoad["sy"]; //$getOnLoad["sy_qrtr_e_g"];
                                         '<td class="border border-transparent"> </td>'+
                                     '</tr>'+
                                     '<!-- signature -->'+
-                                    '<tr align="center" style="height:1.1rem; border: 1px solid #000;font-size:7px;">'+
+                                    '<tr align="center" style="height:.1rem; border: 1px solid #000;font-size:7px;">'+
                                         '<td class="border border-transparent"> </td>'+
                                         '<td class="border border-transparent"> </td>'+
                                         '<td colspan="6" class="border border-transparent"> </td>'+
@@ -558,15 +567,15 @@ $sy_ = $getOnLoad["sy"]; //$getOnLoad["sy_qrtr_e_g"];
                                     '<tr align="center" style="height:1rem; border: 1px solid #000;">'+
                                         '<td class="border border-transparent"> </td>'+
                                         '<!-- <td colspan="18" class="border border-transparent"> </td> -->'+
-                                        '<td colspan="18" class="border border-transparent text-left" style="font-family:Montserrat, sans-serif;color:#102C3D;font-weight:300;font-size:' + autoSizeFont(first_minitial, 12, 28, 200) + 'px;padding:0;">'+
-                                            '<p class="mb-n3">'+ first_minitial +'</p>'+
+                                        '<td colspan="18" class="border border-transparent text-left" style="font-family:Montserrat, sans-serif;color:#102C3D;font-weight:500;font-size:' + autoSizeFont(first_minitial, 12, 28, 200) + 'px;padding:5px 0 0 0;">'+
+                                            '<p class="mb-n3 mt-1">'+ first_minitial +'</p>'+
                                         '</td>'+
                                         '<td class="border border-transparent"> </td>'+
                                     '</tr>'+
                                     '<!-- grade section League Gothic -->'+
                                     '<tr align="center" style="height:1.2rem; border: 1px solid #000;">'+
                                         '<td class="border border-transparent"> </td>'+
-                                        '<td colspan="18" class="border border-transparent text-left" style="font-family:League Gothic, sans-serif;color:#E82B2B;font-size:1.5rem;padding-top:10px;">'+
+                                        '<td colspan="18" class="border border-transparent text-left" style="font-family:League Gothic, sans-serif;color:#E82B2B;font-size:1.5rem;padding-top:20px;">'+
                                             '<p class="mb-n2">' + title +'</p>'+
                                         '</td>'+
                                         // '<td colspan="13" class="border border-transparent text-left" style="font-family:League Gothic, sans-serif;font-weight:300;font-size:' + autoSizeFont(g_sec, 14, 18, 175) + 'px;padding-top:10px;">'+
@@ -605,7 +614,7 @@ $sy_ = $getOnLoad["sy"]; //$getOnLoad["sy_qrtr_e_g"];
                             '</td>'+
 
                             '<td align="right" width="50%" style="border: 1px dashed #000;padding: 2.5px;">'+
-                                '<table cellspacing="0" style="font-size:10px;border:2.5px solid #3786A3;background-image: url(<?= $system_bg_nt_back_id ?>);background-repeat: no-repeat;background-size: 100% 100%;width: 360px;height: 530px;">'+
+                                '<table cellspacing="0" style="font-size:10px;border:2.5px solid #3786A3;background-image: '+bg_url_b+';background-repeat: no-repeat;background-size: 100% 100%;width: 360px;height: 530px;">'+
                                     '<tr align="center" style="height:5.5rem; border: 1px solid #000;font-size:12px;color: rgba(0, 0, 0, 0);">'+
                                         '<td class="border border-transparent" width="5%">  </td>'+
                                         '<td class="border border-transparent" width="5%">  </td>'+
@@ -1007,6 +1016,12 @@ $sy_ = $getOnLoad["sy"]; //$getOnLoad["sy_qrtr_e_g"];
         accompWindow.document.write('<head>');
         accompWindow.document.title = d;
         accompWindow.document.write('<link rel="stylesheet" href="<?= base_url() ?>plugins/fontawesome-free/css/all.min.css">' +
+            '<link rel="stylesheet" href="<?= base_url() ?>dist/css/adminlte.min.css">'+
+            '<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">'+
+            '<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=League+Gothic&display=swap">'+
+            '<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;500;600;800&display=swap">'+
+            '<link rel="preconnect" href="https://fonts.googleapis.com">'+
+            '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>'+
             '<link rel="stylesheet" href="<?= base_url() ?>dist/css/adminlte.min.css">');
         accompWindow.document.write('</head>');
         accompWindow.document.write('<style> @page { size: ' + c + ' ' + orientation + ';' + margin + '} .square {height: 100px;width: 100px;border:1px solid black; } </style>');

@@ -8,9 +8,9 @@
 <!-- Google Font: Source Sans Pro -->
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=League+Gothic&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;500;600;800&display=swap">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;500;600;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="<?= base_url() ?>dist/css/fonts.css">
 <link rel="stylesheet" href="<?= base_url() ?>plugins/fontawesome-free/css/all.min.css">
 <link rel="stylesheet" href="<?= base_url() ?>plugins/ol3/ol.css">

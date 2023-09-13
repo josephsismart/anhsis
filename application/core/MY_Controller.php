@@ -20,6 +20,8 @@ class MY_Controller extends CI_Controller
             "system_bg_l_back_id"    => base_url("dist/img/media/bg/id/2023/learner/v2/v2_back.png"),
             "system_bg_nt_front_id"    => base_url("dist/img/media/bg/id/2023/non-teaching/v1/v1_front.png"),
             "system_bg_nt_back_id"    => base_url("dist/img/media/bg/id/2023/non-teaching/v1/v1_back.png"),
+            "system_bg_t_front_id"    => base_url("dist/img/media/bg/id/2023/teaching/v1/v1_front.png"),
+            "system_bg_t_back_id"    => base_url("dist/img/media/bg/id/2023/teaching/v1/v1_back.png"),
             "system_esig"    => base_url("dist/img/media/esig/roa.png"),
 
             "system_deped_1x1"    => base_url("dist/img/media/icons/deped_1x1.png"),

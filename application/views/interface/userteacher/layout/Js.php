@@ -1242,9 +1242,9 @@ $q_ = $getOnLoad["qrtrR"]; //$getOnLoad["sy_qrtr_e_g"];
                                     '<tr align="center" style="height:1rem; border: 1px solid #000;font-size:7px;">'+
                                         '<td class="border border-transparent"></td>'+
                                         // '<td class="border border-transparent"></td>'+
-                                        '<td colspan="8" class="border border-transparent" style="font-family:Montserrat, sans-serif;font-weight:800;font-size:12px;vertical-align:bottom;">'+
+                                        '<td colspan="8" class="border border-transparent" style="font-family:Montserrat, sans-serif;font-weight:600;font-size:12px;vertical-align:bottom;">'+
                                             '<p style="padding:0;letter-spacing:1px; display: inline;">' + lrn + '</p><br/>'+
-                                            '<p style="padding:0;font-family:Montserrat, sans-serif;font-weight:600;font-size:' + autoSizeFont(grade_k, 8, 12, 100) + 'px;display: inline;color:'+color_k+'">'+grade_k+'</p>'+
+                                            '<p style="padding:0;font-family:Montserrat, sans-serif;font-weight:800;font-size:' + autoSizeFont(grade_k, 8, 12, 100) + 'px;display: inline;color:'+color_k+'">'+grade_k+'</p>'+
                                         '</td>'+
                                         // '<td class="border border-transparent"> </td>'+
                                         '<td class="border border-transparent"> </td>'+
@@ -1260,14 +1260,14 @@ $q_ = $getOnLoad["qrtrR"]; //$getOnLoad["sy_qrtr_e_g"];
                                     //     // '<td class="border border-transparent"> </td>'+
                                     //     '<td class="border border-transparent"> </td>'+
                                     // '</tr>'+
-                                    '<tr align="center" style="height:1.1rem; border: 1px solid #000;font-size:7px;">'+
-                                        '<td class="border border-transparent"> </td>'+
-                                        // '<td colspan="10" class="border border-transparent"> </td>'+
-                                        '<td class="border border-transparent"> </td>'+
-                                        '<td colspan="6" class="border border-transparent"> </td>'+
-                                        '<td class="border border-transparent"> </td>'+
-                                        '<td class="border border-transparent"> </td>'+
-                                    '</tr>'+
+                                    // '<tr align="center" style="height:.3rem; border: 1px solid #000;font-size:7px;padding:0">'+
+                                    //     '<td class="border border-transparent"> </td>'+
+                                    //     // '<td colspan="10" class="border border-transparent"> </td>'+
+                                    //     '<td class="border border-transparent"> </td>'+
+                                    //     '<td colspan="6" class="border border-transparent"> </td>'+
+                                    //     '<td class="border border-transparent"> </td>'+
+                                    //     '<td class="border border-transparent"> </td>'+
+                                    // '</tr>'+
                                     '<!-- lastname -->'+
                                     '<tr align="center" style="height:1.4rem; border: 1px solid #000;padding:0">'+
                                         '<td class="border border-transparent"> </td>'+
@@ -1285,13 +1285,24 @@ $q_ = $getOnLoad["qrtrR"]; //$getOnLoad["sy_qrtr_e_g"];
                                         '</td>'+
                                         '<td class="border border-transparent"> </td>'+
                                     '</tr>'+
+                                    '<!-- birthdate League Gothic -->'+
+                                    '<tr align="center" style="height:1.2rem; border: 1px solid #000;">'+
+                                        '<td class="border border-transparent"> </td>'+
+                                        '<td colspan="5" class="border border-transparent text-left" style="font-family:League Gothic, sans-serif;color:#41A1DF;font-size:1.1rem;padding-top:15px;">'+
+                                            '<p class="mb-n2">Birthdate:</p>'+
+                                        '</td>'+
+                                        '<td colspan="13" class="border border-transparent text-left" style="font-family:League Gothic, sans-serif;font-weight:300;font-size:' + autoSizeFont(birthdate, 14, 18, 175) + 'px;padding-top:15px;">'+
+                                            '<p class="mb-n2">'+birthdate+'</p>'+
+                                        '</td>'+
+                                        '<td class="border border-transparent"> </td>'+
+                                    '</tr>'+
                                     '<!-- grade section League Gothic -->'+
                                     '<tr align="center" style="height:1.2rem; border: 1px solid #000;">'+
                                         '<td class="border border-transparent"> </td>'+
-                                        '<td colspan="5" class="border border-transparent text-left" style="font-family:League Gothic, sans-serif;color:#41A1DF;font-size:1.1rem;padding-top:10px;">'+
+                                        '<td colspan="5" class="border border-transparent text-left" style="font-family:League Gothic, sans-serif;color:#41A1DF;font-size:1.1rem;padding-top:0px;">'+
                                             '<p class="mb-n2">Grade & Section:</p>'+
                                         '</td>'+
-                                        '<td colspan="13" class="border border-transparent text-left" style="font-family:League Gothic, sans-serif;font-weight:300;font-size:' + autoSizeFont(g_sec, 14, 18, 175) + 'px;padding-top:10px;">'+
+                                        '<td colspan="13" class="border border-transparent text-left" style="font-family:League Gothic, sans-serif;color:forestgreen;font-weight:300;font-size:' + autoSizeFont(g_sec, 15, 18, 200) + 'px;padding:0;">'+
                                             '<p class="mb-n2">'+g_sec+'</p>'+
                                         '</td>'+
                                         '<td class="border border-transparent"> </td>'+
@@ -1537,6 +1548,12 @@ $q_ = $getOnLoad["qrtrR"]; //$getOnLoad["sy_qrtr_e_g"];
         accompWindow.document.write('<head>');
         accompWindow.document.title = d;
         accompWindow.document.write('<link rel="stylesheet" href="<?= base_url() ?>plugins/fontawesome-free/css/all.min.css">' +
+            '<link rel="stylesheet" href="<?= base_url() ?>dist/css/adminlte.min.css">'+
+            '<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">'+
+            '<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=League+Gothic&display=swap">'+
+            '<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;500;600;800&display=swap">'+
+            '<link rel="preconnect" href="https://fonts.googleapis.com">'+
+            '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>'+
             '<link rel="stylesheet" href="<?= base_url() ?>dist/css/adminlte.min.css">');
         accompWindow.document.write('</head>');
         accompWindow.document.write('<style> @page { size: ' + c + ' ' + orientation + ';' + margin + '} </style>');

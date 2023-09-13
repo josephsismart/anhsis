@@ -264,6 +264,7 @@ class Getdata extends MY_Controller
 
     function getPreviewPersonnelID()
     {
+        $f = $this->input->get("f");
         $tab = null;
         $arr = null;
         // $sy = $this->input->get("sy");
@@ -272,7 +273,10 @@ class Getdata extends MY_Controller
         // $ssy = 'sy' . $sy;
         $sy = $this->getOnLoad()["sy_id"];
 
+        $fil = $f == 'NT' ? 'NON-TEACHING' : 'TEACHING';
+
         $query1 = $this->db->query("SELECT * FROM profile.view_schoolpersonnel
+                                    WHERE employee_type='$fil'
                                     ORDER BY schoolpersonnel_id DESC");
         foreach ($query1->result() as $key => $value) {
             $other_details = json_decode($value->other_details, true);
@@ -335,7 +339,7 @@ class Getdata extends MY_Controller
                 "color_k" => $value->first_name,
                 "address_details" => $value->first_name,
                 "other_details" => $value->other_details,
-                
+
                 "ioeName" => $poi ? $poi["ioeName"] : null,
                 "ioeAddress" => $poi ? $poi["ioeAddress"] : null,
                 "ioeNumber" => $poi ? $poi["ioeNumber"] : null,
