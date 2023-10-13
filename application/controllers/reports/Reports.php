@@ -1938,8 +1938,24 @@ class Reports extends MY_Controller
         $arr = null;
         // $sy = $this->input->get("sy");
         // $qrtr = $this->input->get("qrtr");
+        $s = $this->input->get("s");
         $rmsid = $this->input->get("rmsid");
+        $count = count($s);
         // $ssy = 'sy' . $sy;
+        $w_lrn = null;
+        for ($i = 0; $i < count($s); $i++) {
+            // echo $s[$i];
+            $parts = explode("_&&_", $s[$i]);
+            $desiredValue = $parts[1];
+            $w_lrn .= " t2.lrn='$desiredValue' ";
+            if ($i === ($count - 1)) {
+                // This is the last iteration, break out of the loop
+                break;
+            }else{
+                $w_lrn .= " OR ";
+            }
+        }
+
         $sy = $this->getOnLoad()["sy_id"];
 
         //         SELECT t2.enrollment_id,t2.sctn_nm,t2.sy,t2.lrn,t2.last_fullname,
@@ -1976,7 +1992,8 @@ class Reports extends MY_Controller
                                     FROM building_sectioning.view_subject_grdlvl_personnel_assgnmnt t1
                                             LEFT JOIN sy$sy.bs_view_enrollment t2 ON t1.room_section_id=t2.room_section_id AND t1.schl_yr_id=t2.schl_yr_id
                                             LEFT JOIN building_sectioning.view_room_section t5 ON t1.room_section_id=t5.id
-                                            WHERE t1.room_section_id=$rmsid -- AND t4.q1 IS NOT NULL  -- AND t2.lrn ='214526130052' AND t1.schl_yr_id=1
+                                            -- WHERE t1.room_section_id=$rmsid $w_lrn-- AND t4.q1 IS NOT NULL  -- AND t2.lrn ='214526130052' AND t1.schl_yr_id=1
+                                            WHERE $w_lrn
                                             GROUP BY t2.grade,t2.enrollment_id,t2.sctn_nm,t5.program_strand,t5.program_strand_color,t5.program,t5.grade_k,t5.color_k,t2.sy,t2.lrn,t2.last_name,t2.first_name,COALESCE(t2.middle_name),t2.last_fullname,t2.full_name,t2.img_path,t2.birthdate,t2.address_details,t5.full_name,t2.sex_bool,t2.other_details
                                             ORDER BY t2.sex_bool DESC, t2.last_fullname ASC");
         foreach ($query1->result() as $key => $value) {

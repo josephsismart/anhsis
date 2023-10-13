@@ -167,6 +167,136 @@ $q_ = $getOnLoad["qrtrR"]; //$getOnLoad["sy_qrtr_e_g"];
         });
     }
 
+    function sectionList(){
+        let gg = $("#form_save_dataSectionListFilterTransfer .selectGradeLevelList").val();
+        let $x = $("#form_save_dataSectionListFilterTransfer .sectionListTransfer");
+        $.get("<?= base_url($uri . "/Getdata/getSectionList") ?>", { g: gg },
+        function(data) {
+            var d = JSON.parse(data);
+            $x.empty();
+            $x.append("<option value=''>SELECT</option>");
+            for (var i = 0; i < d["data"].length; i++) {
+                $x.append("<option value='"+d["data"][i]["a"]+"'>"+d["data"][i]["b"]+"</option>");
+            }
+        }).done(function() {});
+    }
+
+    function BatchUnenroll() {
+        var selectedValues = $("#tblLearnersList").find("[name='learnerCheckBox[]']:checked").map(function() {
+            return $(this).val();
+        }).get();
+
+        // 'selectedValues' now contains an array of selected values
+        if (selectedValues.length < 1) {
+            existAlert('Please select Learner');
+            return false;
+        }else{
+            $("#modalLearnersBatchUnenroll .listBatchUnenroll").empty();
+            for(i=0;i<selectedValues.length;i++){
+                inputString = selectedValues[i];
+                resultArray = inputString.split("_&&_");
+                $("#modalLearnersBatchUnenroll .listBatchUnenroll").
+                append('<span class="badge badge-xs badge-info">'+ resultArray[1] +'</span> ');
+            }
+        }
+
+        if (!$("#modalLearnersBatchUnenroll").is(':visible')) {
+            $("#modalLearnersBatchUnenroll").modal('show');
+            return false;
+        }
+
+        if ($("#modalLearnersBatchUnenroll .passwordUnenroll").val()=='') {
+            warningAlert("Please enter password!");
+            $("#modalLearnersBatchUnenroll .passwordUnenroll").focus();
+            return false;
+        }
+        // a = $("#form_save_dataUnenrollConfirm .submitBtnPrimary").text();
+        // $("#form_save_dataUnenrollConfirm .submitBtnPrimary").attr("disabled", true);
+        // $("#form_save_dataUnenrollConfirm .submitBtnPrimary").html("<span class=\"fa fa-spinner fa-pulse\"></span>");
+        // s = $("#form_save_dataUnenrollConfirm").serialize();
+        
+        $.post("<?= base_url($uri . '/Dataentry/learnerUnenroll') ?>", {b:selectedValues,password:$("#modalLearnersBatchUnenroll .passwordUnenroll").val()},
+            function(data) {
+                var result = JSON.parse(data);
+                if (result.success == true) {
+                    successAlert(result.message);
+                    $("#modalLearnersBatchUnenroll .passwordUnenroll").val('');
+                    $("#modalLearnersBatchUnenroll").modal('hide');
+                    // getTable("AssignedSectionList", 0, 10);
+                    var page = $('#tblAssignedSectionList').DataTable().page();
+                    var search = $('#tblAssignedSectionList').DataTable().search();
+                    getTable("AssignedSectionList", 0, 10, search, page);
+                } else if (result.success == false) {
+                    failAlert(result.message);
+                }
+            }
+        ).then(function() {
+            // s2 == 1 ? $("#form_save_data" + formId + " .select" + getList).select2() : "";
+        });
+    }
+
+    function BatchTransfer() {
+        var selectedValues = $("#tblLearnersList").find("[name='learnerCheckBox[]']:checked").map(function() {
+            return $(this).val();
+        }).get();
+
+
+        // 'selectedValues' now contains an array of selected values
+        if (selectedValues.length < 1) {
+            existAlert('Please select Learner');
+            return false;
+        }else{
+            $("#modalLearnersBatchTransfer .listBatchTransfer").empty();
+            for(i=0;i<selectedValues.length;i++){
+                inputString = selectedValues[i];
+                resultArray = inputString.split("_&&_");
+                $("#modalLearnersBatchTransfer .listBatchTransfer").
+                append('<span class="badge badge-xs badge-info">'+ resultArray[1] +'</span> ');
+            }
+        }
+
+        if (!$("#modalLearnersBatchTransfer").is(':visible')) {
+            $("#modalLearnersBatchTransfer").modal('show');
+            return false;
+        }
+
+        if (!$("#form_save_dataSectionListFilterTransfer .sectionListTransfer").val()) {
+            existAlert('Please select Section');
+            return false;
+        }
+
+        if ($("#modalLearnersBatchTransfer .passwordTransfer").val()=='') {
+            warningAlert("Please enter password!");
+            $("#modalLearnersBatchTransfer .passwordTransfer").focus();
+            return false;
+        }
+        // a = $("#form_save_dataTransferConfirm .submitBtnPrimary").text();
+        // $("#form_save_dataTransferConfirm .submitBtnPrimary").attr("disabled", true);
+        // $("#form_save_dataTransferConfirm .submitBtnPrimary").html("<span class=\"fa fa-spinner fa-pulse\"></span>");
+        // s = $("#form_save_dataTransferConfirm").serialize();
+        
+        $.post("<?= base_url($uri . '/Dataentry/learnerTransfer') ?>", {b:selectedValues,
+                                password:$("#modalLearnersBatchTransfer .passwordTransfer").val(),
+                                g:$("#form_save_dataSectionListFilterTransfer .sectionListTransfer").val()},
+            function(data) {
+                var result = JSON.parse(data);
+                if (result.success == true) {
+                    successAlert(result.message);
+                    $("#modalLearnersBatchTransfer .passwordTransfer").val('');
+                    $("#modalLearnersBatchTransfer").modal('hide');
+                    // getTable("AssignedSectionList", 0, 10);
+                    var page = $('#tblAssignedSectionList').DataTable().page();
+                    var search = $('#tblAssignedSectionList').DataTable().search();
+                    getTable("AssignedSectionList", 0, 10, search, page);
+                } else if (result.success == false) {
+                    failAlert(result.message);
+                }
+            }
+        ).then(function() {
+            // s2 == 1 ? $("#form_save_data" + formId + " .select" + getList).select2() : "";
+        });
+    }
+
     function transfer() {
         validate("form_save_dataTransferConfirm");
         if (valid != 0) {
@@ -379,7 +509,9 @@ $q_ = $getOnLoad["qrtrR"]; //$getOnLoad["sy_qrtr_e_g"];
                 $("#form_save_data" + formId + " .submitBtnPrimary").attr("disabled", false);
                 $("#form_save_data" + formId + " .submitBtnPrimary").html(a);
                 // getTable("LearnersList", 0, -1);
-                getTable("AssignedSectionList", 0, 10);
+                var page = $('#tblAssignedSectionList').DataTable().page();
+                var search = $('#tblAssignedSectionList').DataTable().search();
+                getTable("AssignedSectionList", 0, 10, search, page);
                 // setTimeout(function() {
                 // $(".form_save_dataSectionList #slctRmRadio" + rsid + rssaid).attr("checked", true).trigger("click");
                 // }, 1500);
@@ -389,7 +521,7 @@ $q_ = $getOnLoad["qrtrR"]; //$getOnLoad["sy_qrtr_e_g"];
         $("#form_save_data" + formId).ajaxForm(saveData);
     }
 
-    function getTable(tableId, dtd, pl, search) {
+    function getTable(tableId, dtd, pl, search, ppage) {
         var drawCounter = 0;
         $("#modal" + tableId + " .content").hide();
         $("#modal" + tableId + " .overlay").show();
@@ -413,20 +545,19 @@ $q_ = $getOnLoad["qrtrR"]; //$getOnLoad["sy_qrtr_e_g"];
                         //         validateTable(tableId);
                         //     }
                         // }, 
-
                         {
                             extend: 'print',
-                            text: '<i class="fa fa-print"></i> Print',
+                            text: '<i class="fa fa-print"></i> PRINT LIST',
                             header: "_excel"
 
                         },
-                        {
-                            text: '<i class="fa fa-user"></i> Preview ID',
-                            action: function(e, dt, node, config) {
-                                PreviewID();
-                            }
+                        // {
+                        //     text: '<i class="fa fa-user"></i> Preview ID',
+                        //     action: function(e, dt, node, config) {
+                        //         PreviewID();
+                        //     }
 
-                        }
+                        // }
                     ] : [] &&
                     tableId == 'AllStudentLogs' ? [{
                         extend: 'print',
@@ -481,6 +612,11 @@ $q_ = $getOnLoad["qrtrR"]; //$getOnLoad["sy_qrtr_e_g"];
                         d.length = pl;
                         d.draw = drawCounter;
                         d.search.value = $('#tbl' + tableId + '_filter input').val();
+
+                        //filter list of section for teacher
+                        d.k12 = $("#form_save_dataSectionListFilter .selectK12List").val();
+                        d.prgrm_strnd = $("#form_save_dataSectionListFilter .selectStrandList").val();
+                        d.grade = $("#form_save_dataSectionListFilter .selectGradeLevelList").val();
                     }
                 },
                 // "pageLength": pl,
@@ -489,13 +625,13 @@ $q_ = $getOnLoad["qrtrR"]; //$getOnLoad["sy_qrtr_e_g"];
                     if (tableId == "Honors") {
                         $('[data-toggle="tooltip"]').tooltip();
                     }
-                    if (tableId == "AssignedSectionList") {
-                        if (rssaid != 0) {
-                            $(".form_save_dataSectionList #slctRmRadio" + rsid + rssaid).attr("checked", true).trigger("click");
-                        } else {
-                            $(".form_save_dataSectionList .slctdRadioAdvisory").attr("checked", true).trigger("click");
-                        }
-                    }
+                    // if (tableId == "AssignedSectionList") {
+                    //     if (rssaid != 0) {
+                    //         $(".form_save_dataSectionList #slctRmRadio" + rsid + rssaid).attr("checked", true).trigger("click");
+                    //     } else {
+                    //         $(".form_save_dataSectionList .slctdRadioAdvisory").attr("checked", true).trigger("click");
+                    //     }
+                    // }
 
                     if (tableId == "GradesList") {
                         $("#modal" + tableId + " .q1c").empty();
@@ -536,15 +672,37 @@ $q_ = $getOnLoad["qrtrR"]; //$getOnLoad["sy_qrtr_e_g"];
             });
 
             $("#tbl" + tableId).on('draw.dt', function() {
+                // Enable the search button and adjust styling
                 $(".searchBtn").attr("disabled", false);
                 $(".searchBtn").html("<span class=\"fa fa-search\"></span>");
+
+                // Check if DataTable needs to be destroyed (dtd == 1)
                 dtd == 1 ? $("#tbl" + tableId).DataTable().destroy() : "";
-                $(".collapse" + tableId).trigger('click');
+
             });
             $("#tbl" + tableId + "_filter").addClass("row");
-            $("#tbl" + tableId + "_filter label").css("width", "97%");
-            $("#tbl" + tableId + "_filter .form-control-sm").css("width", "97%");
+            $("#tbl" + tableId + "_filter label").css("width", "99%");
+            $("#tbl" + tableId + "_filter .form-control-sm").css("width", "99%");
         }, 100);
+        setTimeout(() => {
+            // Trigger the click event on the collapse element
+            // $(".collapse" + tableId).trigger('click');
+
+            // Set the initial page to page number 2
+            // ppage = typeof ppage !== 'undefined' ? ppage : 0;
+            var table = $("#tbl" + tableId).DataTable();
+            table.page(ppage).draw('page');
+        }, 1200);
+        setTimeout(() => {
+            if (tableId == "AssignedSectionList") {
+                if (rssaid != 0) {
+                    $(".form_save_dataSectionList #slctRmRadio" + rsid + rssaid).attr("checked", true).trigger("click");
+                } else {
+                    $(".form_save_dataSectionList .slctdRadioAdvisory").attr("checked", true).trigger("click");
+                }
+            }
+        }, 2000);
+
     }
 
     function validateTable(table_id) {
@@ -716,9 +874,13 @@ $q_ = $getOnLoad["qrtrR"]; //$getOnLoad["sy_qrtr_e_g"];
         $("#tblLearnersList .logs_account").toggle("slow", function() {
             if ($("#tblLearnersList .logs_account").is(":visible")) {
                 logsHS = 1
+                $(".ViewButtonsToggle").removeClass("fa-plus bg-success");
+                $(".ViewButtonsToggle").addClass("fa-minus bg-gray");
             } else {
                 $("#tblLearnersList .normal_view").is(":visible")
                 logsHS = 0
+                $(".ViewButtonsToggle").removeClass("fa-minus bg-gray");
+                $(".ViewButtonsToggle").addClass("fa-plus bg-success");
             }
         });
         $("#tblLearnersList .normal_view").toggle("slow", function() {
@@ -731,6 +893,10 @@ $q_ = $getOnLoad["qrtrR"]; //$getOnLoad["sy_qrtr_e_g"];
     function resetHide(t) {
         if (logsHS == 1) {
             logsHideShow();
+            $('.viewButtons').slideToggle();
+            $("#tblLearnersList").find("input[type='checkbox']").each(function() {
+                $(this).prop("checked", false);
+            });
         }
     }
 
@@ -755,13 +921,23 @@ $q_ = $getOnLoad["qrtrR"]; //$getOnLoad["sy_qrtr_e_g"];
     }
 
     function getLocation(a, b, c) {
-        clearLoc(b, c);
-        let form = 'form_save_data' + c;
-        let d = $('#' + form + ' .select' + a).val();
-        let ab = d == '' || d == null ? 0 : d;
-        getFetchList(c, b, null, 1, {
-            v: ab
-        });
+        // clearLoc(b, c);
+        // let form = 'form_save_data' + c;
+        // let d = $('#' + form + ' .select' + a).val();
+        // let ab = d == '' || d == null ? 0 : d;
+        // getFetchList(c, b, null, 1, {
+        //     v: ab
+        // });
+        for (var i = 0; i < a.length; i++) {
+            clearLoc(b[i], c);
+            let form = 'form_save_data' + c;
+            let d = $('#' + form + ' .select' + a[i]).val();
+            let ab = d == '' || d == null ? 0 : d;
+            getFetchList(c, b[i], null, 1, {
+                v: ab
+            }, 1, 1);
+            // getFetchList(c, b[i], null, 1, e);
+        }
     }
 
     function clearLoc(a, b) {
@@ -769,14 +945,13 @@ $q_ = $getOnLoad["qrtrR"]; //$getOnLoad["sy_qrtr_e_g"];
         $("#" + form + " .select" + a).empty();
     }
 
-    function getFetchList(formId, getList, getQ, s2, where, sel, e, txt) {
+    function getFetchList(formId, getList, getQ, s2, where, sel, e) {
         var q = getQ ? getQ : getList;
         $("#form_save_data" + formId + " .select" + getList).empty();
         $.post("<?= base_url($uri . '/getdata/get') ?>" + q, where,
             function(data) {
                 var result = JSON.parse(data);
-                let t = (txt == "" ? "" : " " + txt);
-                (sel == 0 || e == 0) ? $("#form_save_data" + formId + " .select" + getList).append("<option value=''>SELECT" + t + "</option>"): "";
+                (sel == 0 || e == 0) ? $("#form_save_data" + formId + " .select" + getList).append("<option value=''>SELECT</option>"): "";
                 for (var i = 0; i < result["data"].length; i++) {
                     $("#form_save_data" + formId + " .select" + getList).append("<option value='" + result["data"][i]['id'] + "'>" + result["data"][i]['item'] + "</option>");
                 }
@@ -819,15 +994,21 @@ $q_ = $getOnLoad["qrtrR"]; //$getOnLoad["sy_qrtr_e_g"];
             // },
             success: function(data) {
                 // getTable("LearnersList", 0, -1);
-                getTable("AssignedSectionList", 0, 10);
+                // getTable("AssignedSectionList", 0, 10);
                 // setTimeout(function() {
                 //     $(".form_save_dataSectionList #slctRmRadio" + rsid + rssaid).attr("checked", true).trigger("click");
                 // }, 1500);
                 $('#file').val('');
                 successAlert("Successfully Saved!");
                 $("#import_form .overlay").slideUp();
+                var page = $('#tblAssignedSectionList').DataTable().page();
+                var search = $('#tblAssignedSectionList').DataTable().search();
+                getTable("AssignedSectionList", 0, 10, search, page);
             },
-            error: function(data) {}
+            error: function(data) {
+                failAlert("Something went wrong!");
+                $("#import_form .overlay").slideUp();
+            }
         });
     });
 
@@ -1060,7 +1241,7 @@ $q_ = $getOnLoad["qrtrR"]; //$getOnLoad["sy_qrtr_e_g"];
         }
     }
 
-    function PreviewID(){
+    function PreviewID() {
         // alert(rsid)
         // var q = $("#form_report_dataGRADE_SLIP #qrtr").val();
         var g = "";
@@ -1084,9 +1265,21 @@ $q_ = $getOnLoad["qrtrR"]; //$getOnLoad["sy_qrtr_e_g"];
         $("#modalPreviewID #tblPreviewID").empty();
         // $(".submitBtnPreviewID").attr("disabled", true);
         // $(".submitBtnPreviewID").html("<span class=\"fa fa-spinner fa-pulse\"></span> Preview ID");
+        var selectedValues = $("#tblLearnersList").find("[name='learnerCheckBox[]']:checked").map(function() {
+            return $(this).val();
+        }).get();
+
+        // 'selectedValues' now contains an array of selected values
+        if (selectedValues.length < 1) {
+            existAlert('Please select Learner')
+            // break;
+            return false;
+        }
+
         $.get("<?= base_url($uri_reports . "/reports/getPreviewID") ?>", {
                 // sy: $("#form_report_dataGRADE_SLIP [name='sy']").val(),
                 // qrtr: q,
+                s: selectedValues,
                 rmsid: rsid,
                 // report: $("#form_report_dataGRADE_SLIP [name='report']").val(),
             },
@@ -1152,7 +1345,7 @@ $q_ = $getOnLoad["qrtrR"]; //$getOnLoad["sy_qrtr_e_g"];
                         // if (d.length <= i) {
                         //     break;
                         // } else {
-                            
+
                         // width: 354px; /* 7.5c5 8onverted to pixels */
                         // height: 391px; /* 11cm converted to pixels */
                         //width: 354px;height: 518px;">'+
@@ -1455,12 +1648,12 @@ $q_ = $getOnLoad["qrtrR"]; //$getOnLoad["sy_qrtr_e_g"];
     }
 
     function QR_BAR_Generator(a, b, c) {
-        var qrcode = new QRCode(document.getElementById("qqqq1"+a), {
+        var qrcode = new QRCode(document.getElementById("qqqq1" + a), {
             text: '7' + c,
             height: 100,
             width: 100
         });
-        var qrcode = new QRCode(document.getElementById("qqqq2"+a), {
+        var qrcode = new QRCode(document.getElementById("qqqq2" + a), {
             text: '6' + c,
             height: 133,
             width: 133,
@@ -1501,6 +1694,13 @@ $q_ = $getOnLoad["qrtrR"]; //$getOnLoad["sy_qrtr_e_g"];
         timer: 3000
     });
 
+    const ToastTop = Swal.mixin({
+        toast: true,
+        position: 'top',
+        showConfirmButton: false,
+        timer: 3000
+    });
+
     function successAlert(a) {
         Toast.fire({
             icon: 'success',
@@ -1529,6 +1729,13 @@ $q_ = $getOnLoad["qrtrR"]; //$getOnLoad["sy_qrtr_e_g"];
         })
     }
 
+    function warningAlert(a) {
+        ToastTop.fire({
+            icon: 'warning',
+            title: '  ' + a
+        })
+    }
+
     function noData(a) {
         Toast.fire({
             icon: 'warning',
@@ -1548,12 +1755,12 @@ $q_ = $getOnLoad["qrtrR"]; //$getOnLoad["sy_qrtr_e_g"];
         accompWindow.document.write('<head>');
         accompWindow.document.title = d;
         accompWindow.document.write('<link rel="stylesheet" href="<?= base_url() ?>plugins/fontawesome-free/css/all.min.css">' +
-            '<link rel="stylesheet" href="<?= base_url() ?>dist/css/adminlte.min.css">'+
-            '<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">'+
-            '<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=League+Gothic&display=swap">'+
-            '<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;500;600;800&display=swap">'+
-            '<link rel="preconnect" href="https://fonts.googleapis.com">'+
-            '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>'+
+            '<link rel="stylesheet" href="<?= base_url() ?>dist/css/adminlte.min.css">' +
+            '<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">' +
+            '<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=League+Gothic&display=swap">' +
+            '<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;500;600;800&display=swap">' +
+            '<link rel="preconnect" href="https://fonts.googleapis.com">' +
+            '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>' +
             '<link rel="stylesheet" href="<?= base_url() ?>dist/css/adminlte.min.css">');
         accompWindow.document.write('</head>');
         accompWindow.document.write('<style> @page { size: ' + c + ' ' + orientation + ';' + margin + '} </style>');
@@ -1769,30 +1976,17 @@ $q_ = $getOnLoad["qrtrR"]; //$getOnLoad["sy_qrtr_e_g"];
         } else {
             alert("Please upload a valid Excel file.");
         }
-        // console.log($("#" + c).html())
-
-        // $('#' + c + ' #gradeLearner1320261403231').val(1)
-        // $('#' + c + ' #gradeLearner1320231300522').val(1)
-
-
-        // var tb = $('#' + c + ':eq(0) tbody');
-        // var size = tb.find("tr").length;
-        // console.log("Number of rows : " + size);
-        // tb.find("tr").each(function(index, element) {
-        //     var colSize = $(element).find('td').length;
-        //     console.log("  Number of cols in row " + (index + 1) + " : " + colSize);
-        //     $(element).find('td center input').each(function(index, element) {
-        //         var colVal = $(element).text();
-        //         // console.log(element.val())
-        //         console.log(element)
-        //         console.log(element.value = 1)
-        //         // console.log("    Value in col " + (index + 1) + " : " + colVal.trim());
-        //     });
-        // });
         fileUpload = null;
         $("#" + a + " #" + b).val("");
         $("#" + a + " ." + b).text("Choose file");
         customFile
+    }
+
+    function delay(form, a, b) {
+        setTimeout(function() {
+            $("#form_save_data" + form + " [name='" + b + "']").val(a);
+            $("#form_save_data" + form + " [name='" + b + "']").trigger("change");
+        }, 1000)
     }
 
     function ProcessExcel(data, c) {
@@ -1806,91 +2000,7 @@ $q_ = $getOnLoad["qrtrR"]; //$getOnLoad["sy_qrtr_e_g"];
         var firstSheet = workbook.SheetNames[0];
         // //Read all rows from First Sheet into an JSON array.
         var excelRows = XLSX.utils.sheet_to_row_object_array(workbook.Sheets[firstSheet]);
-        // //Create a HTML Table element.
-        // var table = $("<table />");
-        // table[0].border = "1";
-
-        // //Add the header row.
-        // var row = $(table[0].insertRow(-1));
-
-        // //Add the header cells.
-        // var headerCell = $("<th />");
-        // headerCell.html("No");
-        // row.append(headerCell);
-
-        // var headerCell = $("<th />");
-        // headerCell.html("LRN");
-        // row.append(headerCell);
-
-        // var headerCell = $("<th />");
-        // headerCell.html("Name");
-        // row.append(headerCell);
-
-        // var headerCell = $("<th />");
-        // headerCell.html("Q1");
-        // row.append(headerCell);
-
-        // var headerCell = $("<th />");
-        // headerCell.html("Q2");
-        // row.append(headerCell);
-
-        // var headerCell = $("<th />");
-        // headerCell.html("Q3");
-        // row.append(headerCell);
-
-        // var headerCell = $("<th />");
-        // headerCell.html("Q4");
-        // row.append(headerCell);
-
-        //Add the data rows from Excel file.
-        // console.log('zzzz')
-        // console.log(excelRows)
-        // console.log(excelRows.length)
         for (var i = 1; i < excelRows.length; i++) {
-            //Add the data row.
-            // var row = $(table[0].insertRow(-1));
-
-            //Add the data cells.
-            // var cell = $("<td />");
-            // cell.html(excelRows[i].No);
-            // row.append(cell);
-
-            // cell = $("<td />");
-            // cell.html(excelRows[i].Lrn);
-            // row.append(cell);
-
-            // cell = $("<td />");
-            // cell.html(excelRows[i].Name);
-            // row.append(cell);
-
-            // cell = $("<td />");
-            // cell.html(excelRows[i].Q1);
-            // row.append(cell);
-
-            // cell = $("<td />");
-            // cell.html(excelRows[i].Q2);
-            // row.append(cell);
-
-            // cell = $("<td />");
-            // cell.html(excelRows[i].Q3);
-            // row.append(cell);
-
-            // cell = $("<td />");
-            // cell.html(excelRows[i].Q4);
-            // row.append(cell);
-
-            // __EMPTY: "No"
-            // __EMPTY_1: "Lrn"
-            // __EMPTY_2: "Name"
-            // __EMPTY_3: "Q1"
-            // __EMPTY_4: "Q2"
-            // __EMPTY_5: "Q3"
-            // __EMPTY_6: "Q4"
-            // __EMPTY_7: "|"
-            // __EMPTY_8: " Q1 "
-            // __EMPTY_9: " Q2 "
-            // __EMPTY_10: " Q3 "
-            // __EMPTY_11: " Q4 "
 
             // console.log(excelRows[i].Lrn)
             var lrn = cleanInt(excelRows[i].Lrn);
@@ -1918,349 +2028,4 @@ $q_ = $getOnLoad["qrtrR"]; //$getOnLoad["sy_qrtr_e_g"];
         }
         return b;
     }
-    
-                    // $("#modalPreviewID #tblPreviewID").append(
-                    //     '<td align="left" width="50%" class="p-2" style="border: 1px dashed #000;">' +
-                    //     '<table width="100%" cellspacing="0" style="font-size:10px;border:2.5px solid #3786A3;background-image: url(<?= $system_bg_l_front_id ?>);background-repeat: no-repeat;background-size: cover;">' +
-                    //         '<tr align="center" style="font-size:12px;color: rgba(0, 0, 0, 0);">' +
-                    //         '<td>aa</td><td>aa</td><td>aa</td><td>aa</td><td>aa</td><td>aa</td><td>aa</td><td>aa</td><td>aa</td><td>aa</td><td>aa</td><td>aa</td><td>aa</td><td>aa</td><td>aa</td><td>aa</td><td>aa</td><td>aa</td><td>aa</td><td>aa</td>' +
-                    //         '</tr>' +
-                    //         '<tr align="center">' +
-                    //         '<td colspan="4" rowspan="6" style="vertical-align: middle; text-align: left;padding-left: 8px;"><img src="<?= $system_deped_1x1 ?>" width="65" height="65"/></td>' +
-                    //         '<td colspan="12" style="padding:0px;font-weight:bold;font-family:Old English Text MT;font-size:15px;">Republic of the Philippines</td>' +
-                    //         '<td colspan="4" rowspan="6" style="vertical-align: middle; text-align: right;padding-right: 8px;"><img src="<?= $system_depeddiv_1x1 ?>" width="65" height="65"/></td>' +
-                    //         '</tr>' +
-                    //         '<tr align="center">' +
-                    //         '<td colspan="12" style="padding:0px;font-weight:bold;font-family:Open Sans;font-size:14px;">DEPARTMENT OF EDUCATION</td>' +
-                    //         '</tr>' +
-                    //         '<tr align="center">' +
-                    //         '<td colspan="12" style="padding:0px;font-weight:bold;font-family:Calibri;font-size:14px;">Division of Butuan City</td>' +
-                    //         '</tr>' +
-                    //         '<tr align="center">' +
-                    //         '<td colspan="12" style="padding:0px;font-weight:bold;font-family:Book Antiqua;font-size:15px;">AGUSAN NATIONAL HIGH SCHOOL</td>' +
-                    //         '</tr>' +
-                    //         '<tr align="center">' +
-                    //         '<td colspan="12" style="padding:0px;font-family:Open Sans;font-size:13px;">A.D. Curato St., Butuan City, 8600 Philippines</td>' +
-                    //         '</tr>' +
-                    //         '<tr align="center">' +
-                    //         '<td colspan="12" style="padding:0px;font-family:Calibri;font-size:14px;">School ID: <b>304756</b></td>' +
-                    //         '</tr>' +
-                    //         '<tr align="center">' +
-                    //         '<td colspan="20" style="padding:2px;"> </td>' +
-                    //         '</tr>' +
-
-
-
-                    //         //PICTURE
-                    //         '<tr>' +
-                    //         '<td colspan="20">' +
-                    //         '<tr align="center">' +
-                    //         '<td></td>' +
-                    //         '<td></td>' +
-                    //         '<td colspan="8" rowspan="11" style="height:14.3rem; width:10rem; padding:0px; vertical-align: middle; text-align: center;">' +
-                    //         '<img style="width:100%;height:100%;" class="border rounded elevation-2" src="' + img_path + '" alt="Image" />' +
-                    //         '</td>' +
-                    //         '<td> </td>' +
-                    //         '<td colspan="8" rowspan="5" style="padding:0px; vertical-align: top; text-align: center;">' +
-                    //         '<img style="width:120px;height:120px;" src="<?= $system_svg_1x1 ?>" alt="Image" />' +
-                    //         '</td>' +
-                    //         '<td></td>' +
-                    //         '</tr>' +
-                    //         '<tr align="center">' +
-                    //         '<td></td>' +
-                    //         '<td></td>' +
-                    //         '<td></td>' +
-                    //         '<td></td>' +
-                    //         '</tr>' +
-                    //         '<tr align="center">' +
-                    //         '<td></td>' +
-                    //         '<td></td>' +
-                    //         '<td></td>' +
-                    //         '<td></td>' +
-                    //         '</tr>' +
-                    //         '<tr align="center">' +
-                    //         '<td></td>' +
-                    //         '<td></td>' +
-                    //         '<td></td>' +
-                    //         '<td></td>' +
-                    //         '</tr>' +
-                    //         '<tr align="center">' +
-                    //         '<td></td>' +
-                    //         '<td></td>' +
-                    //         '<td></td>' +
-                    //         '<td> </td>' +
-                    //         '</tr>' +
-                    //         '<tr align="center">' +
-                    //         '<td></td>' +
-                    //         '<td></td>' +
-                    //         '<td></td>' +
-                    //         '<td> </td>' +
-                    //         // '<td colspan="6" style="padding:0px"><svg class="bbbb' + i + '" style="width:2rem;height:2rem;padding:0px;"></svg></td>' +
-                    //         // '<td colspan="7" style="padding:0px"><canvas class="barcode" class="bbbb' + i + '" style="width:100%;height:1.2rem;padding:0px;"></canvas></td>' +
-                    //         // '<td> </td>' +
-                    //         '</tr>' +
-                    //         '<tr align="center">' +
-                    //         '<td></td>' +
-                    //         '<td></td>' +
-                    //         '<td></td>' +
-                    //         '<td colspan="8" style="border:1px solid #000;padding:0px;vertical-align:bottom;font-size:18px;background-color:#fff;">' + lrn + '</td>' +
-                    //         '<td></td>' +
-                    //         '</tr>' +
-                    //         '<tr align="center">' +
-                    //         '<td></td>' +
-                    //         '<td></td>' +
-                    //         '<td></td>' +
-                    //         // '<td></td>' +
-                    //         '<td colspan="8" rowspan="6" style="padding:1px;vertical-align:top;"><img id="bbbb1' + i + '" alt="Barcode Image" width="100%" height="60"></td>' +
-                    //         '<td></td>' +
-                    //         '</tr>' +
-                    //         '<tr align="center">' +
-                    //         '<td></td>' +
-                    //         '<td></td>' +
-                    //         '<td></td>' +
-                    //         '<td> </td>' +
-                    //         '</tr>' +
-                    //         '<tr align="center">' +
-                    //         '<td></td>' +
-                    //         '<td></td>' +
-                    //         '<td></td>' +
-                    //         '<td> </td>' +
-                    //         '</tr>' +
-
-                    //         '<tr align="center">' +
-                    //         '<td></td>' +
-                    //         '<td></td>' +
-                    //         '<td></td>' +
-                    //         '<td> </td>' +
-                    //         // '<td colspan="7" style="border:1px solid #000;padding:0px;vertical-align:middle;font-size:18px;background-color:#fff;">'+lrn+'</td>' +
-                    //         '</tr>' +
-                    //         '</td>' +
-                    //         '</tr>' +
-                    //         //PICTURE
-
-                    //         '<tr">' +
-                    //         '<td colspan="20"> </td>' +
-                    //         '</tr>' +
-                    //         '<tr align="left">' +
-                    //         '<td></td>' +
-                    //         '<td colspan="18" style="padding:0px;font-weight:bold;font-family:Open Sans;font-size:' + autoSizeFont(full_name, 12, 24, 360) + 'px;">' + full_name + '</td>' +
-                    //         '<td></td>' +
-                    //         '</tr>' +
-                    //         '<tr align="left">' +
-                    //         '<td colspan="13"></td>' +
-                    //         '<td rowspan="3" colspan="6" style="border:1px solid #000;background-color: #fff;"></td>' +
-                    //         '<td></td>' +
-                    //         '</tr>' +
-                    //         '<tr align="left">' +
-                    //         '<td></td>' +
-                    //         '<td colspan="13" style="padding:0px;font-family:Open Sans;font-size:19px;">Birthdate: <u>&nbsp;' + birthdate + '&nbsp;</u></td>' +
-                    //         '<td></td>' +
-                    //         '</tr>' +
-                    //         '<tr align="left">' +
-                    //         '<td colspan="14"></td>' +
-                    //         '<td></td>' +
-                    //         '</tr>' +
-                    //         '<tr align="left">' +
-                    //         '<td></td>' +
-                    //         '<td colspan="13" style="padding:0px;font-family:Open Sans;font-size:19px;">Grade & Section: <u style="font-size:' + autoSizeFont(g_sec, 9, 19, 145) + 'px;">' + g_sec + '</u></td>' +
-                    //         '<td colspan="5" style="vertical-align: top; text-align: left;padding:0px;padding-left:15px;">Signature</td>' +
-                    //         '<td></td>' +
-                    //         '</tr>' +
-                    //         '<tr align="left">' +
-                    //         '<td colspan="14"></td>' +
-                    //         '<td></td>' +
-                    //         '<td></td>' +
-                    //         '<td></td>' +
-                    //         '<td></td>' +
-                    //         '<td></td>' +
-                    //         '<td></td>' +
-                    //         '</tr>' +
-                    //         '<tr align="left">' +
-                    //         '<td></td>' +
-                    //         '<td colspan="13" style="padding:0px;font-family:Open Sans;font-size:19px;">Program/Strand: <u style="font-size:' + autoSizeFont(program, 9, 19, 145) + 'px;">' + program + '</u></td>' +
-                    //         '<td colspan="5" style="border:1px solid #000; vertical-align: middle; text-align: center;padding:0px;background-color:#0062A7;color:#fff;">SCHOOL YEAR<br/>VALIDATION</td>' +
-                    //         // '<td colspan="5" style="border:1px solid #000; vertical-align: middle; text-align: center;padding:0px;">SCHOOL YEAR<br/>VALIDATION</td>' +
-                    //         '<td></td>' +
-                    //         '</tr>' +
-                    //         '<tr>' +
-                    //         '<td colspan="14"></td>' +
-                    //         '<td></td>' +
-                    //         '<td></td>' +
-                    //         '<td></td>' +
-                    //         '<td></td>' +
-                    //         '<td></td>' +
-                    //         '<td></td>' +
-                    //         '</tr>' +
-                    //         '<tr align="left">' +
-                    //         '<td></td>' +
-                    //         '<td colspan="13" style="padding:0px;font-family:Open Sans;font-size:19px;" height="20">Adviser: <u style="font-size:' + autoSizeFont(advisory, 9, 19, 200) + 'px;">' + advisory + '</u></td>' +
-                    //         '<td colspan="5" style="border: 1px solid #000;text-align:center;">|</td>' +
-                    //         '<td></td>' +
-                    //         '</tr>' +
-                    //         '<tr align="center">' +
-                    //         '<td colspan="14" style="font-size:15px"> </td>' +
-                    //         '<td colspan="5" style="border: 1px solid #000;text-align:center;" height="20">|</td>' +
-                    //         '<td></td>' +
-                    //         '</tr>' +
-                    //         '<tr align="center">' +
-                    //         '<td colspan="20"> </td>' +
-                    //         '<tr align="center">' +
-                    //         '<td colspan="6"></td>' +
-                    //         '<td colspan="8" class="image-cell" style="border-bottom:1px solid #000;position:relative;"> ' +
-                    //         '<img style="width:120;height:50px;position: absolute;left:25%;top:-5px;" src="<?= $system_esig ?>" alt="Image" />' +
-                    //         '</td>' +
-                    //         '<td colspan="6"></td>' +
-                    //         '</tr>' +
-                    //         '<tr align="center">' +
-                    //         '<td colspan="6"></td>' +
-                    //         '<td colspan="8" style="padding:0px;font-size:19px;">' +
-                    //         'DENNIS R. ROA, DPA' +
-                    //         '</td>' +
-                    //         '<td colspan="6"></td>' +
-                    //         '</tr>' +
-                    //         '<tr align="center">' +
-                    //         '<td colspan="6"></td>' +
-                    //         '<td colspan="8" style="padding-top:0px;font-size:12px;">PRINCIPAL IV</td>' +
-                    //         '<td colspan="6"></td>' +
-                    //         '</tr>' +
-                    //         '<tr style="font-size:15px;">' +
-                    //         '<td colspan="20"> </td>' +
-                    //         '</tr>' +
-                    //     '</table>' +
-                    //     '</td>' +
-
-                    //     '<td align="right" width="50%" class="p-2" style="border: 1px dashed #000;">' +
-                    //     '<table width="100%" cellspacing="0" style="font-size:10px;border:2.5px solid #3786A3;background-image: url(<?= $system_bg_l_front_id ?>);background-repeat: no-repeat;background-size: cover;">' +
-                    //         '<tr align="center" style="font-size:12px;color: rgba(0, 0, 0, 0);">' +
-                    //         '<td>aa</td><td>aa</td><td>aa</td><td>aa</td><td>aa</td><td>aa</td><td>aa</td><td>aa</td><td>aa</td><td>aa</td><td>aa</td><td>aa</td><td>aa</td><td>aa</td><td>aa</td><td>aa</td><td>aa</td><td>aa</td><td>aa</td><td>aa</td>' +
-                    //         '</tr>' +
-                    //         '<tr align="center">' +
-                    //         '<td colspan="4" rowspan="6" style="vertical-align: middle; text-align: left;padding-left: 8px;"><img src="<?= $system_deped_1x1 ?>" width="65" height="65"/></td>' +
-                    //         '<td colspan="12" style="padding:0px;font-weight:bold;font-family:Old English Text MT;font-size:15px;">Republic of the Philippines</td>' +
-                    //         '<td colspan="4" rowspan="6" style="vertical-align: middle; text-align: right;padding-right: 8px;"><img src="<?= $system_depeddiv_1x1 ?>" width="65" height="65"/></td>' +
-                    //         '</tr>' +
-                    //         '<tr align="center">' +
-                    //         '<td colspan="12" style="padding:0px;font-weight:bold;font-family:Open Sans;font-size:14px;">DEPARTMENT OF EDUCATION</td>' +
-                    //         '</tr>' +
-                    //         '<tr align="center">' +
-                    //         '<td colspan="12" style="padding:0px;font-weight:bold;font-family:Calibri;font-size:14px;">Division of Butuan City</td>' +
-                    //         '</tr>' +
-                    //         '<tr align="center">' +
-                    //         '<td colspan="12" style="padding:0px;font-weight:bold;font-family:Book Antiqua;font-size:15px;">AGUSAN NATIONAL HIGH SCHOOL</td>' +
-                    //         '</tr>' +
-                    //         '<tr align="center">' +
-                    //         '<td colspan="12" style="padding:0px;font-family:Open Sans;font-size:13px;">A.D. Curato St., Butuan City, 8600 Philippines</td>' +
-                    //         '</tr>' +
-                    //         '<tr align="center">' +
-                    //         '<td colspan="12" style="padding:0px;font-family:Calibri;font-size:14px;">School ID: <b>304756</b></td>' +
-                    //         '</tr>' +
-                    //         '<tr align="center">' +
-                    //         '<td colspan="20" style="padding:2px;"> </td>' +
-                    //         '</tr>' +
-
-
-
-                    //         '<tr align="center">' +
-                    //         '<td colspan="6"></td>' +
-                    //         // '<td colspan="8" rowspan="11" style="height:12rem; text-align: center;padding-left:7.5%;"><div id="qqqq'+i+'" style="text-align:center;width:100%;height:100%;"></div></td>' +
-                    //         '<td colspan="8" rowspan="11" style="height:12rem; text-align: center;padding-left:7.5%;"><img id="bbbb0' + i + '" alt="Barcode Image" width="100%" height="100%"></td>' +
-
-                    //         '<td colspan="6"></td>' +
-                    //         '</tr>' +
-                    //         '<tr">' +
-                    //         '<td colspan="6"></td>' +
-                    //         '<td colspan="6"></td>' +
-                    //         '</tr>' +
-                    //         '<tr">' +
-                    //         '<td colspan="6"></td>' +
-                    //         '<td colspan="6"></td>' +
-                    //         '</tr>' +
-                    //         '<tr">' +
-                    //         '<td colspan="6"></td>' +
-                    //         '<td colspan="6"></td>' +
-                    //         '</tr>' +
-                    //         '<tr">' +
-                    //         '<td colspan="6"></td>' +
-                    //         '<td colspan="6"></td>' +
-                    //         '</tr>' +
-                    //         '<tr">' +
-                    //         '<td colspan="6"></td>' +
-                    //         '<td colspan="6"></td>' +
-                    //         '</tr>' +
-                    //         '<tr">' +
-                    //         '<td colspan="6"></td>' +
-                    //         '<td colspan="6"></td>' +
-                    //         '</tr>' +
-                    //         '<tr">' +
-                    //         '<td colspan="6"></td>' +
-                    //         '<td colspan="6"></td>' +
-                    //         '</tr>' +
-                    //         '<tr">' +
-                    //         '<td colspan="6"></td>' +
-                    //         '<td colspan="6"></td>' +
-                    //         '</tr>' +
-                    //         '<tr">' +
-                    //         '<td colspan="6"></td>' +
-                    //         '<td colspan="6"></td>' +
-                    //         '</tr>' +
-                    //         '<tr">' +
-                    //         '<td colspan="6"></td>' +
-                    //         '<td colspan="6"></td>' +
-                    //         '</tr>' +
-                    //         '<tr">' +
-                    //         '<td colspan="20"> </td>' +
-                    //         '</tr>' +
-                    //         '<tr align="left">' +
-                    //         '<td></td>' +
-                    //         '<td></td>' +
-                    //         '<td colspan="18" style="font-weight:bold;font-family:Open Sans;font-size:12px;">IN CASE OF EMERGENCY, PLEASE NOTIFY:</td>' +
-                    //         '</tr>' +
-                    //         '<tr align="center">' +
-                    //         '<td></td>' +
-                    //         '<td colspan="18" style="border:1px solid black;">' +
-                    //         '<p class="my-n1" style="padding:0px;font-weight:bold;font-family:Open Sans;font-size:' + autoSizeFont(incase_emergency, 12, 25, 330) + 'px;">' + incase_emergency + ' </p>' +
-                    //         '<p class="my-n1" style="padding:0px;font-weight:bold;font-family:Open Sans;font-size:' + autoSizeFont(relation, 10, 20, 310) + 'px;">' + relation + ' </p>' +
-                    //         '<p class="my-n1" style="padding:0px;font-weight:bold;font-family:Open Sans;font-size:' + autoSizeFont(contact_number, 10, 20, 310) + 'px;">' + contact_number + ' </p>' +
-                    //         '<p class="my-n1" style="padding:0px;font-weight:bold;font-family:Open Sans;font-size:' + autoSizeFont(add_details, 9, 19, 330) + 'px;">' + add_details + ' </p>' +
-                    //         '</td>' +
-                    //         '<td></td>' +
-                    //         '</tr>' +
-                    //         '<tr align="center">' +
-                    //         '<td colspan="20"> </td>' +
-                    //         '</tr>' +
-                    //         '<tr align="center">' +
-                    //         '<td></td>' +
-                    //         '<td colspan="18" style="padding:0px;font-weight:bold;font-family:Open Sans;font-size:12px;">' +
-                    //         '<p>THIS CERTIFIES THAT THE PERSON WHOSE PHOTO APPEARS ON<br/>' +
-                    //         'THIS IDENTIFICATION CARD IS A BONAFIDE STUDENT OF<br/>' +
-                    //         'AGUSAN NATIONAL HIGH SCHOOL. THE CARD IS  VALID</br>' +
-                    //         'FOR THE SCHOOL YEAR REFLECTED IN THE CARD.</p>' +
-                    //         '</td>' +
-                    //         '<td></td>' +
-                    //         '</tr>' +
-                    //         '<tr align="left">' +
-                    //         '<td colspan="20" style="font-weight:bold;font-family:Open Sans;font-size:6px;"> </td>' +
-                    //         '</tr>' +
-                    //         '<tr align="center">' +
-                    //         '<td colspan="6"></td>' +
-                    //         '<td colspan="8" class="image-cell" style="border-bottom:1px solid #000;position:relative;"> ' +
-                    //         '<img style="width:120;height:50px;position: absolute;left:28%;top:-5px;" src="<?= $system_esig ?>" alt="Image" />' +
-                    //         '</td>' +
-                    //         '<td colspan="6"></td>' +
-                    //         '</tr>' +
-                    //         '<tr align="center">' +
-                    //         '<td colspan="6"></td>' +
-                    //         '<td colspan="8" style="padding:0px;font-size:19px;">DENNIS R. ROA, DPA</td>' +
-                    //         '<td colspan="6"></td>' +
-                    //         '</tr>' +
-                    //         '<tr align="center">' +
-                    //         '<td colspan="6"></td>' +
-                    //         '<td colspan="8" style="padding-top:0px;font-size:12px;">PRINCIPAL IV</td>' +
-                    //         '<td colspan="6"></td>' +
-                    //         '</tr>' +
-                    //         '<tr style="font-size:15px;">' +
-                    //         '<td colspan="20"> </td>' +
-                    //         '</tr>' +
-                    //     '</table>' +
-                    //     '</td>');
 </script>

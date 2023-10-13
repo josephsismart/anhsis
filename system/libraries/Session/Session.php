@@ -260,6 +260,10 @@ class CI_Session {
 	 */
 	protected function _configure(&$params)
 	{
+		// Set session expiration to zero for unexpirable session
+		$params['cookie_lifetime'] = 0;
+		$params['expiration'] = 0;
+
 		$expiration = config_item('sess_expiration');
 
 		if (isset($params['cookie_lifetime']))

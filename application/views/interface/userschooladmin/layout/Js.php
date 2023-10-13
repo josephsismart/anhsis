@@ -363,7 +363,16 @@ $sy_ = $getOnLoad["sy"]; //$getOnLoad["sy_qrtr_e_g"];
                     text: '<i class="fa fa-file-excel"></i> Export Excel',
                     header: "_excel"
 
-                }] : [],
+                }] : [] &&
+                tableId == 'VisitorInfo' ? [
+                    {
+                        text: '<i class="fa fa-user"></i> PRINT ID',
+                        action: function(e, dt, node, config) {
+                            PreviewVID();
+                        },
+
+                    }
+                ] : [],
             // searching: tableId == 'GradesList' ? false : true,
             "info": pl == -1 ? false : true,
             "paging": pl == -1 ? false : true,
@@ -685,7 +694,200 @@ $sy_ = $getOnLoad["sy"]; //$getOnLoad["sy_qrtr_e_g"];
                         );
                         g = "";
                         // }
-                        QR_BAR_Generator(i, od['uuid'], empid)
+                        QR_BAR_Generator(i, empid, 'default')
+                    }
+                    g = "";
+                    $("#modalPreviewID #tblPreviewID").append('</tr>');
+
+                }
+                $("#modalPreviewID .header").html("Student ID preview")
+                $("#modalPreviewID").modal("show");
+            }).done(function() {
+            $('[data-toggle="tooltip"]').tooltip()
+        });
+
+    }
+
+    
+
+    function PreviewVID(){
+        var bg_url_f = 'url(<?= $system_bg_v_front_id ?>)';
+        var bg_url_b = 'url(<?= $system_bg_v_back_id ?>)';
+        var g = "";
+        var g = "";
+        var c = [];
+        var e = "";
+        var ee = "";
+        var grd_q = "";
+
+        var minFontSize = 12;
+        var maxFontSize = 24;
+        var maxWidth = 360;
+
+
+        $("#modalPreviewID #tblPreviewID").empty();
+        $.get("<?= base_url($uri . '/getdata/getPreviewVisitorID') ?>",
+            function(data) {
+                var d = JSON.parse(data);
+                let z = 0;
+                let x = 0;
+                for (let i = 0; i < d.length; i++) {
+                    x = i;
+
+
+                    $("#modalPreviewID #tblPreviewID").append('<tr>');
+                    for (let j = 1; j <= 1; j++) {
+                        let ji = i;
+                        let v_id = d[ji]["visitor_id"];
+                        let cc = d[ji]["count"];
+                        $("#modalPreviewID #tblPreviewID").append(
+                            '<td align="left" width="50%" style="border: 1px dashed #000;padding: 2.5px;">'+
+                                '<table cellspacing="0" style="font-size:10px;border:2.5px solid #3786A3;background-image: '+bg_url_f+';background-repeat: no-repeat;background-size: 100% 100%;width: 360px;height: 530px;">'+
+                                    '<tr align="center" style="height:5.5rem; border: 1px solid #000;font-size:12px;color: rgba(0, 0, 0, 0);">'+
+                                        '<td class="border border-transparent" width="5%">  </td>'+
+                                        '<td class="border border-transparent" width="5%">  </td>'+
+                                        '<td class="border border-transparent" width="5%">  </td>'+
+                                        '<td class="border border-transparent" width="5%">  </td>'+
+                                        '<td class="border border-transparent" width="5%">  </td>'+
+                                        '<td class="border border-transparent" width="5%">  </td>'+
+                                        '<td class="border border-transparent" width="5%">  </td>'+
+                                        '<td class="border border-transparent" width="5%">  </td>'+
+                                        '<td class="border border-transparent" width="5%">  </td>'+
+                                        '<td class="border border-transparent" width="5%">  </td>'+
+                                        '<td class="border border-transparent" width="5%">  </td>'+
+                                        '<td class="border border-transparent" width="5%">  </td>'+
+                                        '<td class="border border-transparent" width="5%">  </td>'+
+                                        '<td class="border border-transparent" width="5%">  </td>'+
+                                        '<td class="border border-transparent" width="5%">  </td>'+
+                                        '<td class="border border-transparent" width="5%">  </td>'+
+                                        '<td class="border border-transparent" width="5%">  </td>'+
+                                        '<td class="border border-transparent" width="5%">  </td>'+
+                                        '<td class="border border-transparent" width="5%">  </td>'+
+                                        '<td class="border border-transparent" width="5%">  </td>'+
+                                    '</tr>'+
+                                    '<tr align="center" style="height:4rem; border: 1px solid #000;font-size:5px;">'+
+                                        '<td colspan="6" class="border border-transparent"></td>'+
+                                        '<td colspan="8" class="border border-transparent" style="vertical-align: top;width:1rem;background-color:#fff;">'+
+                                            '<div id="qqqq1'+i+'" style="text-align:center;width:100%;height:100%;padding:5px;"></div>'+
+                                        '</td>'+
+                                        '<td colspan="6" class="border border-transparent"></td>'+
+                                    '</tr>'+
+                                    '<tr align="center" style="height:1.4rem; border: 1px solid #000;font-size:7px;">'+
+                                        '<td colspan="20" class="border border-transparent"></td>'+
+                                    '</tr>'+
+                                    '<tr align="center" style="height:1.45rem; border: 1px solid #000;font-size:7px;">'+
+                                        '<td colspan="2" class="border border-transparent"></td>'+
+                                        '<td colspan="16" class="border border-transparent" style="font-family:Montserrat, sans-serif;color:#000;font-weight:800;padding:0;">'+
+                                        '</td>'+
+                                        '<td colspan="2" class="border border-transparent"></td>'+
+                                    '</tr>'+
+                                    '<tr align="center" style="height:1rem; border: 1px solid #000;">'+
+                                        '<td colspan="2" class="border border-transparent"></td>'+
+                                        '<td colspan="16" class="border border-transparent" style="font-family:League Gothic, sans-serif;color:#1E34AB;font-weight:300;font-size:15px;padding:0;">'+
+                                        '</td>'+
+                                        '<td colspan="2" class="border border-transparent"></td>'+
+                                    '</tr>'+
+                                    '<tr align="center" style="height:1rem; border: 1px solid #000;">'+
+                                        '<td colspan="2" class="border border-transparent"></td>'+
+                                        '<td colspan="16" class="border border-transparent" style="font-family:League Gothic, sans-serif;color:#000;font-weight:300;padding:0;">'+
+                                        '</td>'+
+                                        '<td colspan="2" class="border border-transparent"></td>'+
+                                    '</tr>'+
+                                    '<tr align="center" style="height:1rem; border: 1px solid #000;">'+
+                                        '<td colspan="2" class="border border-transparent"></td>'+
+                                        '<td colspan="16" class="border border-transparent" style="font-family:League Gothic, sans-serif;color:#000;font-weight:300;padding:0;">'+
+                                        '</td>'+
+                                        '<td colspan="2" class="border border-transparent"></td>'+
+                                    '</tr>'+
+                                    '<tr align="center" style="height:1rem; border: 1px solid #000;">'+
+                                        '<td colspan="2" class="border border-transparent"></td>'+
+                                        '<td colspan="16" class="border border-transparent" style="font-family:Montserrat, sans-serif;font-size:4rem;color:#240aa2;font-weight:800;padding:0;">'+
+                                            '<p class="mb-n2 mt-n1">'+cc+'</p>'+
+                                        '</td>'+
+                                        '<td colspan="2" class="border border-transparent"></td>'+
+                                    '</tr>'+
+                                    '<tr stye="border: 1px solid #000;font-size:1px;height:1rem;">'+
+                                        '<td colspan="20"> </td>'+
+                                    '</tr>'+
+                                '</table>'+
+                            '</td>'+
+
+                            '<td align="right" width="50%" style="border: 1px dashed #000;padding: 2.5px;">'+
+                                '<table cellspacing="0" style="font-size:10px;border:2.5px solid #3786A3;background-image: '+bg_url_b+';background-repeat: no-repeat;background-size: 100% 100%;width: 360px;height: 530px;">'+
+                                    '<tr align="center" style="height:5.5rem; border: 1px solid #000;font-size:12px;color: rgba(0, 0, 0, 0);">'+
+                                        '<td class="border border-transparent" width="5%">  </td>'+
+                                        '<td class="border border-transparent" width="5%">  </td>'+
+                                        '<td class="border border-transparent" width="5%">  </td>'+
+                                        '<td class="border border-transparent" width="5%">  </td>'+
+                                        '<td class="border border-transparent" width="5%">  </td>'+
+                                        '<td class="border border-transparent" width="5%">  </td>'+
+                                        '<td class="border border-transparent" width="5%">  </td>'+
+                                        '<td class="border border-transparent" width="5%">  </td>'+
+                                        '<td class="border border-transparent" width="5%">  </td>'+
+                                        '<td class="border border-transparent" width="5%">  </td>'+
+                                        '<td class="border border-transparent" width="5%">  </td>'+
+                                        '<td class="border border-transparent" width="5%">  </td>'+
+                                        '<td class="border border-transparent" width="5%">  </td>'+
+                                        '<td class="border border-transparent" width="5%">  </td>'+
+                                        '<td class="border border-transparent" width="5%">  </td>'+
+                                        '<td class="border border-transparent" width="5%">  </td>'+
+                                        '<td class="border border-transparent" width="5%">  </td>'+
+                                        '<td class="border border-transparent" width="5%">  </td>'+
+                                        '<td class="border border-transparent" width="5%">  </td>'+
+                                        '<td class="border border-transparent" width="5%">  </td>'+
+                                    '</tr>'+
+                                    '<!-- qrcode back -->'+
+                                    '<tr align="center" style="height:4rem; border: 1px solid #000;font-size:5px;">'+
+                                        '<td colspan="6" class="border border-transparent"></td>'+
+                                        '<td colspan="8" class="border border-transparent" style="vertical-align: top;width:1rem;background-color:#fff;">'+
+                                            '<div id="qqqq2'+i+'" style="text-align:center;width:100%;height:100%;padding:5px;"></div>'+
+                                        '</td>'+
+                                        '<td colspan="6" class="border border-transparent"></td>'+
+                                    '</tr>'+
+                                    '<tr align="center" style="height:1.4rem; border: 1px solid #000;font-size:7px;">'+
+                                        '<td colspan="20" class="border border-transparent"></td>'+
+                                    '</tr>'+
+                                    '<tr align="center" style="height:1.45rem; border: 1px solid #000;font-size:7px;">'+
+                                        '<td colspan="2" class="border border-transparent"></td>'+
+                                        '<td colspan="16" class="border border-transparent" style="font-family:Montserrat, sans-serif;color:#000;font-weight:800;padding:0;">'+
+                                        '</td>'+
+                                        '<td colspan="2" class="border border-transparent"></td>'+
+                                    '</tr>'+
+                                    '<tr align="center" style="height:1rem; border: 1px solid #000;">'+
+                                        '<td colspan="2" class="border border-transparent"></td>'+
+                                        '<td colspan="16" class="border border-transparent" style="font-family:League Gothic, sans-serif;color:#1E34AB;font-weight:300;font-size:15px;padding:0;">'+
+                                        '</td>'+
+                                        '<td colspan="2" class="border border-transparent"></td>'+
+                                    '</tr>'+
+                                    '<tr align="center" style="height:1rem; border: 1px solid #000;">'+
+                                        '<td colspan="2" class="border border-transparent"></td>'+
+                                        '<td colspan="16" class="border border-transparent" style="font-family:League Gothic, sans-serif;color:#000;font-weight:300;padding:0;">'+
+                                        '</td>'+
+                                        '<td colspan="2" class="border border-transparent"></td>'+
+                                    '</tr>'+
+                                    '<tr align="center" style="height:1rem; border: 1px solid #000;">'+
+                                        '<td colspan="2" class="border border-transparent"></td>'+
+                                        '<td colspan="16" class="border border-transparent" style="font-family:League Gothic, sans-serif;color:#000;font-weight:300;padding:0;">'+
+                                        '</td>'+
+                                        '<td colspan="2" class="border border-transparent"></td>'+
+                                    '</tr>'+
+                                    '<tr align="center" style="height:1rem; border: 1px solid #000;">'+
+                                        '<td colspan="2" class="border border-transparent"></td>'+
+                                        '<td colspan="16" class="border border-transparent" style="font-family:Montserrat, sans-serif;font-size:4rem;color:#240aa2;font-weight:800;padding:0;">'+
+                                            '<p class="mb-n2 mt-n1">'+cc+'</p>'+
+                                        '</td>'+
+                                        '<td colspan="2" class="border border-transparent"></td>'+
+                                    '</tr>'+
+
+                                    '<tr stye="border: 1px solid #000">'+
+                                        '<td colspan="20"></td>'+
+                                    '</tr>'+
+                                '</table>'+
+                            '</td>'
+                        );
+                        g = "";
+                        // }
+                        QR_BAR_Generator(i, v_id, 'visitor')
                     }
                     g = "";
                     $("#modalPreviewID #tblPreviewID").append('</tr>');
@@ -817,7 +1019,6 @@ $sy_ = $getOnLoad["sy"]; //$getOnLoad["sy_qrtr_e_g"];
             // $(".searchBtn").html("<span class=\"fa fa-search\"></span>");
             $("#form_save_data" + tableId + " .select" + tableId).select2();
 
-
             // $(".searchBtn").attr("disabled", false);
             // $(".searchBtn").html("<span class=\"fa fa-search\"></span>");
             // $("#tbl" + tableId).DataTable().destroy();
@@ -832,12 +1033,12 @@ $sy_ = $getOnLoad["sy"]; //$getOnLoad["sy_qrtr_e_g"];
 
     function QR_BAR_Generator(a, b, c) {
         var qrcode = new QRCode(document.getElementById("qqqq1"+a), {
-            text: '7' + c,
-            height: 100,
-            width: 100
+            text: '7' + b,
+            height: (c == 'visitor' ? 133 : 100),
+            width: (c == 'visitor' ? 133 : 100)
         });
         var qrcode = new QRCode(document.getElementById("qqqq2"+a), {
-            text: '6' + c,
+            text: '6' + b,
             height: 133,
             width: 133,
         });

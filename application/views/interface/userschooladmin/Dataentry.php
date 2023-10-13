@@ -37,12 +37,15 @@ $uri = $this->session->schoolmis_login_uri;
 					<div class="col-12">
 						<?= form_open(base_url($uri . '/Dataentry/savePersonnelInfo'), 'id=form_save_dataPersonnelInfo'); ?>
 						<input name="personId" hidden nr="1">
-						<div class="card card-navy">
-							<div class="card-header p-1 pr-2 pl-2" data-card-widget="collapse" role="button">
-								<h3 class="card-title"><i class="fa fa-user"></i> Personnel Information Details</h3>
+						<!-- <div class="card card-navy"> -->
+						<div class="card card-navy collapse-header collapsed-card">
+							<div class="card-header p-1 pr-2 pl-2 rounded bg-gradient-info" role="button" data-card-widget="collapse">
+								<h3 class="card-title lead"><i class="fa fa-user"></i> Personnel Information Details (<i>click here</i>)</h3>
+								<!-- <div class="card-header p-1 pr-2 pl-2" data-card-widget="collapse" role="button"> -->
+								<!-- <h3 class="card-title"><i class="fa fa-user"></i> Personnel Information Details</h3> -->
 
 								<div class="card-tools">
-									<button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button>
+									<button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-plus"></i></button>
 									<!-- <button type="button" class="btn btn-tool" data-card-widget="remove"><i class="fas fa-remove"></i></button> -->
 								</div>
 							</div>
@@ -118,20 +121,20 @@ $uri = $this->session->schoolmis_login_uri;
 											</div>
 											<div class="col-lg-4 col-md-6 col-sm-6 col-6">
 												<div class="input-group mb-2">
-													<div class="input-group-prepend">
+													<!-- <div class="input-group-prepend">
 														<small class="input-group-text text-xs text-bold p-1">CITY</small>
-													</div>
-													<select class="form-control selectCityMunList" onchange="getLocation(['CityMunList','BarangayList'],
+													</div> -->
+													<select class="form-control selectCityMunList" style="width:100%" onchange="getLocation(['CityMunList','BarangayList'],
 																														['BarangayList','PurokList'],'PersonnelInfo')" type="select" name="cty">
 													</select>
 												</div>
 											</div>
 											<div class="col-lg-3 col-md-6 col-sm-6 col-6">
 												<div class="input-group mb-2">
-													<div class="input-group-prepend">
+													<!-- <div class="input-group-prepend">
 														<small class="input-group-text text-xs text-bold p-1">BRGY</small>
-													</div>
-													<select class="form-control selectBarangayList" onchange="getLocation(['BarangayList'],['PurokList'],'PersonnelInfo')" type="select" name="brgy">
+													</div> -->
+													<select class="form-control selectBarangayList" style="width:100%" onchange="getLocation(['BarangayList'],['PurokList'],'PersonnelInfo')" type="select" name="brgy">
 													</select>
 												</div>
 											</div>
@@ -471,42 +474,90 @@ $uri = $this->session->schoolmis_login_uri;
 					<div class="col-12">
 						<div class="card card-navy">
 							<div class="card-header p-1 pr-2 pl-2" data-card-widget="collapse" role="button">
-								<h3 class="card-title"><i class="fa fa-door-open"></i> Gateway</h3>
+								<h3 class="card-title"><i class="fa fa-door-open"></i> Gateway & Visitor</h3>
 								<div class="card-tools">
 									<button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button>
 								</div>
 							</div>
-							<div class="card-body p-2" style="overflow: auto;">
-								<div class="table-responsive mailbox-messages">
-									<?= form_open(base_url($uri . '/Dataentry/saveGateInfo'), 'id=form_save_dataGateInfo'); ?>
-									<div class="row mb-4">
-										<input name="uuid" nr="1" hidden />
-										<div class="col-7">
-											<input type="text" class="form-control form-control-sm text-uppercase" name="name" placeholder="GATEWAY NAME" autocomplete="off">
-										</div>
-										<div class="col-5">
-											<div class="input-group">
-												<input type="text" class="form-control form-control-sm text-uppercase" name="abbr" placeholder="ABBREVIATION" autocomplete="off">
-												<div class="input-group-append">
-													<button type="submit" class="btn btn-primary btn-sm submitBtnPrimary">SAVE</button>
+							<div class="card-body p-1" style="overflow: auto;">
+								<div class="card card-warning card-outline-tabs">
+									<div class="card-header px-1 pt-1 pb-0 border-bottom-0">
+										<ul class="nav nav-tabs" id="custom-tabs-two-tab" role="tablist">
+											<li class="nav-item">
+												<a class="nav-link active" id="custom-tabs-two-profile-tab" data-toggle="pill" href="#custom-tabs-two-gateway" role="tab" aria-controls="custom-tabs-two-gateway" aria-selected="true">Gateway</a>
+											</li>
+											<li class="nav-item">
+												<a class="nav-link" id="custom-tabs-two-messages-tab" data-toggle="pill" href="#custom-tabs-two-visitor" role="tab" aria-controls="custom-tabs-two-visitor" aria-selected="true">Visitor</a>
+											</li>
+										</ul>
+									</div>
+								</div>
+								<div class="card-body">
+									<div class="tab-content" id="custom-tabs-two-tabContent">
+										<div class="tab-pane fade active show" id="custom-tabs-two-gateway" role="tabpanel" aria-labelledby="custom-tabs-two-gateway-tab">
+											<div class="overlay-wrapper border border-black border-2 rounded p-1 mt-n4 mx-n3 mb-n3">
+												<?= form_open(base_url($uri . '/Dataentry/saveGateInfo'), 'id=form_save_dataGateInfo'); ?>
+												<div class="row mb-4">
+													<input name="uuid" nr="1" hidden />
+													<div class="col-7">
+														<input type="text" class="form-control form-control-sm text-uppercase" name="name" placeholder="GATEWAY NAME" autocomplete="off">
+													</div>
+													<div class="col-5">
+														<div class="input-group">
+															<input type="text" class="form-control form-control-sm text-uppercase" name="abbr" placeholder="ABBREVIATION" autocomplete="off">
+															<div class="input-group-append">
+																<button type="submit" class="btn btn-primary btn-sm submitBtnPrimary">SAVE</button>
+															</div>
+														</div>
+													</div>
 												</div>
+												<div class="tab-custom-content w-100">
+												</div>
+
+												<table id="tblGateInfo" style="width:100%;" class="table table-sm table-striped table-hover">
+													<thead>
+														<tr>
+															<th width="1">#</th>
+															<th><i class='fa fa-door-open'></i> Gateway details</th>
+														</tr>
+													</thead>
+													<tbody>
+													</tbody>
+												</table>
+												</form>
+											</div>
+										</div>
+										<div class="tab-pane fade" id="custom-tabs-two-visitor" role="tabpanel" aria-labelledby="custom-tabs-two-visitor-tab">
+											<div class="overlay-wrapper border border-black border-2 rounded p-1 mt-n4 mx-n3 mb-n3">
+												<?= form_open(base_url($uri . '/Dataentry/saveVisitorInfo'), 'id=form_save_dataVisitorInfo'); ?>
+												<div class="row mb-4">
+													<div class="col-12">
+														<div class="input-group">
+															<input type="number" class="form-control form-control-sm" name="count" placeholder="FROM 1 TO 10" autocomplete="off" max="10" min="1">
+															<div class="input-group-append">
+																<button type="submit" class="btn btn-primary btn-sm submitBtnPrimary">GENERATE NEW VISITOR ID</button>
+															</div>
+														</div>
+													</div>
+												</div>
+												<div class="tab-custom-content w-100">
+												</div>
+
+												<table id="tblVisitorInfo" style="width:100%;" class="table table-sm table-striped table-hover">
+													<thead>
+														<tr>
+															<th width="1">#</th>
+															<th><i class='fa fa-door-open'></i> ID</th>
+															<th><i class='fa fa-user'></i> Currenly used by</th>
+														</tr>
+													</thead>
+													<tbody>
+													</tbody>
+												</table>
+												</form>
 											</div>
 										</div>
 									</div>
-									<div class="tab-custom-content w-100">
-									</div>
-
-									<table id="tblGateInfo" style="width:100%;" class="table table-sm table-striped table-hover">
-										<thead>
-											<tr>
-												<th width="1">#</th>
-												<th><i class='fa fa-door-open'></i> Gateway details</th>
-											</tr>
-										</thead>
-										<tbody>
-										</tbody>
-									</table>
-									</form>
 								</div>
 							</div>
 						</div>
@@ -566,6 +617,7 @@ $uri = $this->session->schoolmis_login_uri;
 		getTable("SubjectList", 0, 10);
 		getTable("ProgramList", 0, 10);
 		getTable("DeptInfo", 0, 5);
+		getTable("VisitorInfo", 0, 5);
 		// getTablez("ProfileSample", 0, 10);
 		getSbjctAssPrsnnl("SbjctAssPrsnnl");
 
@@ -639,6 +691,7 @@ $uri = $this->session->schoolmis_login_uri;
 		saveForm(f2, [f2], null, 0, 5);
 		saveForm("SYInfo", ["SYInfo"], null);
 		saveForm("GateInfo", ["GateInfo"], null, 0, 5);
+		saveForm("VisitorInfo", ["VisitorInfo"], null, 0, 5);
 		saveForm("SbjctAssPrsnnl", [f2], null);
 		saveForm("GradeSubject", [""], null);
 		saveForm("PersonnelAccount", [f1, "DeptInfo"], null, 0, 5);

@@ -71,16 +71,25 @@ class Getdata extends MY_Controller
         $enroll_stat = $this->getOnLoad()["enroll_stat"];
         $grade_stat = $this->getOnLoad()["grade_stat"];
 
-
-
-
         $requestData = $_REQUEST;
         $searchValue = isset($requestData['search']['value']) ? $requestData['search']['value'] : '';
+        $k12 = isset($requestData['k12']) ? $requestData['k12'] : '';
+        $prgrm_strnd = isset($requestData['prgrm_strnd']) ? $requestData['prgrm_strnd'] : '';
+        $grade = isset($requestData['grade']) ? $requestData['grade'] : '';
+        $fltr = "";
+        if ($k12) {
+            $fltr = " AND t3.id=$k12";
+        }
+        if ($prgrm_strnd) {
+            $fltr .= " AND t1.program_strand_id=$prgrm_strnd";
+        }
+        if ($grade) {
+            $fltr .= " AND t1.gradelvl_id=$grade";
+        }
 
         // Calculate pagination parameters using the separate function
         list($limit, $offset) = $this->calculatePagination($requestData);
 
-        
         // $queryz = $this->db->query("SELECT * FROM global.tbl_party
         //                             WHERE party_type_id=17 AND CONCAT(description,abbr,(CASE WHEN is_active = 't' THEN 'ACTIVE' ELSE 'INACTIVE' END)) ILIKE '%$searchValue%'
         //                             ORDER BY order_by ASC
@@ -98,7 +107,7 @@ class Getdata extends MY_Controller
             //                             --                         ) t2 ON t1.room_section_id=t2.room_section_id
             //                             WHERE t1.schoolpersonnel_id=1 AND t1.schl_yr_id=$sy 
             //                             ORDER BY t1.advisory DESC,t1.sctn_nm,t1.order_by_sbjct");
-            
+
             // Query to get total record count
             $thisQuery = $this->db->query("SELECT count(1) AS total 
                                             FROM building_sectioning.view_subject_grdlvl_personnel_assgnmnt t1 
@@ -110,7 +119,6 @@ class Getdata extends MY_Controller
                                             WHERE t1.schoolpersonnel_id=$personnel_id AND t1.schl_yr_id=$sy AND CONCAT(t1.room_section_id, t1.rm_sctn_sbjct_assgnmnt_id, t1.grade,t1.schedule, t1.subject_abbr, t1.sctn_nm,t1.full_name,t1.advisory) ILIKE '%$searchValue%' 
                                             ORDER BY t1.advisory DESC,t1.sctn_nm,t1.order_by_sbjct
                                             LIMIT $limit OFFSET $offset");
-
         } elseif ($uri == 'userschooladmin') {
             // $query = $this->db->query("SELECT t1.room_section_id,
             //                             t1.rm_sctn_sbjct_assgnmnt_id,
@@ -120,13 +128,17 @@ class Getdata extends MY_Controller
             //                             WHERE t1.schl_yr_id=1  AND t1.advisory = true
             //                             ORDER BY t1.advisory DESC,t1.sctn_nm,t1.order_by_sbjct");
             $thisQuery = $this->db->query("SELECT count(1) AS total
-                                            FROM building_sectioning.view_subject_grdlvl_personnel_assgnmnt t1
-                                            WHERE t1.schl_yr_id=$sy  AND t1.advisory = true  AND CONCAT(t1.room_section_id, t1.rm_sctn_sbjct_assgnmnt_id, t1.grade,t1.schedule,t1.subject_abbr, t1.sctn_nm,t1.full_name,t1.advisory) ILIKE '%$searchValue%'");
+                                            FROM building_sectioning.view_subject_grdlvl_personnel_assgnmnt t1 
+                                            LEFT JOIN global.tbl_party t2 ON t1.gradelvl_id = t2.id 
+                                            LEFT JOIN global.tbl_partytype t3 ON t2.party_type_id = t3.id
+                                            WHERE t1.schl_yr_id=$sy $fltr AND t1.advisory = true  AND CONCAT(t1.room_section_id, t1.rm_sctn_sbjct_assgnmnt_id, t1.grade,t1.schedule,t1.subject_abbr, t1.sctn_nm,t1.full_name,t1.advisory) ILIKE '%$searchValue%'");
             $totalRecords = $thisQuery->row()->total;
 
             $query = $this->db->query("SELECT t1.room_section_id, t1.rm_sctn_sbjct_assgnmnt_id, t1.grade,t1.schedule,t1.subject_abbr, t1.sctn_nm,t1.full_name,t1.advisory 
                                             FROM building_sectioning.view_subject_grdlvl_personnel_assgnmnt t1
-                                            WHERE t1.schl_yr_id=$sy  AND t1.advisory = true  AND CONCAT(t1.room_section_id, t1.rm_sctn_sbjct_assgnmnt_id, t1.grade,t1.schedule,t1.subject_abbr, t1.sctn_nm,t1.full_name,t1.advisory) ILIKE '%$searchValue%'
+                                            LEFT JOIN global.tbl_party t2 ON t1.gradelvl_id = t2.id 
+                                            LEFT JOIN global.tbl_partytype t3 ON t2.party_type_id = t3.id
+                                            WHERE t1.schl_yr_id=$sy $fltr AND t1.advisory = true  AND CONCAT(t1.room_section_id, t1.rm_sctn_sbjct_assgnmnt_id, t1.grade,t1.schedule,t1.subject_abbr, t1.sctn_nm,t1.full_name,t1.advisory) ILIKE '%$searchValue%'
                                             ORDER BY t1.advisory DESC,t1.sctn_nm,t1.order_by_sbjct
                                             LIMIT $limit OFFSET $offset");
         }
@@ -156,9 +168,9 @@ class Getdata extends MY_Controller
             $conso = ($advsry == 't') ? '<a class="dropdown-item text-xs" role="button" onclick="reportsConsoGrades()">CONSOLIDATED GRADES</a>' : '';
             $smea = ($advsry == 't') ? '<a class="dropdown-item text-xs" role="button" onclick="reportsConsoGrades()">CONSOLIDATED GRADES</a>' : '';
             $enroll = ($advsry == 't' && $enroll_stat == 't') ? '<a class="dropdown-item bg-success text-xs" role="button" data-toggle="modal" onclick="clear_form1();closeCardBodyIfOpen();" data-target="#modalEnrollment">ENROLLMENT</a>' : '';
-            $grade = '';#($grade_stat == 't') ? '<a class="dropdown-item bg-primary text-xs" role="button" data-toggle="modal" onclick="getGradesListFN();getGradesPSListFN();" data-target="#modalGradesList">GRADES & EXAM</a>' : '';
+            $grade = ''; #($grade_stat == 't') ? '<a class="dropdown-item bg-primary text-xs" role="button" data-toggle="modal" onclick="getGradesListFN();getGradesPSListFN();" data-target="#modalGradesList">GRADES & EXAM</a>' : '';
             // $q_exam = '<a class="dropdown-item bg-pink text-xs" role="button" data-toggle="modal" onclick="getGradesPSListFN()" data-target="#modalGradesPSList">QUARTER EXAM/PS</a>';
-            $grade_all = '';#($advsry == 't') ? '<a class="dropdown-item bg-info text-xs" role="button" data-toggle="modal" onclick="customTabViewAllGrades()" data-target="#modalAllGrades">GRADES STATUS</a>' : '';
+            $grade_all = ''; #($advsry == 't') ? '<a class="dropdown-item bg-info text-xs" role="button" data-toggle="modal" onclick="customTabViewAllGrades()" data-target="#modalAllGrades">GRADES STATUS</a>' : '';
 
             // $gradesDL = '<a class="dropdown-item bg-primary text-xs" role="button"' .
             //     " onclick=\"getGradesSMEAListFN(1)\">GRADES FORM</a>";
@@ -187,7 +199,7 @@ class Getdata extends MY_Controller
                 //             <div class="dropdown-menu p-0" role="menu">' .
                 //     $gradesDL  . $qeDL  . "</div></div>",
 
-                // "others" => ($advsry == 't') ? '<button type="button" class="btn btn-xs text-sm float-right btn-outline-secondary rounded-circle border-0 ml-1" data-toggle="dropdown" aria-expanded="true">
+                // "others" => ($advsry == 't' || $uri == 'userschooladmin') ? '<button type="button" class="btn btn-xs text-sm float-right btn-outline-secondary rounded-circle border-0 ml-1" data-toggle="dropdown" aria-expanded="true">
                 //                                     <span class="fa fa-ellipsis-h"></span>
                 //                                 </button>
                 //                                 <div class="dropdown-menu p-0" role="menu">
@@ -199,7 +211,7 @@ class Getdata extends MY_Controller
             $arr2 = json_encode($data2);
             $slct = ($advsry === 't' && $key === array_key_first($query->result()) ? 'slctdRadioAdvisory' : '');
             $data[] = [
-                "<div class='row' style='white-space: nowrap;'>
+                "<div class='row' style='white-space: nowrap;margin-left:-1.2rem;'>
                     <div class='col-12 " . ($advsry === 't' ? 'text-success' : '') . "'>
                         <input type='radio' id='slctRmRadio" . $rmid . $rssaid . "' class='" . $slct . "' name='slctRm' value='" . $rmid . "' 
                                 onclick='getLearnersListFN(\"LearnersList\"," . $rmid . "," . $rssaid . ",\"" . $advsry . "\",\"" . $s . "\");
@@ -210,8 +222,8 @@ class Getdata extends MY_Controller
                         "<span class='badge text-sm pb-0'>$g - $s</span><small>$qrow->code - <i>$subject</i> | <i>$sched</i></small>
                             <small class='float-right'><b class='text-primary'>" . $male . "</b> + <b class='text-pink'>" . $female . "</b> = <b>" . $t_enrollee . "</b></small><br/>" :
 
-                        "<span class='badge text-sm pb-0'>$g - $s</span><small>$qrow->code - </small>
-                            <small class='float-right'><b class='text-primary'>" . $male . "</b> + <b class='text-pink'>" . $female . "</b> = <b>" . $t_enrollee . "</b></small><br/>") .
+                        "<span class='badge text-sm pb-0' style='color:#000;'>$g - $s</span><i style='color:$qrow->program_strand_color;'>$qrow->program_strand_abbr</i>" .
+                        ($male == 0 && $female == 0 ? "" : "<small class='float-right'><b class='text-primary'>" . $male . "</b> + <b class='text-pink'>" . $female . "</b> = <b>" . $t_enrollee . "</b></small>")) .
                     "</label>
                     </div>
                 </div>",
@@ -433,6 +445,24 @@ class Getdata extends MY_Controller
         echo json_encode($data);
     }
 
+    function getSectionList()
+    {
+        $data = ["data" => []];
+        $c = 1;
+        $glvl_id = $this->input->get("g");
+        $sy = $this->getOnLoad()["sy_id"];
+        $query = $this->db->query("SELECT id, sctn_nm FROM building_sectioning.tbl_room_section trs 
+                                    WHERE schl_yr_id = $sy AND is_active = TRUE AND grd_lvl_id = $glvl_id 
+                                    ORDER BY sctn_nm");
+        foreach ($query->result() as $key => $value) {
+            $data["data"][] = [
+                "a" => $value->id,
+                "b" => $value->sctn_nm,
+            ];
+        }
+        echo json_encode($data);
+    }
+
     function getLearnersList()
     {
         $data = ["data" => []];
@@ -471,7 +501,8 @@ class Getdata extends MY_Controller
             $sex = '<p style="font-size:.7rem;">' . $s . '</p>';
             $txtColor = $value->learner_account && $a_c == 't' ? 'text-success ' . $bold : ($a_c == 'f' ? 'text-danger ' . $bold : 'text-black font-weight-light');
             //LEARNER ID _&&_ LRN _&&_ BASIC INFO ID _&&_ ACCOUNT
-            $val =  $value->learner_id . '_&&_' . $value->lrn  . '_&&_' . $value->basic_info_id . '_&&_' . ($value->learner_account ? 1 : 0);
+            // $val =  $value->learner_id . '_&&_' . $value->lrn  . '_&&_' . $value->basic_info_id . '_&&_' . ($value->learner_account ? 1 : 0) . '_&&_' . md5($value->enrollment_id) . '_&&_' . md5($value->learner_id) . '_&&_' . md5($value->basic_info_id);
+            $val =  $value->learner_id . '_&&_' . $value->lrn  . '_&&_' . $value->basic_info_id . '_&&_' . ($value->learner_account ? 1 : 0) . '_&&_' . $value->enrollment_id . '_&&_' . $value->learner_id . '_&&_' . $value->basic_info_id;
             $brgy_city = '<p style="font-size:.8rem;white-space: nowrap;">' . $value->barangay_name  . '</p>';
             $img_path = $this->getImg($value->img_path);
 
@@ -479,14 +510,15 @@ class Getdata extends MY_Controller
             $data1 = [
                 "details" => $value->enrollment_id . '|' . $value->learner_id . '|' . $value->basic_info_id,
                 "lrn" => $value->lrn,
-                "firstName" => $value->first_name,
-                "middleName" => $value->middle_name,
-                "lastName" => $value->last_name,
-                "extName" => $value->suffix,
+                "firstName" => $this->cleanStringQ($value->first_name),
+                "middleName" => $this->cleanStringQ($value->middle_name),
+                "lastName" => $this->cleanStringQ($value->last_name),
+                "extName" => $this->cleanStringQ($value->suffix),
                 "sex" => $value->sex_bool,
                 "birthdate" => $value->birthdate,
+                "cty" => $value->citymun_id,
                 "brgy" => $value->barangay_id,
-                "homeAddress" => $value->address_info,
+                "homeAddress" => $this->cleanStringQ($value->address_info),
                 "status" => $value->status_id,
                 "enrollDate" => $value->status_date,
                 "img_path" => $img_path,
@@ -508,15 +540,15 @@ class Getdata extends MY_Controller
                 //     "learning_modality_txt": "Modular (print)"
                 //   }
                 //other_info
-                "ffname" => $od["ffn"],
-                "fmname" => $od["fmn"],
-                "flname" => $od["fln"],
-                "mfname" => $od["mfn"],
-                "mmname" => $od["mmn"],
-                "mlname" => $od["mln"],
-                "guardianName" => $od["guardian"],
+                "ffname" => $this->cleanStringQ($od["ffn"]),
+                "fmname" => $this->cleanStringQ($od["fmn"]),
+                "flname" => $this->cleanStringQ($od["fln"]),
+                "mfname" => $this->cleanStringQ($od["mfn"]),
+                "mmname" => $this->cleanStringQ($od["mmn"]),
+                "mlname" => $this->cleanStringQ($od["mln"]),
+                "guardianName" => $this->cleanStringQ($od["guardian"]),
                 "relationship" => $od["g_relation"],
-                "contactNumber" => $od["contact_number"],
+                "contactNumber" => $this->cleanStringQ($od["contact_number"]),
                 "ioe" => $od["incase_emergency"],
                 "mfg" => $od["ioe_name"],
 
@@ -525,11 +557,11 @@ class Getdata extends MY_Controller
                 "religion" => $od["religion_txt"],
                 "four_ps" => $od["four_ps"],
                 "learning_modality" => $od["learning_modality_txt"],
-                "remarks" => $od["remarks"],
+                "remarks" => $this->cleanStringQ($od["remarks"]),
             ];
             $data2 = [
                 "lrn" => $value->lrn,
-                "last_fullname" => $value->last_fullname,
+                "last_fullname" => $this->cleanStringQ($value->last_fullname),
                 "details" => md5($value->enrollment_id) . '|' . md5($value->learner_id) . '|' . md5($value->basic_info_id),
             ];
             $arr1 = json_encode($data1);
@@ -547,13 +579,13 @@ class Getdata extends MY_Controller
             $data["data"][] = [
                 ($s == 'M' ? $c_male++ : $c_fmale++),
                 '<div class="row logs_account" style="white-space: nowrap;display:none;">
-                    <div class="col-8 pr-5">
+                    <div class="col-12">
                         <div class="custom-control custom-checkbox">
                             <input style="cursor:pointer" class="custom-control-input learnerCheckBox" type="checkbox" id="customCheckbox' . $value->lrn . '" name="learnerCheckBox[]" value="' . $val . '">
                             <label style="cursor:pointer" for="customCheckbox' . $value->lrn . '" class="custom-control-label ' . $txtColor . '">' . $value->lrn . '</label>
                         </div>
                     </div>
-                    <div class="col-4">
+                    <div class="col-4" hidden>
                         <button type="button" class="btn btn-xs text-gray ml-1" data-toggle="dropdown" aria-expanded="true">' .
                     ($value->logs ? '<span title="' . $value->logs . ' Log(s) Count" class="badge badge-danger button-badge">' . $logs . '</span>' : '<span class="fa fa-ellipsis-h"></span>') . '
                         </button>
@@ -566,21 +598,23 @@ class Getdata extends MY_Controller
                 
 
                 <div class="normal_view" style="white-space: nowrap;">
-                    ' . (($edit == 't'  && $advsry == 1) || ($uri == 'userschooladmin') ? "<span class='fa fa-pencil-alt text-primary text-sm' style='cursor:pointer;' onclick='getDetails(\"UpdateLearnerInfo\",$arr1,1,\"#\");$(\"#modalEnrollment\").modal(\"show\");closeCardBodyIfOpen();'></span> " : '') . $value->lrn . '
+                    ' . (($edit == 't'  && $advsry == 1) || ($uri == 'userschooladmin') ? "<span class='fa fa-pencil-alt text-primary text-sm' style='cursor:pointer;' onclick='getDetails(\"UpdateLearnerInfo\",$arr1,1,\"#\");$(\"#modalEnrollment\").modal(\"show\");closeCardBodyIfOpen();delay(\"EnrollmentInfo\",$value->barangay_id,\"brgy\")'></span> " : '') . $value->lrn . '
                 </div>',
                 '<p style="white-space: nowrap;">' . $value->last_fullname . '</p>',
                 $sex,
                 $birthDate,
                 $brgy_city,
                 '<div class="normal_view" style="white-space: nowrap;">
-                    ' . $value->enrollment_status . (($unenroll == 't' && $advsry == 1) || ($uri=='userschooladmin') ?
+                    ' . $value->enrollment_status . (($unenroll == 't' && $advsry == 1) || ($uri == 'userschooladmin') ?
                     // " <span class='fa fa-trash-alt text-danger text-sm' style='cursor:pointer' onclick='getDetails(\"UnenrollConfirm\",$arr2,1,\"#\");setTimeout(function(){ $(\".passwordUnenroll\").val(\"\").focus(); } ,200);$(\"#modalLearnersUnenroll\").modal(\"show\");'>
                     // </span>"
                     '<button type="button" class="btn btn-xs text-sm float-right btn-outline-secondary rounded-circle border-0 ml-1" data-toggle="dropdown" aria-expanded="true">
                         <span class="fa fa-ellipsis-h"></span>
                     </button>
                     <div class="dropdown-menu p-0" role="menu">' .
-                    "<a class='dropdown-item text-xs bg-danger' role='button' onclick='getDetails(\"UnenrollConfirm\",$arr2,1,\"#\");setTimeout(function(){ $(\".passwordUnenroll\").val(\"\").focus(); } ,200);$(\"#modalLearnersUnenroll\").modal(\"show\");'><span class='fa fa-trash-alt'></span> UNENROLL</a>" .
+                    // "<a class='dropdown-item text-xs bg-info' role='button' onclick='getDetails(\"UnenrollConfirm\",$arr2,1,\"#\");'><span class='fa fa-address-card'></span> PREVIEW ID</a>" .
+                    "<a class='dropdown-item text-xs bg-danger' role='button' onclick='getDetails(\"UnenrollConfirm\",$arr2,1,\"#\");setTimeout(function(){ $(\".passwordUnenroll\").val(\"\").focus(); } ,200);$(\"#modalLearnersUnenroll\").modal(\"show\");'><span class='fa fa-xmark'></span> UNENROLL</a>" .
+                    // "<a class='dropdown-item text-xs bg-warning' role='button' onclick='getDetails(\"UnenrollConfirm\",$arr2,1,\"#\");'><span class='fa fa-right-left'></span> TRANSFER</a>" .
                     // "<a class='dropdown-item text-xs' role='button' onclick='getDetails(\"UnenrollConfirm\",$arr2,1,\"#\");setTimeout(function(){ $(\".passwordUnenroll\").val(\"\").focus(); } ,200);$(\"#modalLearnersSF1\").modal(\"show\");'><span class='fa fa-folder-open'></span> FORM 1</a>" .
                     // "<a class='dropdown-item text-xs bg-info' role='button' onclick='alert()'><span class='fa fa-list'></span> GENERATE</a>" .
                     // "<a class='dropdown-item text-xs bg-info' role='button' onclick='getDetails(\"TransferConfirm\",$arr2,1,\"#\");setTimeout(function(){ $(\".passwordTransfer\").val(\"\").focus(); } ,200);$(\"#modalLearnersTransfer\").modal(\"show\");'><span class='fa fa-arrow-right'></span> TRANSFER</a>

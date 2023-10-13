@@ -12,6 +12,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="<?= base_url() ?>dist/css/fonts.css">
+<link rel="stylesheet" href="<?= base_url() ?>plugins/fontawesome-free-6.4.2-web/css/all.min.css">
 <link rel="stylesheet" href="<?= base_url() ?>plugins/fontawesome-free/css/all.min.css">
 <link rel="stylesheet" href="<?= base_url() ?>plugins/ol3/ol.css">
 <link rel="stylesheet" href="<?= base_url() ?>plugins/ol3/Popup.css">

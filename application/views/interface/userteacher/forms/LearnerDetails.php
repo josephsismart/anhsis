@@ -15,7 +15,7 @@
             </center>
         </div>
 
-        <div class="col-xl-10 col-md-12 mt-4">
+        <div class="col-xl-10 col-md-12 mt-2">
             <div class="row">
                 <div class="col-6 col-lg-2">
                     <div class="input-group mb-2">
@@ -39,10 +39,10 @@
                 <div class="col-6 col-lg-3 mb-2">
                     <input type="text" class="form-control form-control-sm text-uppercase" name="lastName" placeholder="LAST NAME" autocomplete="off">
                 </div>
-                <div class="col-6 col-lg-1 mb-2">
+                <div class="col-3 col-lg-1 mb-2">
                     <input type="text" class="form-control form-control-sm text-uppercase" name="extName" placeholder="EXTN" autocomplete="off" nr="1">
                 </div>
-                <div class="col-6 col-lg-1">
+                <div class="col-3 col-lg-1">
                     <!-- <div class="input-group mb-2">
                                             <div class="input-group-prepend">
                                                 <span class="input-group-text"><i class="fas fa-venus-mars"></i></span>
@@ -64,11 +64,18 @@
 
                 <div class="col-6 col-lg-2">
                     <div class="input-group mb-2">
-                        <select class="form-control form-control-sm select2 selectBarangayList" data-placeholder="SELECT BARANGAY" onchange="getLocation('BarangayList','PurokList','PersonnelInfo')" type="select" name="brgy" style="width:100%;">
+                        <select class="form-control  form-control-sm select2 selectCityMunList" style="width:100%" onchange="getLocation(['CityMunList','BarangayList'],
+																														['BarangayList','PurokList'],'EnrollmentInfo')" type="select" name="cty">
                         </select>
                     </div>
                 </div>
-                <div class="col-12 col-lg-2">
+                <div class="col-6 col-lg-2">
+                    <div class="input-group mb-2">
+                        <select class="form-control form-control-sm select2 selectBarangayList" data-placeholder="SELECT BARANGAY" onchange="getLocation('BarangayList','PurokList','EnrollmentInfo')" type="select" name="brgy" style="width:100%;">
+                        </select>
+                    </div>
+                </div>
+                <div class="col-12 col-lg-6">
                     <div class="input-group mb-2">
                         <div class="input-group-prepend">
                             <span class="input-group-text homeAddress"><i class="fas fa-home"></i></span>
@@ -105,7 +112,7 @@
         <div class="card w-100 collapse-header collapsed-card">
             <!-- <div class="card w-100"> -->
             <div class="card-header p-1 pr-2 pl-2 bg-gradient-purple rounded" role="button" data-card-widget="collapse">
-                <h3 class="card-title lead text-white">Other Information goes here (<i>click here</i>)</h3>
+                <h3 class="card-title lead text-white">Other Information goes here</h3>
                 <!-- <div class="card-tools mt-n1 pb-0">
                     <button type="button" class="btn btn-tool btn-xs"><i class="fas fa-plus"></i></button>
                     <button type="button" class="btn btn-tool" data-card-widget="remove"><i class="fas fa-remove"></i></button>
@@ -180,7 +187,7 @@
                                     <input type="text" class="form-control form-control-sm text-uppercase" name="contactNumber" placeholder="CONTACT NUMBER" autocomplete="off" nr="1">
                                 </div>
                                 <div class="col-5 mb-2">
-                                    <input type="text" class="form-control form-control-sm text-uppercase lead mb-0 text-sm text-bold text-gray" name="mfg" readonly nr="1"/>
+                                    <input type="text" class="form-control form-control-sm text-uppercase lead mb-0 text-sm text-bold text-gray" name="mfg" readonly nr="1" />
                                 </div>
                             </div>
                         </div>
@@ -193,7 +200,7 @@
         <div class="card w-100 collapse-header collapsed-card">
             <!-- <div class="card w-100"> -->
             <div class="card-header p-1 pr-2 pl-2 bg-gradient-purple rounded" role="button" data-card-widget="collapse">
-                <h3 class="card-title lead text-white">Additional Information goes here (<i>click here</i>)</h3>
+                <h3 class="card-title lead text-white">Additional Information goes here</h3>
                 <!-- <div class="card-tools mt-n1 pb-0">
                     <button type="button" class="btn btn-tool btn-xs"><i class="fas fa-plus"></i></button>
                     <button type="button" class="btn btn-tool" data-card-widget="remove"><i class="fas fa-remove"></i></button>

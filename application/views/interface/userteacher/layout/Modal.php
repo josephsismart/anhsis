@@ -7,7 +7,7 @@ if (!$this->session->schoolmis_login_level) {
 $uri = 'userteacher'; //$this->session->schoolmis_login_uri;
 ?>
 <!-- <div class="modal fade show" id="modalEnrollment" aria-modal="true" style="padding-right: 16px; display: block;"> -->
-<div class="modal fade" id="modalEnrollment" data-backdrop="static" tabindex="-1">
+<div class="modal fade" id="modalEnrollment" data-backdrop="static">
     <div class="modal-dialog modal-xl">
         <div class="modal-content">
             <div class="modal-header bg-gradient-primary p-2 px-3">
@@ -456,14 +456,106 @@ $uri = 'userteacher'; //$this->session->schoolmis_login_uri;
                     </p>
                     <input type="password" name="password" class="form-control passwordUnenroll submitBtnPrimary" placeholder="Enter Password" />
 
-                    <div class="alert alert-warning alert-dismissible mt-3 mb-0 pr-3">
-                        <!-- <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button> -->
+                    <!-- <div class="alert alert-warning alert-dismissible mt-3 mb-0 pr-3">
+                        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
                         <h5><i class="icon fas fa-info"></i> Please read!</h5>
                         Inputted <b>GRADES</b> will be <b>DELETED</b> also.
-                    </div>
+                    </div> -->
                 </div>
                 <div class="modal-footer p-1">
                     <button type="button" class="btn btn-danger btn-xs btn-block submitBtnPrimary" onclick="unenroll();">Unenroll Student</button>
+                    <!-- <button type="button" class="btn btn-default btn-xs" data-dismiss="modal"><i class="fa fa-times"></i> Close</button> -->
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+<!-- <div class="modal fade show" id="modalLearnersList" aria-modal="true" style="padding-right: 16px; display: block;"> -->
+<div class="modal fade" id="modalLearnersBatchUnenroll" data-backdrop="static">
+    <div class="modal-dialog modal-sm">
+        <form id="form_save_dataBatchUnenrollConfirm">
+            <div class="modal-content">
+                <div class="modal-header bg-danger p-2">
+                    <h5 class="modal-title p-0"><span class="fa fa-xmark"></span> Batch Unenroll</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="listBatchUnenroll mt-n2 mb-2">
+                    </div>
+
+                    <input type="password" name="password" class="form-control passwordUnenroll submitBtnPrimary" placeholder="Enter Password" />
+
+                    <!-- <div class="alert alert-warning alert-dismissible mt-3 mb-0 pr-3">
+                        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+                        <h5><i class="icon fas fa-info"></i> Please read!</h5>
+                        Inputted <b>GRADES</b> will be <b>DELETED</b> also.
+                    </div> -->
+                </div>
+                <div class="modal-footer p-1">
+                    <button type="button" class="btn btn-danger btn-xs btn-block submitBtnPrimary" onclick="BatchUnenroll();">Unenroll Learners</button>
+                    <!-- <button type="button" class="btn btn-default btn-xs" data-dismiss="modal"><i class="fa fa-times"></i> Close</button> -->
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- <div class="modal fade show" id="modalLearnersBatchTransfer" aria-modal="true" style="padding-right: 16px; display: block;"> -->
+<div class="modal fade" id="modalLearnersBatchTransfer" data-backdrop="static">
+    <div class="modal-dialog modal-sm">
+        <form id="form_save_dataBatchTransferConfirm">
+            <div class="modal-content">
+                <div class="modal-header bg-warning p-2">
+                    <h5 class="modal-title p-0"><span class="fa fa-right-left"></span> Batch Transfer</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="listBatchTransfer mt-n2 mb-2">
+                    </div>
+
+                    <div class="row pb-1" id="form_save_dataSectionListFilterTransfer">
+                        <div class="col-12 pt-1">
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <small class="input-group-text text-xs text-bold p-1 bg-primary text-white">K 12</small>
+                                </div>
+                                <select class="form-control form-control-sm selectK12List" data-placeholder="K 12" onchange="getFetchList('SectionListFilterTransfer', 'GradeLevelList', 'PartyList', 0, {v: $('#form_save_dataSectionListFilterTransfer .selectK12List').val()}, 0);"></select>
+                            </div>
+                        </div>
+                        <div class="col-12 pt-1">
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <small class="input-group-text text-xs text-bold p-1 bg-primary text-white">GRADE LEVEL</small>
+                                </div>
+                                <select class="form-control form-control-sm selectGradeLevelList" data-placeholder="GRADE LEVEL" onchange="sectionList();"></select>
+                            </div>
+                        </div>
+                        <div class="col-12 pt-1">
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <small class="input-group-text text-xs text-bold p-1 bg-primary text-white w-30">SECTION</small>
+                                </div>
+                                <select class="form-control form-control-sm select2 sectionListTransfer" style="width: 75%;" data-placeholder="SELECT SECTION" onchange=""></select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <input type="password" name="password" class="form-control passwordTransfer submitBtnPrimary" placeholder="Enter Password" />
+
+                    <!-- <div class="alert alert-warning alert-dismissible mt-3 mb-0 pr-3">
+                        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+                        <h5><i class="icon fas fa-info"></i> Please read!</h5>
+                        Inputted <b>GRADES</b> will be <b>DELETED</b> also.
+                    </div> -->
+                </div>
+                <div class="modal-footer p-1">
+                    <button type="button" class="btn btn-warning btn-xs btn-block submitBtnPrimary" onclick="BatchTransfer();">Trasfer Learners</button>
                     <!-- <button type="button" class="btn btn-default btn-xs" data-dismiss="modal"><i class="fa fa-times"></i> Close</button> -->
                 </div>
             </div>

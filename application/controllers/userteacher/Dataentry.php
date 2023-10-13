@@ -313,7 +313,8 @@ class Dataentry extends MY_Controller
                         "status_id" => $status,
                         "enrollment_date" => $enrollDate,
                     ];
-                    $this->db->where('learner_id', $learner_id);
+                    // $this->db->where('learner_id', $learner_id);
+                    $this->db->where('id', $enroll_id);
                     if ($this->db->update("sy$sy.bs_tbl_learner_enrollment", $data3)) {
                         // $this->userlog("UPDATED STUDENT STATUS " . json_encode($data3));
                         $ret = $true;
@@ -323,7 +324,8 @@ class Dataentry extends MY_Controller
 
 
 
-                    $this->db->where('lrn', $lrn);
+                    // $this->db->where('lrn', $lrn);
+                    $this->db->where('id', $learner_id);
                     if ($this->db->update("profile.tbl_learners", $data2)) {
                         // $this->userlog("UPDATED LEARNER OTHER INFO " . json_encode($data3));
                         $ret = $true;
@@ -459,6 +461,7 @@ class Dataentry extends MY_Controller
 
                         $sex = $worksheet->getCellByColumnAndRow(6, $row)->getValue();
                         $bdate = $worksheet->getCellByColumnAndRow(7, $row)->getValue();
+                        $cell = $worksheet->getCellByColumnAndRow(7, $row);
                         $homeAddress = $worksheet->getCellByColumnAndRow(15, $row)->getValue();
                         $barangay = $worksheet->getCellByColumnAndRow(17, $row)->getValue(); //barangay
                         $mun_city = $worksheet->getCellByColumnAndRow(20, $row)->getValue(); //mun_city
@@ -487,15 +490,19 @@ class Dataentry extends MY_Controller
                         $module = $worksheet->getCellByColumnAndRow(43, $row)->getValue();
                         $rmrks = $worksheet->getCellByColumnAndRow(44, $row)->getValue();
 
-                        // echo " BDATE: " . $bdate;
+                        // $dateFormats = ['m-d-Y', 'm/d/Y', 'm-d/Y', 'm/d-Y'];
 
-                        $birthdate = $this->filterAndFormatDate($bdate); #$bdate ? DateTime::createFromFormat('m-d-Y', $bdate)->format('Y-m-d') : null;
-                        // echo " STRTOTIME: " . $stringtoTime;
-                        // $birthdate = $bdate ? date('Y-m-d', $stringtoTime) : null;
-                        // echo " BIRTHDATE: " . $birthdate;
-                        // $ymd = DateTime::createFromFormat('m-d-Y', $bdate)->format('Y-m-d');
-                        // echo " BIRTHDATE: " . $birthdate;
-                        $boolSex = $sex == 'M' ? true : ($sex == 'F' ? false : null);
+                        $birthdate = $this->filterAndFormatDate($bdate);
+
+
+
+                        if ($this->hasSpecificCharacter($sex, 'M')) {
+                            $boolSex = true;
+                        } else {
+                            $boolSex = false;
+                        }
+                        // $boolSex = $sex === 'M' ? true : ($sex === 'F' ? false : null);
+                        // $boolSex = $this->hasSpecificCharacter($sex, 'M')
 
 
                         if ($LRN && $fname && $lname && $bdate && $sex) {
@@ -736,22 +743,31 @@ class Dataentry extends MY_Controller
             }
             // echo json_encode($enrollmentData);
             // echo count($enrollmentData);
-            if (count($enrollmentData) > 0 && $login_id) {
-                // $enrollmentDataLOG = json_encode($enrollmentData);
-                if ($this->db->insert_batch("sy$sy.bs_tbl_learner_enrollment", $enrollmentData)) {
-                    // $this->userlog("INSERTED NEW ENROLLEE FROM EXCEL FILE" . $enrollmentDataLOG);
-                    $ret = $true;
-                } else {
-                    $ret = $false;
+            try {
+                if (count($enrollmentData) > 0 && $login_id) {
+                    // $enrollmentDataLOG = json_encode($enrollmentData);
+                    if ($this->db->insert_batch("sy$sy.bs_tbl_learner_enrollment", $enrollmentData)) {
+                        // $this->userlog("INSERTED NEW ENROLLEE FROM EXCEL FILE" . $enrollmentDataLOG);
+                        $ret = $true;
+                    } else {
+                        $ret = $false;
+                    }
                 }
-            }
 
-            if ($this->db->trans_status() === false) {
-                $this->db->trans_rollback();
-            } else {
-                $this->db->trans_commit();
-                $this->db->query("REFRESH MATERIALIZED VIEW profile.view_basicinfo;");
-                $this->db->query("REFRESH MATERIALIZED VIEW sy$sy.bs_view_enrollment;");
+                if ($this->db->trans_status() === false) {
+                    $this->db->trans_rollback();
+                } else {
+                    $this->db->trans_commit();
+                    $this->db->query("REFRESH MATERIALIZED VIEW profile.view_basicinfo;");
+                    $this->db->query("REFRESH MATERIALIZED VIEW sy$sy.bs_view_enrollment;");
+                }
+            } catch (Exception $e) {
+                // Handle the PostgreSQL duplicate key violation error here
+                // For example, you can log the error or return an error message
+                $ret = $false;
+                // You can also access the error message using $e->getMessage()
+                $errorMessage = $e->getMessage();
+                $ret = +["message" => $errorMessage];
             }
         } else {
             $ret = $false;
@@ -764,47 +780,100 @@ class Dataentry extends MY_Controller
         $this->db->trans_begin();
         $sy = $this->getOnLoad()["sy_id"];
         $unenroll = $this->getOnLoad()["unenroll"];
-
         $details = $this->input->post("details");
-        $a = explode('|', $details);
-        $enroll_id = $a[0];
-        $learner_id = $a[1];
-        $binfo_id = $a[2];
-        $password = md5($this->input->post("password"));
         $pass = $this->session->schoolmis_pass;
+
         $true = ["success"   => true];
         $false = ["success"   => false];
 
+        $password = md5($this->input->post("password"));
         if ($password != $pass) {
             $false += ["message"   => "Password mismatch!"];
             $ret = $false;
+            echo json_encode($ret);
         } else if ($unenroll != 't') {
             $false += ["message"   => "Please contact the Administrator"];
             $ret = $false;
+            echo json_encode($ret);
         } else {
-            if ($this->db->query("DELETE FROM sy$sy.bs_tbl_learner_grades WHERE MD5(learner_enrollment_id::text)='$enroll_id'")) {
-                if ($this->db->query("DELETE FROM sy$sy.bs_tbl_learner_enrollment WHERE MD5(learner_id::text)='$learner_id'")) {
-                    $this->db->query("UPDATE account.tbl_useraccount SET is_active=false WHERE MD5(basic_info_id::text)='$binfo_id'");
-                    if ($this->db->trans_status() === false) {
-                        $this->db->trans_rollback();
-                    } else {
-                        $this->db->trans_commit();
-                        $this->db->query("REFRESH MATERIALIZED VIEW profile.view_basicinfo;");
-                        $this->db->query("REFRESH MATERIALIZED VIEW sy$sy.bs_view_enrollment;");
-                    }
+            if (isset($details)) {
+                $a = explode('|', $details);
+                $enroll_id = $a[0];
+                $learner_id = $a[1];
+                $binfo_id = $a[2];
 
-                    $true += ["message"   => "Successfully unenrolled!"];
-                    $ret = $true;
+                if ($this->db->query("DELETE FROM sy$sy.bs_tbl_learner_grades WHERE MD5(learner_enrollment_id::text)='$enroll_id'")) {
+                    if ($this->db->query("DELETE FROM sy$sy.bs_tbl_learner_enrollment WHERE MD5(learner_id::text)='$learner_id'")) {
+                        $this->db->query("UPDATE account.tbl_useraccount SET is_active=false WHERE MD5(basic_info_id::text)='$binfo_id'");
+                        if ($this->db->trans_status() === false) {
+                            $this->db->trans_rollback();
+                        } else {
+                            $this->db->trans_commit();
+                            $this->db->query("REFRESH MATERIALIZED VIEW profile.view_basicinfo;");
+                            $this->db->query("REFRESH MATERIALIZED VIEW sy$sy.bs_view_enrollment;");
+                        }
+
+                        $true += ["message"   => "Successfully unenrolled!"];
+                        $ret = $true;
+                    } else {
+                        $false += ["message"   => "Something went wrong!"];
+                        $ret = $false;
+                    }
                 } else {
                     $false += ["message"   => "Something went wrong!"];
                     $ret = $false;
                 }
+                echo json_encode($ret);
             } else {
-                $false += ["message"   => "Something went wrong!"];
-                $ret = $false;
+                $b = $this->input->post("b");
+                $w_e = "";
+                $w_l = "";
+                $w_b = "";
+                $count = count($b);
+
+                for ($i = 0; $i < count($b); $i++) {
+                    $parts = explode("_&&_", $b[$i]);
+                    $enroll_id = $parts[4];
+                    $learner_id = $parts[5];
+                    $binfo_id = $parts[6];
+                    $w_e .= " learner_enrollment_id = $enroll_id ";
+                    $w_l .= " learner_id = $learner_id ";
+                    $w_b .= " basic_info_id = $binfo_id ";
+                    if ($i === ($count - 1)) {
+                        // This is the last iteration, break out of the loop
+                        break;
+                    } else {
+                        $w_e .= " OR ";
+                        $w_l .= " OR ";
+                        $w_b .= " OR ";
+                    }
+                }
+
+
+                if ($this->db->query("DELETE FROM sy$sy.bs_tbl_learner_grades WHERE $w_e")) {
+                    if ($this->db->query("DELETE FROM sy$sy.bs_tbl_learner_enrollment WHERE $w_l")) {
+                        $this->db->query("UPDATE account.tbl_useraccount SET is_active=false WHERE $w_b");
+                        if ($this->db->trans_status() === false) {
+                            $this->db->trans_rollback();
+                        } else {
+                            $this->db->trans_commit();
+                            $this->db->query("REFRESH MATERIALIZED VIEW profile.view_basicinfo;");
+                            $this->db->query("REFRESH MATERIALIZED VIEW sy$sy.bs_view_enrollment;");
+                        }
+
+                        $true += ["message"   => "Successfully unenrolled!"];
+                        $ret = $true;
+                    } else {
+                        $false += ["message"   => "Something went wrong!"];
+                        $ret = $false;
+                    }
+                } else {
+                    $false += ["message"   => "Something went wrong!"];
+                    $ret = $false;
+                }
+                echo json_encode($ret);
             }
         }
-        echo json_encode($ret);
     }
 
 
@@ -812,48 +881,62 @@ class Dataentry extends MY_Controller
     {
         $this->db->trans_begin();
         $sy = $this->getOnLoad()["sy_id"];
-        $transfer = $this->getOnLoad()["transfer"];
-
-        $details = $this->input->post("details");
-        $a = explode('|', $details);
-        $enroll_id = $a[0];
-        $learner_id = $a[1];
-        $binfo_id = $a[2];
-        $password = md5($this->input->post("password"));
+        $rsid = $this->input->post("g");
         $pass = $this->session->schoolmis_pass;
+
         $true = ["success"   => true];
         $false = ["success"   => false];
 
+        $password = md5($this->input->post("password"));
         if ($password != $pass) {
             $false += ["message"   => "Password mismatch!"];
             $ret = $false;
-        } else if ($transfer != 't') {
-            $false += ["message"   => "Please contact the Administrator"];
-            $ret = $false;
+            echo json_encode($ret);
         } else {
-            if ($this->db->query("DELETE FROM sy$sy.bs_tbl_learner_grades WHERE MD5(learner_enrollment_id::text)='$enroll_id'")) {
-                if ($this->db->query("DELETE FROM sy$sy.bs_tbl_learner_enrollment WHERE MD5(learner_id::text)='$learner_id'")) {
-                    $this->db->query("UPDATE account.tbl_useraccount SET is_active=false WHERE MD5(basic_info_id::text)='$binfo_id'");
-                    if ($this->db->trans_status() === false) {
-                        $this->db->trans_rollback();
-                    } else {
-                        $this->db->trans_commit();
-                        $this->db->query("REFRESH MATERIALIZED VIEW profile.view_basicinfo;");
-                        $this->db->query("REFRESH MATERIALIZED VIEW sy$sy.bs_view_enrollment;");
-                    }
 
-                    $true += ["message"   => "Successfully transfered!"];
-                    $ret = $true;
+            $b = $this->input->post("b");
+            $w_e = "";
+            $w_l = "";
+            $w_b = "";
+            $count = count($b);
+
+            for ($i = 0; $i < count($b); $i++) {
+                $parts = explode("_&&_", $b[$i]);
+                // $enroll_id = $parts[4];
+                $learner_id = $parts[5];
+                // $binfo_id = $parts[6];
+                // $w_e .= " MD5(learner_enrollment_id::text)='$enroll_id' ";
+                $w_l .= " learner_id=$learner_id ";
+                // $w_b .= " MD5(basic_info_id::text)='$binfo_id' ";
+                if ($i === ($count - 1)) {
+                    // This is the last iteration, break out of the loop
+                    break;
                 } else {
-                    $false += ["message"   => "Something went wrong!"];
-                    $ret = $false;
+                    $w_e .= " OR ";
+                    $w_l .= " OR ";
+                    $w_b .= " OR ";
                 }
+            }
+
+
+            if ($this->db->query("UPDATE sy$sy.bs_tbl_learner_enrollment SET room_section_id=$rsid WHERE $w_l")) {
+                if ($this->db->trans_status() === false) {
+                    $this->db->trans_rollback();
+                } else {
+                    $this->db->trans_commit();
+                    $this->db->query("REFRESH MATERIALIZED VIEW profile.view_basicinfo;");
+                    $this->db->query("REFRESH MATERIALIZED VIEW sy$sy.bs_view_enrollment;");
+                }
+
+                $true += ["message"   => "Successfully transferred!"];
+                $ret = $true;
             } else {
                 $false += ["message"   => "Something went wrong!"];
                 $ret = $false;
             }
+
+            echo json_encode($ret);
         }
-        echo json_encode($ret);
     }
 
     function updateLearnerInfo()

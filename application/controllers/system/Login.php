@@ -80,7 +80,7 @@ class Login extends MY_Controller
                         ($row1->level == 7 ? "userteacher" : 
                         ($row1->level == 8 ? "userstudent" : 
                         ($row1->level == 9 ? "uae1b19526823864438cd18ff6b4fbb8e" : "")))))))))),
-                        "schoolmis_login_landing"    => $row1->change_pwd == 't' ? "changepassword" : "dataentry", //($value->level==2?"dataentry":"dashboard"),
+                        "schoolmis_login_landing"    => $row1->change_pwd == 't' ? "changepassword" : ($row1->level == 6 ? "dashboard" : "dataentry"), //($value->level==2?"dataentry":"dashboard"),
                         "schoolmis_pass"             => $row1->password, // $query->row('password'),
                         "schoolmis_change_password"  => $row1->change_pwd, // $query->row('change_password'),
                         "schoolmis_login_name"       => $row2->full_name, // $this->personName($query->row('person_id'),'n'),

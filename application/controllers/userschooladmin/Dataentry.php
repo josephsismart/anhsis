@@ -835,6 +835,42 @@ class Dataentry extends MY_Controller
         echo json_encode($ret);
     }
 
+    function saveVisitorInfo()
+    {
+        $this->db->trans_begin();
+        $count = strtoupper($this->input->post("count"));
+        $login_id = $this->session->schoolmis_login_id;
+        $true = ["success" => true];
+        $false = ["success" => false];
+
+        $batchData = []; // Array to hold the batch insert data
+
+        $cc = $count > 10 ? 10 : ($count < 0 ? 1 : $count);
+
+        for ($i = 0; $i < $cc; $i++) {
+            $data = [
+                "description" => "VISITOR",
+                "created_by" => $login_id,
+            ];
+            $batchData[] = $data;
+        }
+
+        if (!empty($batchData)) {
+            // Perform the batch insert
+            $this->db->insert_batch("id.visitor", $batchData);
+            $ret = $true;
+        }else{
+            $ret = $false;
+        }
+
+        if ($this->db->trans_status() === false) {
+            $this->db->trans_rollback();
+        } else {
+            $this->db->trans_commit();
+        }
+        echo json_encode($ret);
+    }
+
     function saveSYInfo()
     {
         $this->db->select_max('to', 'max');

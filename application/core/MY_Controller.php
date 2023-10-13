@@ -22,6 +22,8 @@ class MY_Controller extends CI_Controller
             "system_bg_nt_back_id"    => base_url("dist/img/media/bg/id/2023/non-teaching/v1/v1_back.png"),
             "system_bg_t_front_id"    => base_url("dist/img/media/bg/id/2023/teaching/v1/v1_front.png"),
             "system_bg_t_back_id"    => base_url("dist/img/media/bg/id/2023/teaching/v1/v1_back.png"),
+            "system_bg_v_front_id"    => base_url("dist/img/media/bg/id/2023/visitor/v1/v1_front.png"),
+            "system_bg_v_back_id"    => base_url("dist/img/media/bg/id/2023/visitor/v1/v1_back.png"),
             "system_esig"    => base_url("dist/img/media/esig/roa.png"),
 
             "system_deped_1x1"    => base_url("dist/img/media/icons/deped_1x1.png"),
@@ -260,6 +262,17 @@ class MY_Controller extends CI_Controller
         return $data;
     }
 
+    public function cleanStringQ($input) {
+        if (is_string($input)) {
+            // Remove single quotes and double quotes from the input string
+            $cleanedString = str_replace(["'", '"'], "", $input);
+            return $cleanedString;
+        } else {
+            // If the input is not a string, return it as is
+            return $input;
+        }
+    }
+
     public function PurokList($filter)
     {
         $data = ["data" => []];
@@ -346,6 +359,7 @@ class MY_Controller extends CI_Controller
         $data = ["data" => []];
         $thisQuery = $this->db->query("SELECT * FROM global.tbl_partytype t1 
                                         WHERE t1.group_id=$filter 
+                                        AND t1.is_active=true
                                         ORDER BY t1.order_by");
         foreach ($thisQuery->result() as $key => $value) {
             $data["data"][] = [
@@ -523,19 +537,40 @@ class MY_Controller extends CI_Controller
     }
 
     public function filterAndFormatDate($date) {
-        // Define an array of possible date format patterns
-        $dateFormats = array('m-d-Y', 'm/d/Y');
+        $dateFormats = [
+            'm-d-Y',
+            'm/d/Y',
+            'm-d-y',
+            'm/d/y',
+            'Y-m-d',
+            'Ymd', // For dates like '20030112'
+            'Y/m/d',
+            'Y.m.d',
+        ];
     
-        foreach ($dateFormats as $format) {
-            $parsedDate = DateTime::createFromFormat($format, $date);
-            if ($parsedDate !== false) {
-                // Successfully parsed the date, now format it as 'Y-m-d'
-                return $parsedDate->format('Y-m-d');
+        if (is_numeric($date) && $date >= 1 && $date <= 99999) {
+            // Convert $date to date format (assuming it's an Excel date serial)
+            $excelDateOrigin = 25569; // Adjust for Excel's date origin (January 1, 1970, in Unix timestamp)
+            $unixTimestamp = ($date - $excelDateOrigin) * 86400; // 86400 seconds in a day
+            return $birthdate = date('Y-m-d', $unixTimestamp);
+        } else {
+            foreach ($dateFormats as $format) {
+                $z = trim($date);
+                $dateTime = DateTime::createFromFormat($format, $z);
+                if ($dateTime !== false) {
+                    return $birthdate = $dateTime->format('Y-m-d');
+                    break; // Exit the loop once a valid format is found
+                }
             }
+        }
+
+        if ($date === null) {
+            // Handle the case where the date format doesn't match either expected format
+            // You can add your error handling logic here
+            return null;
         }
     
         // Return null if none of the formats matched
-        return "2001-10-10";
     }
 
     public function get_ip()
@@ -738,6 +773,10 @@ class MY_Controller extends CI_Controller
         }
     }
 
+    public function hasSpecificCharacter($string, $character) {
+        return strpos($string, $character) !== false;
+    }
+    
     public function gradeColor($a)
     {
 

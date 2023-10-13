@@ -52,7 +52,7 @@ $uri = $this->session->schoolmis_login_uri;
     <div class="user-panel d-flex">
       <div class="image">
         <!-- <i class="fa fa-user fa-4x text-lightblue mt-2"></i> -->
-        <img src="<?= $this->session->schoolmis_login_img ?>" alt="Locator Logo" style="width: 3rem;" class="brand-image img-circle elevation-3"/>
+        <img src="<?= $this->session->schoolmis_login_img ?>" alt="Locator Logo" style="width: 3rem;" class="brand-image img-circle elevation-3" />
       </div>
       <div class="info mb-2">
         <a href="#" class="d-block">
@@ -66,6 +66,14 @@ $uri = $this->session->schoolmis_login_uri;
     <!-- Sidebar Menu -->
     <nav class="mt-2">
       <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
+        <li class="nav-item">
+          <a href="<?= base_url() . $uri ?>/dashboard" class="nav-link dashboard text-white">
+            <i class="nav-icon fas fa-dashboard dashboard"></i>
+            <p>
+              Dashboard
+            </p>
+          </a>
+        </li>
         <li class="nav-item">
           <a href="<?= base_url() . $uri ?>/dataentry" class="nav-link dataentry text-white">
             <i class="nav-icon fas fa-edit data_entry"></i>

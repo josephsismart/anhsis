@@ -286,41 +286,6 @@ class Getdata extends MY_Controller
             }
 
             $arr[] = [
-                // "personId" => $value->person_id,
-                // "personnelId" => $id,
-                // "partyType" => $value->personalTitleId,
-                // "firstName" => $value->first_name,
-                // "middleName" => $value->middle_name,
-                // "lastName" => $value->last_name,
-                // "extName" => $value->suffix,
-                // // "sex" => $value->sex_bool == 't' ? 1 : 0,
-                // "sex" => $value->sex_bool,
-                // "birthdate" => $value->birthdate,
-                // "homeAddress" => $value->address_info,
-                // "is_active" => $is_a_v,
-                // "cty" => $value->citymun_id,
-                // "brgy" => $value->barangay_id,
-                // "personName" => $value->full_name,
-                // "basicInfoId" => $value->person_id,
-
-                // "emptype" => $value->employeeTypeId,
-                // "personaltitle" => $value->personalTitleId,
-                // "empstatus" => $value->status_id,
-                // "employeeID" => $other_details["employee_id"],
-
-                // #incase of emergency personnel
-                // "ioeName" => $poi ? $poi["ioeName"] : null,
-                // "ioeAddress" => $poi ? $poi["ioeAddress"] : null,
-                // "ioeNumber" => $poi ? $poi["ioeNumber"] : null,
-
-                // "img_path" => $img_path,
-
-
-                // "sctn_nm" => $value->first_name,
-                // "program" => $value->first_name,
-                // "program_strand" => $value->first_name,
-                // "program_strand_color" => $value->first_name,
-                // "grade" => $value->first_name,
                 "sy" => $value->first_name,
                 "empid" => $other_details["employee_id"],
                 "emp_type" => $value->employee_type,
@@ -343,6 +308,20 @@ class Getdata extends MY_Controller
                 "ioeName" => $poi ? $poi["ioeName"] : null,
                 "ioeAddress" => $poi ? $poi["ioeAddress"] : null,
                 "ioeNumber" => $poi ? $poi["ioeNumber"] : null,
+            ];
+        }
+        echo json_encode($arr);
+    }
+
+    function getPreviewVisitorID()
+    {
+        $arr = null;
+
+        $query1 = $this->db->query("SELECT * FROM id.visitor ORDER BY id");
+        foreach ($query1->result() as $key => $value) {
+            $arr[] = [
+                "visitor_id" => $value->description.$value->id,
+                "count" => $value->id,
             ];
         }
         echo json_encode($arr);
@@ -461,7 +440,7 @@ class Getdata extends MY_Controller
             $data["data"][] = [
                 "<b>" . $sbjct_abbr . "</b> - <small><i>$sbjct</i></small><input type='text' value='" . $sbjctid . "' name='sbjct[]' hidden/>",
                 "<div class='row'><div class='col-11'>" .
-                    "<select class='form-control selectSbjctAssPrsnnl' name='schlpersonnel[]' type='select' style='width:100%;'>" .
+                    "<select class='form-control selectSbjctAssPrsnnl' name='schlpersonnel[]' style='width:100%;'>" .
                     $opt . "</select></div>" .
                     '<div class="col-1"><div class="custom-control custom-radio float-right mr-n3">
                     <input class="custom-control-input custom-radio" type="radio" value="' . $sbjctid . '" id="customRadio2' . $sbjctid . '" name="advisory" ' . $s . '>
@@ -530,6 +509,62 @@ class Getdata extends MY_Controller
                         <a class='dropdown-item btn' onclick='getDetails(\"DeptInfo\",$arr,1)'>Edit Information</a>
                     </div>
                 </div></div>",
+            ];
+        }
+        $response = array(
+            'draw' => intval($requestData['draw']),
+            'recordsTotal' => intval($totalRecords),
+            'recordsFiltered' => intval($totalRecords), // For simplicity, assuming no filtering is applied
+            'data' => $data,
+        );
+        echo json_encode($response);
+    }
+
+    function getVisitorInfo()
+    {
+        $sy = $this->getOnLoad()["sy_id"];
+        $data2 = [];
+        $thisQuery = $this->db->query("SELECT t1.*, t2.visitor_id ,t2.name,t2.presented_id, t2.purpose FROM id.visitor t1
+                                        LEFT JOIN id.visitor_assignment t2 ON t1.is_currently_used_by = t2.id
+                                        ORDER BY t1.date_last_used, t1.id");
+
+        $requestData = $_REQUEST;
+        $searchValue = isset($requestData['search']['value']) ? $requestData['search']['value'] : '';
+
+        // Calculate pagination parameters using the separate function
+        list($limit, $offset) = $this->calculatePagination($requestData);
+
+        // Query to get total record count
+        $thisQuery = $this->db->query("SELECT count(1) as total FROM id.visitor t1
+                                        LEFT JOIN id.visitor_assignment t2 ON t1.is_currently_used_by = t2.id
+                                        WHERE CONCAT(t1.description,t1.id,t2.name,t2.presented_id,t2.purpose) 
+                                        ILIKE '%$searchValue%'");
+        $totalRecords = $thisQuery->row()->total;
+
+        $query = $this->db->query("SELECT t1.*, t2.visitor_id ,t2.name,t2.presented_id, t2.purpose FROM id.visitor t1
+                                    LEFT JOIN id.visitor_assignment t2 ON t1.is_currently_used_by = t2.id
+                                    WHERE CONCAT(t1.description,t1.id,t2.name,t2.presented_id,t2.purpose) 
+                                    ILIKE '%$searchValue%'
+                                    ORDER BY t1.date_last_used, t1.id
+                                    LIMIT $limit OFFSET $offset");
+
+        $data = array();
+        $cc = $offset + 1;
+        foreach ($query->result() as $key => $value) {
+            $id = $value->id;
+            $desc = $value->description.' - '.$id;
+            $name = $value->name;
+
+            $data[] = [
+                $cc++,
+                "<div class='row'><div class='col-12'>
+                    <span class='badge text-sm pb-0'>$desc</span>
+                </div>
+                </div>",
+                "<div class='row'><div class='col-12'>
+                    " . ($name ? "<small class='ml-2 mr-2 text-success' style='white-space: nowrap;'><b> $name </b></small>" : " - ") . "
+                </div>
+                </div>",
             ];
         }
         $response = array(

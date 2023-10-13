@@ -39,7 +39,50 @@ $uri = 'userteacher'; //$this->session->schoolmis_login_uri;
 						</div>
 					</div>
 					<!-- /.card-header -->
-					<div class="card-body p-0 pt-2 table-responsive">
+					<div class="card-body p-0 table-responsive">
+
+						<div class="row">
+							<div class="col-12 px-3 pt-2">
+								<div class="card card-default collapse-header collapsed-card border border-info">
+									<div class="card-header px-2 py-1" role="button" data-card-widget="collapse">
+										<h3 class="card-title text-primary"><i class="fa fa-filter"></i> Filter</h3>
+										<div class="card-tools">
+											<button type="button" class="btn btn-tool text-primary" data-card-widget="collapse"><i class="fas fa-plus"></i></button>
+										</div>
+									</div>
+									<!-- /.card-header -->
+									<div class="card-body p-0">
+										<div class="row p-1" id="form_save_dataSectionListFilter">
+											<div class="col-12 pt-1">
+												<div class="input-group">
+													<div class="input-group-prepend">
+														<small class="input-group-text text-xs text-bold p-1 bg-primary text-white">K 12</small>
+													</div>
+													<select class="form-control form-control-sm selectK12List" data-placeholder="K 12" onchange="getTable('AssignedSectionList', 0, 10);getFetchList('SectionListFilter', 'GradeLevelList', 'PartyList', 0, {v: $('#form_save_dataSectionListFilter .selectK12List').val()}, 0);"></select>
+												</div>
+											</div>
+											<div class="col-12 pt-1">
+												<div class="input-group">
+													<div class="input-group-prepend">
+														<small class="input-group-text text-xs text-bold p-1 bg-primary text-white">GRADE LEVEL</small>
+													</div>
+													<select class="form-control form-control-sm selectGradeLevelList" data-placeholder="GRADE LEVEL" onchange="getTable('AssignedSectionList', 0, 10);"></select>
+												</div>
+											</div>
+											<div class="col-12 pt-1">
+												<div class="input-group">
+													<div class="input-group-prepend">
+														<small class="input-group-text text-xs text-bold p-1 bg-primary text-white">PRGRM/STRND</small>
+													</div>
+													<select class="form-control form-control-sm selectStrandList" data-placeholder="PROGRAM/STRAND" onchange="getTable('AssignedSectionList', 0, 10);"></select>
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+
 						<table class="table table-sm table-hover table-striped" id="tblAssignedSectionList" width="100%">
 							<thead>
 								<tr>
@@ -350,8 +393,24 @@ $uri = 'userteacher'; //$this->session->schoolmis_login_uri;
 
 										<div class="card">
 											<div class="card-header">
-												<h4 class="card-title w-100 my-n1">
+												<h4 class="card-title w-100 my-n2 ml-n2">
 													List of Learners
+													<i class="fa fa-plus fa-xs text-success bg-success p-1 ViewButtonsToggle" onclick="$('.viewButtons').slideToggle();logsHideShow();" role="button"></i>
+													<row class="viewButtons" style="display:none">
+														<!-- <button class="btn btn-xs btn-info" onclick="PreviewID();"><i class="fa fa-address-card"></i> Preview ID</button>
+																<button class="btn btn-xs btn-warning" onclick="BatchTransfer();"><i class="fa fa-right-left"></i> Transfer</button>
+																<button class="btn btn-xs btn-danger" onclick="BatchUnenroll();"><i class="fa fa-xmark"></i> Unenroll</button> -->
+
+														<i class="fa fa-ellipsis-h text-white bg-navy p-1" data-toggle="dropdown" aria-expanded="true" role="button"></i>
+														<!-- <button type="button" class="btn btn-xs text-sm float-right btn-warning rounded border-0" data-toggle="dropdown" aria-expanded="true">
+																	<span class="fa fa-ellipsis-h text-white"></span>
+																</button> -->
+														<div class="dropdown-menu p-0" role="menu">
+															<a class='dropdown-item bg-info py-2' onclick="PreviewID();" role='button'><span class='fa fa-address-card'></span> PREVIEW ID</a>
+															<a class='dropdown-item bg-warning py-2' onclick="BatchTransfer();" role='button'><span class='fa fa-right-left'></span> TRANSFER</a>
+															<a class='dropdown-item bg-danger py-2' onclick="BatchUnenroll();" role='button'><span class='fa fa-xmark'></span> UNENROLL</a>
+														</div>
+													</row>
 												</h4>
 											</div>
 											<form id="formLearnersList">
@@ -364,7 +423,7 @@ $uri = 'userteacher'; //$this->session->schoolmis_login_uri;
 																	<div class="normal_view">LRN</div>
 																	<div class="custom-control custom-checkbox logs_account" style="display:none;">
 																		<input style="cursor:pointer" class="custom-control-input" id="learnerCheckBox" onclick="check_all('learnerCheckBox')" type="checkbox" />
-																		<label style="cursor:pointer" for="learnerCheckBox" class="custom-control-label"> </label>
+																		<label style="cursor:pointer" for="learnerCheckBox" class="custom-control-label">Select all</label>
 																	</div>
 																</th>
 																<th>Personal Details</th>
@@ -416,6 +475,9 @@ $uri = 'userteacher'; //$this->session->schoolmis_login_uri;
 		getFetchList(f1, "BarangayList", null, 1, {
 			v: 160201
 		}, 0, 1);
+		getFetchList(f1, "CityMunList", null, 1, {
+			v: 1602
+		}, 1, 1);
 		getFetchList(f3, "BarangayList", null, 1, {
 			v: 160201
 		}, 0, 1);
@@ -425,6 +487,17 @@ $uri = 'userteacher'; //$this->session->schoolmis_login_uri;
 		getFetchList(f1, "LearnerStatus", "StatusList", 0, {
 			v: 4
 		}, 1);
+		getFetchList('SectionListFilter', "K12List", "PartyTypeList", 0, {
+			v: 5
+		}, 0);
+		getFetchList('SectionListFilter', "StrandList", "PartyList", 0, {
+			v: 22
+		}, 0);
+
+
+		getFetchList('SectionListFilterTransfer', "K12List", "PartyTypeList", 0, {
+			v: 5
+		}, 0);
 		// getFetchList(f1, "LearnerMT", "PartyList", 1, {
 		// 	v: 6
 		// }, 1, 0, "MOTHER TONGUE");
