@@ -6,6 +6,20 @@ if (!$this->session->schoolmis_login_level) {
 }
 $uri = 'userteacher'; //$this->session->schoolmis_login_uri;
 ?>
+
+<div class="modal" id="loadingModal" data-backdrop="static" data-keyboard="false">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-body text-center">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="sr-only">Loading...</span>
+                </div>
+                <h4>Loading...</h4>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- <div class="modal fade show" id="modalEnrollment" aria-modal="true" style="padding-right: 16px; display: block;"> -->
 <div class="modal fade" id="modalEnrollment" data-backdrop="static">
     <div class="modal-dialog modal-xl">

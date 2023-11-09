@@ -33,16 +33,22 @@ $sy_ = $getOnLoad["sy"]; //$getOnLoad["sy_qrtr_e_g"];
                 // '<?= base_url() ?>plugins/Highcharts-Maps-11.1.0/map/abc_butuan.topo.json'
                 // '<?= base_url() ?>plugins/Highcharts-Maps-11.1.0/map/abc_adn_brgy.geojson'
                 // abc_adn_brgy.geojson
-                '<?= base_url() ?>plugins/Highcharts-Maps-11.1.0/map/abc_adn.topojson'
+                '<?= base_url() ?>plugins/Highcharts-Maps-11.1.0/map/adn.topojson'
             ).then(response => response.json());
 
             $.get("<?= base_url($uri . '/dashboard/getMapPlotCityMun') ?>",
-                function(data) {    
+                function(data) {
                     var d = JSON.parse(data);
 
-                    function pointClick() {
+                    function pointClick(event) {
+                        var point = event.point;
+                        var pointD = point.properties.gid; // Access the ID of the clicked point
+                        var pointB = point.properties.adm_id; // Access the ID of the clicked point
+                        var pointN = point.properties.name; // Access the ID of the clicked point
+                        // Now, you can use the pointID as needed
+                        // Additional actions you want to perform on point click
                         $(".container1").slideToggle();
-                        getCityMunBrgy();
+                        getCityMunBrgy(pointD,pointB,pointN);
                     }
 
                     Highcharts.mapChart('container1', {
@@ -182,17 +188,14 @@ $sy_ = $getOnLoad["sy"]; //$getOnLoad["sy_qrtr_e_g"];
         })();
     }
 
-    function getCityMunBrgy() {
-
+    function getCityMunBrgy(a,b,c) {
+        let fileName = a.toString()+'.geojson';
         (async () => {
             const topology = await fetch(
-                '<?= base_url() ?>plugins/Highcharts-Maps-11.1.0/map/abc_butuan.topo.json'
-                // '<?= base_url() ?>plugins/Highcharts-Maps-11.1.0/map/abc_adn_brgy.geojson'
-                // abc_adn_brgy.geojson
-                // '<?= base_url() ?>plugins/Highcharts-Maps-11.1.0/map/abc_adn.geojson'
+                '<?= base_url() ?>plugins/Highcharts-Maps-11.1.0/map/'+fileName
             ).then(response => response.json());
 
-            $.get("<?= base_url($uri . '/dashboard/getMapPlot') ?>",
+            $.get("<?= base_url($uri . '/dashboard/getMapPlot') ?>",{cc:b},
                 function(data) {
                     var d = JSON.parse(data);
 
@@ -264,7 +267,7 @@ $sy_ = $getOnLoad["sy"]; //$getOnLoad["sy_qrtr_e_g"];
                         },
 
                         title: {
-                            text: 'Learners based on Map ' + "<a href='#' style='color:red;' id='backButton'>back</a>",
+                            text: ''+ c + " <a href='#' style='color:red;' id='backButton'>back</a>",
                             align: 'left'
                         },
 

@@ -170,6 +170,20 @@ class MY_Controller extends CI_Controller
         return preg_replace('/[^A-Za-z0-9\-]/', '', $string);
     }
 
+    public function cleanQuote($string)
+    {
+        $string = str_replace('"', '$', $string);  // Replace double quotes with ??
+        $string = str_replace("'", '?', $string);   // Replace single quotes with ?
+        return $string;
+    }
+
+    public function readQuote($string)
+    {
+        $string = str_replace('$', '"', $string);  // Replace double quotes with ??
+        $string = str_replace('?', "'", $string);   // Replace single quotes with ?
+        return $string;
+    }
+
     public function returnNull($a)
     {
         $return = !$a ? NULL : $a;

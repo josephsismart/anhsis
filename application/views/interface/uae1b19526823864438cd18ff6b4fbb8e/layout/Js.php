@@ -45,7 +45,7 @@ $uri = $this->session->schoolmis_login_uri;
                 $('#openreader-multi3').trigger('click');
             }
             // getQRPerson({
-            //     v: "63232333DDDD",
+            //     v: "6132117110057",
             //     g_id: $("#gate_select").val(),
             //     g_nm: $("#gate_select option:selected").text()
             // }, "GateSearch");

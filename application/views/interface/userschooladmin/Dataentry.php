@@ -295,10 +295,10 @@ $uri = $this->session->schoolmis_login_uri;
 								</form> -->
 
 								<div class="table-responsive mailbox-messages">
-									<table id="tblPersonnelInfo" style="width:750px;" class="table table-sm table-striped table-hover">
+									<table id="tblPersonnelInfo" class="table table-sm table-striped table-hover">
 										<thead>
 											<tr>
-												<th width="1">#</th>
+												<!-- <th width="1">#</th> -->
 												<th width="50">Information</th>
 												<th width="1">Account</th>
 												<th width="80">Type</th>

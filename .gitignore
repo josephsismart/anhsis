@@ -21,6 +21,7 @@ user_guide_src/cilexer/pycilexer.egg-info/*
 # /dist/
 # /application/libraries/
 /build/
+/dist/img/
 /vendor/
 /assets/
 

@@ -6,7 +6,6 @@ if (!$this->session->schoolmis_login_level) {
 }
 $uri = $this->session->schoolmis_login_uri;
 ?>
-<!-- <div class="modal fade show" id="modalSbjctAssPrsnnl" aria-modal="true" style="padding-right: 16px; display: block;"> -->
 <div class="modal fade" id="modalSbjctAssPrsnnl" data-backdrop="static">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">

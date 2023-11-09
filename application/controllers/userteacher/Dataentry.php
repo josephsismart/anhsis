@@ -214,31 +214,31 @@ class Dataentry extends MY_Controller
         }
         $lrn = $this->clean($this->input->post("lrn"));
         $rsId = $this->input->post("rsId");
-        $firstName = strtoupper($this->input->post("firstName"));
-        $middleName = strtoupper($this->input->post("middleName"));
-        $lastName = strtoupper($this->input->post("lastName"));
-        $extName = strtoupper($this->input->post("extName"));
+        $firstName = $this->cleanQuote(strtoupper($this->input->post("firstName")));
+        $middleName = $this->cleanQuote(strtoupper($this->input->post("middleName")));
+        $lastName = $this->cleanQuote(strtoupper($this->input->post("lastName")));
+        $extName = $this->cleanQuote(strtoupper($this->input->post("extName")));
         $sex = $this->input->post("sex");
         $birthdate = $this->input->post("birthdate");
         $brgy = $this->input->post("brgy");
-        $homeAddress = strtoupper($this->input->post("homeAddress"));
+        $homeAddress = $this->cleanQuote(strtoupper($this->input->post("homeAddress")));
         $status = $this->input->post("status");
         $enrollDate = $this->input->post("enrollDate");
         // $img_path = $this->input->post("previewPic");
 
         //father
-        $ffname = $this->input->post("ffname");
-        $fmname = $this->input->post("fmname");
-        $flname = $this->input->post("flname");
+        $ffname = $this->cleanQuote($this->input->post("ffname"));
+        $fmname = $this->cleanQuote($this->input->post("fmname"));
+        $flname = $this->cleanQuote($this->input->post("flname"));
         //mother
-        $mfname = $this->input->post("mfname");
-        $mmname = $this->input->post("mmname");
-        $mlname = $this->input->post("mlname");
-        $guardian = $this->input->post("guardianName");
-        $relation = $this->input->post("relationship");
+        $mfname = $this->cleanQuote($this->input->post("mfname"));
+        $mmname = $this->cleanQuote($this->input->post("mmname"));
+        $mlname = $this->cleanQuote($this->input->post("mlname"));
+        $guardian = $this->cleanQuote($this->input->post("guardianName"));
+        $relation = $this->cleanQuote($this->input->post("relationship"));
 
         $ioe = $this->input->post("ioe");
-        $contact = $this->input->post("contactNumber");
+        $contact = $this->cleanQuote($this->input->post("contactNumber"));
 
         $mother_tongue = $this->input->post("mother_tongue");
         $ip_ethnic_group = $this->input->post("ip_ethnic_group");
@@ -454,7 +454,8 @@ class Dataentry extends MY_Controller
                     if (is_numeric($LRN) && strlen($LRN) > 5) {
                         //LEARNER
                         $full_name = $worksheet->getCellByColumnAndRow(2, $row)->getValue();
-                        $name = $full_name ? explode(",", $full_name) : null;
+                        $names = $full_name ? explode(",", $full_name) : null;
+                        $name = $this->cleanQuote($names);
                         $lname = $name && !empty($name[0]) ? strtoupper(trim($name[0])) : null;
                         $fname = $name && !empty($name[1]) ? strtoupper(trim($name[1])) : null;
                         $mname = $name && !empty($name[2]) ? strtoupper(trim($name[2])) : null;
@@ -473,20 +474,22 @@ class Dataentry extends MY_Controller
                         $rlgn = $worksheet->getCellByColumnAndRow(14, $row)->getValue();
                         //Father
                         $father_name = $worksheet->getCellByColumnAndRow(27, $row)->getValue();
-                        $f_name = $father_name ? explode(",", $father_name) : null;
+                        $f_names = $father_name ? explode(",", $father_name) : null;
+                        $f_name = $this->cleanQuote($f_names);
                         $flname = $f_name && !empty($f_name[0]) ? strtoupper(trim($f_name[0])) : null;
                         $ffname = $f_name && !empty($f_name[1]) ? strtoupper(trim($f_name[1])) : null;
                         $fmname = $f_name && !empty($f_name[2]) ? strtoupper(trim($f_name[2])) : null;
                         //MOTHER
                         $mother_name = $worksheet->getCellByColumnAndRow(31, $row)->getValue();
-                        $m_name = $mother_name ? explode(",", $mother_name) : null;
+                        $m_names = $mother_name ? explode(",", $mother_name) : null;
+                        $m_name = $this->cleanQuote($m_names);
                         $mlname = $m_name && !empty($m_name[0]) ? strtoupper(trim($m_name[0])) : null;
                         $mfname = $m_name && !empty($m_name[1]) ? strtoupper(trim($m_name[1])) : null;
                         $mmname = $m_name && !empty($m_name[2]) ? strtoupper(trim($m_name[2])) : null;
 
-                        $g_name = $worksheet->getCellByColumnAndRow(36, $row)->getValue();
+                        $g_name = $this->cleanQuote($worksheet->getCellByColumnAndRow(36, $row)->getValue());
                         $rltn = $worksheet->getCellByColumnAndRow(40, $row)->getValue();
-                        $cntct = $worksheet->getCellByColumnAndRow(41, $row)->getValue();
+                        $cntct = $this->cleanQuote($worksheet->getCellByColumnAndRow(41, $row)->getValue());
                         $module = $worksheet->getCellByColumnAndRow(43, $row)->getValue();
                         $rmrks = $worksheet->getCellByColumnAndRow(44, $row)->getValue();
 

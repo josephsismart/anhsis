@@ -510,15 +510,15 @@ class Getdata extends MY_Controller
             $data1 = [
                 "details" => $value->enrollment_id . '|' . $value->learner_id . '|' . $value->basic_info_id,
                 "lrn" => $value->lrn,
-                "firstName" => $this->cleanStringQ($value->first_name),
-                "middleName" => $this->cleanStringQ($value->middle_name),
-                "lastName" => $this->cleanStringQ($value->last_name),
-                "extName" => $this->cleanStringQ($value->suffix),
+                "firstName" => $value->first_name,
+                "middleName" => $value->middle_name,
+                "lastName" => $value->last_name,
+                "extName" => $value->suffix,
                 "sex" => $value->sex_bool,
                 "birthdate" => $value->birthdate,
                 "cty" => $value->citymun_id,
                 "brgy" => $value->barangay_id,
-                "homeAddress" => $this->cleanStringQ($value->address_info),
+                "homeAddress" => $value->address_info,
                 "status" => $value->status_id,
                 "enrollDate" => $value->status_date,
                 "img_path" => $img_path,
@@ -540,15 +540,15 @@ class Getdata extends MY_Controller
                 //     "learning_modality_txt": "Modular (print)"
                 //   }
                 //other_info
-                "ffname" => $this->cleanStringQ($od["ffn"]),
-                "fmname" => $this->cleanStringQ($od["fmn"]),
-                "flname" => $this->cleanStringQ($od["fln"]),
-                "mfname" => $this->cleanStringQ($od["mfn"]),
-                "mmname" => $this->cleanStringQ($od["mmn"]),
-                "mlname" => $this->cleanStringQ($od["mln"]),
-                "guardianName" => $this->cleanStringQ($od["guardian"]),
+                "ffname" => $od["ffn"],
+                "fmname" => $od["fmn"],
+                "flname" => $od["fln"],
+                "mfname" => $od["mfn"],
+                "mmname" => $od["mmn"],
+                "mlname" => $od["mln"],
+                "guardianName" => $od["guardian"],
                 "relationship" => $od["g_relation"],
-                "contactNumber" => $this->cleanStringQ($od["contact_number"]),
+                "contactNumber" => $od["contact_number"],
                 "ioe" => $od["incase_emergency"],
                 "mfg" => $od["ioe_name"],
 
@@ -557,11 +557,11 @@ class Getdata extends MY_Controller
                 "religion" => $od["religion_txt"],
                 "four_ps" => $od["four_ps"],
                 "learning_modality" => $od["learning_modality_txt"],
-                "remarks" => $this->cleanStringQ($od["remarks"]),
+                "remarks" => $od["remarks"],
             ];
             $data2 = [
                 "lrn" => $value->lrn,
-                "last_fullname" => $this->cleanStringQ($value->last_fullname),
+                "last_fullname" => $value->last_fullname,
                 "details" => md5($value->enrollment_id) . '|' . md5($value->learner_id) . '|' . md5($value->basic_info_id),
             ];
             $arr1 = json_encode($data1);
@@ -600,25 +600,25 @@ class Getdata extends MY_Controller
                 <div class="normal_view" style="white-space: nowrap;">
                     ' . (($edit == 't'  && $advsry == 1) || ($uri == 'userschooladmin') ? "<span class='fa fa-pencil-alt text-primary text-sm' style='cursor:pointer;' onclick='getDetails(\"UpdateLearnerInfo\",$arr1,1,\"#\");$(\"#modalEnrollment\").modal(\"show\");closeCardBodyIfOpen();delay(\"EnrollmentInfo\",$value->barangay_id,\"brgy\")'></span> " : '') . $value->lrn . '
                 </div>',
-                '<p style="white-space: nowrap;">' . $value->last_fullname . '</p>',
+                '<p style="white-space: nowrap;">' . $this->readQuote($value->last_fullname) . '</p>',
                 $sex,
                 $birthDate,
                 $brgy_city,
                 '<div class="normal_view" style="white-space: nowrap;">
-                    ' . $value->enrollment_status . (($unenroll == 't' && $advsry == 1) || ($uri == 'userschooladmin') ?
+                    ' . $value->enrollment_status . (($unenroll == 't' && $advsry == 1) || ($uri == 'userschooladmin') ?''
                     // " <span class='fa fa-trash-alt text-danger text-sm' style='cursor:pointer' onclick='getDetails(\"UnenrollConfirm\",$arr2,1,\"#\");setTimeout(function(){ $(\".passwordUnenroll\").val(\"\").focus(); } ,200);$(\"#modalLearnersUnenroll\").modal(\"show\");'>
                     // </span>"
-                    '<button type="button" class="btn btn-xs text-sm float-right btn-outline-secondary rounded-circle border-0 ml-1" data-toggle="dropdown" aria-expanded="true">
-                        <span class="fa fa-ellipsis-h"></span>
-                    </button>
-                    <div class="dropdown-menu p-0" role="menu">' .
+                    // '<button type="button" class="btn btn-xs text-sm float-right btn-outline-secondary rounded-circle border-0 ml-1" data-toggle="dropdown" aria-expanded="true">
+                    //     <span class="fa fa-ellipsis-h"></span>
+                    // </button>
+                    // <div class="dropdown-menu p-0" role="menu">' .
                     // "<a class='dropdown-item text-xs bg-info' role='button' onclick='getDetails(\"UnenrollConfirm\",$arr2,1,\"#\");'><span class='fa fa-address-card'></span> PREVIEW ID</a>" .
-                    "<a class='dropdown-item text-xs bg-danger' role='button' onclick='getDetails(\"UnenrollConfirm\",$arr2,1,\"#\");setTimeout(function(){ $(\".passwordUnenroll\").val(\"\").focus(); } ,200);$(\"#modalLearnersUnenroll\").modal(\"show\");'><span class='fa fa-xmark'></span> UNENROLL</a>" .
+                    // "<a class='dropdown-item text-xs bg-danger' role='button' onclick='getDetails(\"UnenrollConfirm\",$arr2,1,\"#\");setTimeout(function(){ $(\".passwordUnenroll\").val(\"\").focus(); } ,200);$(\"#modalLearnersUnenroll\").modal(\"show\");'><span class='fa fa-xmark'></span> UNENROLL</a>" .
                     // "<a class='dropdown-item text-xs bg-warning' role='button' onclick='getDetails(\"UnenrollConfirm\",$arr2,1,\"#\");'><span class='fa fa-right-left'></span> TRANSFER</a>" .
                     // "<a class='dropdown-item text-xs' role='button' onclick='getDetails(\"UnenrollConfirm\",$arr2,1,\"#\");setTimeout(function(){ $(\".passwordUnenroll\").val(\"\").focus(); } ,200);$(\"#modalLearnersSF1\").modal(\"show\");'><span class='fa fa-folder-open'></span> FORM 1</a>" .
                     // "<a class='dropdown-item text-xs bg-info' role='button' onclick='alert()'><span class='fa fa-list'></span> GENERATE</a>" .
                     // "<a class='dropdown-item text-xs bg-info' role='button' onclick='getDetails(\"TransferConfirm\",$arr2,1,\"#\");setTimeout(function(){ $(\".passwordTransfer\").val(\"\").focus(); } ,200);$(\"#modalLearnersTransfer\").modal(\"show\");'><span class='fa fa-arrow-right'></span> TRANSFER</a>
-                    "</div>"
+                    // "</div>"
                     : '') . '
                 </div>',
             ];

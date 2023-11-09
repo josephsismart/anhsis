@@ -53,7 +53,7 @@ $uri = 'userteacher'; //$this->session->schoolmis_login_uri;
 									<!-- /.card-header -->
 									<div class="card-body p-0">
 										<div class="row p-1" id="form_save_dataSectionListFilter">
-											<div class="col-12 pt-1">
+											<div class="col-6 pt-1">
 												<div class="input-group">
 													<div class="input-group-prepend">
 														<small class="input-group-text text-xs text-bold p-1 bg-primary text-white">K 12</small>
@@ -61,10 +61,10 @@ $uri = 'userteacher'; //$this->session->schoolmis_login_uri;
 													<select class="form-control form-control-sm selectK12List" data-placeholder="K 12" onchange="getTable('AssignedSectionList', 0, 10);getFetchList('SectionListFilter', 'GradeLevelList', 'PartyList', 0, {v: $('#form_save_dataSectionListFilter .selectK12List').val()}, 0);"></select>
 												</div>
 											</div>
-											<div class="col-12 pt-1">
+											<div class="col-6 pt-1">
 												<div class="input-group">
 													<div class="input-group-prepend">
-														<small class="input-group-text text-xs text-bold p-1 bg-primary text-white">GRADE LEVEL</small>
+														<small class="input-group-text text-xs text-bold p-1 bg-primary text-white">GLVL</small>
 													</div>
 													<select class="form-control form-control-sm selectGradeLevelList" data-placeholder="GRADE LEVEL" onchange="getTable('AssignedSectionList', 0, 10);"></select>
 												</div>
@@ -128,7 +128,7 @@ $uri = 'userteacher'; //$this->session->schoolmis_login_uri;
 								</tbody>
 							</table> -->
 							<!-- /.card-header -->
-							<div class="card-body">
+							<div class="card-body p-2">
 								<div class="row">
 									<div class="col-12 col-lg-6 col-md-12 col-sm-12 col-xs-12">
 										<div class="post">

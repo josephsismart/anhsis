@@ -111,9 +111,15 @@ $q_ = $getOnLoad["qrtrR"]; //$getOnLoad["sy_qrtr_e_g"];
         $("#" + form_id + " .submitBtnPrimary").html("Save Data");
     }
 
+    function getQoute(a){
+        var str = a;
+        return str ? str.replace(/\$/g, '"').replace(/\?/g, "'") : null;
+    }
+
     function getDetails(a, b, c, d) {
-        $.each(b, function(k, v) {
+        $.each(b, function(k, vv) {
             $(d + "form_save_data" + a).each(function() {
+                v = getQoute(vv);
                 $("[name='" + k + "']").val(v);
                 $("[class='" + k + "']").html(v);
                 $("[name='" + k + "']").trigger("change");
@@ -591,7 +597,7 @@ $q_ = $getOnLoad["qrtrR"]; //$getOnLoad["sy_qrtr_e_g"];
                     searchPlaceholder: "Search...",
                     info: '<p class="text-right pr-2 mt-n3 mb-n1">Displaying _START_ to _END_ of _TOTAL_ entries</p>',
                 },
-                pagingType: 'simple',
+                // pagingType: 'simple',
                 lengthMenu: [
                     [2, 4, 8, -1],
                     [2, 4, 8, "All"]
@@ -1244,6 +1250,7 @@ $q_ = $getOnLoad["qrtrR"]; //$getOnLoad["sy_qrtr_e_g"];
     function PreviewID() {
         // alert(rsid)
         // var q = $("#form_report_dataGRADE_SLIP #qrtr").val();
+        $('#loadingModal').modal('show');
         var g = "";
         var g = "";
         var c = [];
@@ -1590,7 +1597,7 @@ $q_ = $getOnLoad["qrtrR"]; //$getOnLoad["sy_qrtr_e_g"];
                                     '<tr align="center" style="height:1.45rem; border: 1px solid #000;font-size:7px;">'+
                                         '<td colspan="2" class="border border-transparent"></td>'+
                                         '<td colspan="16" class="border border-transparent" style="font-family:Montserrat, sans-serif;color:#000;font-weight:800;font-size:' + autoSizeFont(incase_emergency, 9, 20, 190) + 'px;padding:0;">'+
-                                            '<p class="mb-n2 mt-n1">'+incase_emergency.toUpperCase()+'</p>'+
+                                            '<p class="mb-n2 mt-n1">'+getQoute(incase_emergency.toUpperCase())+'</p>'+
                                         '</td>'+
                                         '<td colspan="2" class="border border-transparent"></td>'+
                                     '</tr>'+
@@ -1604,14 +1611,14 @@ $q_ = $getOnLoad["qrtrR"]; //$getOnLoad["sy_qrtr_e_g"];
                                     '<tr align="center" style="height:1rem; border: 1px solid #000;">'+
                                         '<td colspan="2" class="border border-transparent"></td>'+
                                         '<td colspan="16" class="border border-transparent" style="font-family:League Gothic, sans-serif;color:#000;font-weight:300;font-size:' + autoSizeFont(contact_number, 9, 15, 190) + 'px;padding:0;">'+
-                                            '<p class="mb-n2 mt-n2">'+contact_number.toUpperCase()+'</p>'+
+                                            '<p class="mb-n2 mt-n2">'+getQoute(contact_number.toUpperCase())+'</p>'+
                                         '</td>'+
                                         '<td colspan="2" class="border border-transparent"></td>'+
                                     '</tr>'+
                                     '<tr align="center" style="height:1rem; border: 1px solid #000;">'+
                                         '<td colspan="2" class="border border-transparent"></td>'+
                                         '<td colspan="16" class="border border-transparent" style="font-family:League Gothic, sans-serif;color:#000;font-weight:300;font-size:' + autoSizeFont(add_details, 9, 15, 190) + 'px;padding:0;">'+
-                                            '<p class="mb-n2 mt-n2">'+add_details.toUpperCase()+'</p>'+
+                                            '<p class="mb-n2 mt-n2">'+getQoute(add_details.toUpperCase())+'</p>'+
                                         '</td>'+
                                         '<td colspan="2" class="border border-transparent"></td>'+
                                     '</tr>'+
@@ -1632,6 +1639,8 @@ $q_ = $getOnLoad["qrtrR"]; //$getOnLoad["sy_qrtr_e_g"];
                     $("#modalPreviewID #tblPreviewID").append('</tr>');
 
                 }
+                
+                $('#loadingModal').modal('hide');
                 // console.log(d[0])
                 // console.log(d)
                 // JHS PreviewID DATA FOR THE 4th QUARTER S.Y 2021 - 2022
@@ -1756,11 +1765,12 @@ $q_ = $getOnLoad["qrtrR"]; //$getOnLoad["sy_qrtr_e_g"];
         accompWindow.document.title = d;
         accompWindow.document.write('<link rel="stylesheet" href="<?= base_url() ?>plugins/fontawesome-free/css/all.min.css">' +
             '<link rel="stylesheet" href="<?= base_url() ?>dist/css/adminlte.min.css">' +
-            '<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">' +
-            '<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=League+Gothic&display=swap">' +
-            '<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;500;600;800&display=swap">' +
-            '<link rel="preconnect" href="https://fonts.googleapis.com">' +
-            '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>' +
+            // '<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">'+
+            // '<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=League+Gothic&display=swap">'+
+            // '<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;500;600;800&display=swap">'+
+            // '<link rel="preconnect" href="https://fonts.googleapis.com">'+
+            // '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>'+
+            '<link rel="stylesheet" href="<?= base_url() ?>dist/css/fonts.css">'+
             '<link rel="stylesheet" href="<?= base_url() ?>dist/css/adminlte.min.css">');
         accompWindow.document.write('</head>');
         accompWindow.document.write('<style> @page { size: ' + c + ' ' + orientation + ';' + margin + '} </style>');

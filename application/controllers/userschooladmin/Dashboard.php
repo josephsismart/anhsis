@@ -29,6 +29,21 @@ class Dashboard extends MY_Controller
         $this->public_create_page($page_data);
     }
 
+
+            // 1444  160201000 160201000 Butuan
+            // 1455  160212000 160212000 Remedios
+            // 1453  160210000 160210000 Santiago
+            // 1451  160208000 160208000 Magallanes
+            // 1454  160211000 160211000 Tubay
+            // 1445  160202000 160202000 Buenavista
+            // 1446  160203000 160203000 City
+            // 1447  160204000 160204000 Carmen
+            // 1448  160205000 160205000 Jabonga
+            // 1449  160206000 160206000 Kitcharao
+            // 1450  160207000 160207000 Las
+            // 1452  160209000 160209000 Nasipit
+
+
     function getDashboard()
     {
         $sy = $this->getOnLoad()["sy_id"];
@@ -51,6 +66,7 @@ class Dashboard extends MY_Controller
     function getMapPlot()
     {
         $sy = $this->getOnLoad()["sy_id"];
+        $cm = $this->input->get("cc");
         $data = ["data_map" => []];
         $query = $this->db->query("SELECT
                                             t1.barangay_id AS barangay,
@@ -61,7 +77,7 @@ class Dashboard extends MY_Controller
                                             sy$sy.bs_view_enrollment t1
                                             -- JOIN address.tbl_barangay t2 ON t1.barangay_id = t2.id
                                         WHERE
-                                            t1.status_id = 5
+                                            t1.status_id = 5 AND CONCAT(t1.citymun_id,'000')='$cm' 
                                         GROUP BY
                                             t1.barangay_id;");
 

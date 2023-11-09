@@ -166,6 +166,7 @@ class Getdata extends MY_Controller
                 $birthDate = "-";
             }
             $img_path = $this->getImg($value->img_path);
+            $s_color = $value->sex_bool == 't' ? 'text-primary' : 'text-pink';
             $data1 = [
                 "personId" => $value->person_id,
                 "personnelId" => $id,
@@ -207,48 +208,50 @@ class Getdata extends MY_Controller
             $arr1 = json_encode($data1);
             $arr2 = json_encode($data2);
             $data[] = array(
-                $cc++,
+                // $cc++,
                 // "<span class='badge'>" . $value->employee_type . "</span>",
+
                 "<div class='row'>" .
-
-
                     "<div class='col-6'>
-                    <div class='d-flex'>
-                        <div class='image'>
-                            <img class='img-circle size-50 elevation-2 mr-2' src='$img' alt='user image'>
+                        <div class='d-flex'>
+                            <div class='image'>
+                                <img class='img-circle size-50 elevation-2 mr-2' src='$img' alt='user image'>
+                            </div>
+                            <div class='info'>
+                                <span class='badge text-md'>$value->full_name, <span class='badge font-weight-light $s_color'>$value->sex</span></span>
+                                <span class='badge pl-2'>$value->personal_title $is_active</span>" .
+                                ($value->dept_name ? "<span class='badge text-info'><b>" . $value->dept_name . "</b></span>" : "") .
+                            "</div>
                         </div>
-                        <div class='info'>
-                            <span class='badge text-md'>$value->full_name, <span class='badge font-weight-light'>$value->sex</span></span>
-                            <span class='badge pl-2'>$value->personal_title $is_active</span>" .
-                    ($value->dept_name ? "<span class='badge text-info'><b>" . $value->dept_name . "</b></span>" : "") .
-                    "</div>
                     </div>
-                </div>
 
                 
-                <div class='col-6'>
-                    <button type='button' class='btn btn-xs py-0 text-sm float-right btn-outline-secondary rounded-circle border-0' data-toggle='dropdown' aria-expanded='true'>
-                        <span class='fa fa-ellipsis-h'></span>
-                    </button>
-                    <div class='dropdown-menu'>
-                        <a class='dropdown-item btn' onclick='getDetails(\"PersonnelInfo\",$arr1,1);delay(\"PersonnelInfo\",$value->barangay_id,\"brgy\");delay(\"PersonnelInfo\",$value->personalTitleId,\"personaltitle\");$(\"#form_save_dataPersonnelInfo [name=firstName]\").focus();$(\"#back-to-top\").trigger(\"click\");'>Edit Information</a>
-                        " . ($value->level ? "" :
-                        "<a class='dropdown-item btn' onclick='clear_form(\"PersonnelAccount\");getDetails(\"PersonnelAccount\",$arr1,1);$(\"#modalPersonnelAccount\").modal(\"show\");'>Create User Account</a>") .
-                    "</div>
-                </div></div>",
-                $value->level ?
-                    "<div class='row'><div class='col-6'><span class='badge text-sm'>$value->username</span><br/>
-                    <span class='badge'>" . $value->user_description . "</span><br/>" .
-                    "</div>
-                <div class='col-6'>
-                    <button type='button' class='btn btn-xs py-0 text-sm float-right btn-outline-secondary rounded-circle border-0' data-toggle='dropdown' aria-expanded='true'>
-                        <span class='fa fa-ellipsis-h'></span>
-                    </button>
-                    <div class='dropdown-menu'>
-                        <a class='dropdown-item btn' onclick='clear_form(\"PersonnelAccount\");getDetails(\"PersonnelAccount\",$arr2,1);$(\"#modalPersonnelAccount\").modal(\"show\");'>Edit Account</a>
+                    <div class='col-6'>
+                        <button type='button' class='btn btn-xs py-0 text-sm float-right btn-outline-secondary rounded-circle border-0' data-toggle='dropdown' aria-expanded='true'>
+                            <span class='fa fa-ellipsis-h'></span>
+                        </button>
+                        <div class='dropdown-menu'>
+                            <a class='dropdown-item btn' onclick='getDetails(\"PersonnelInfo\",$arr1,1);delay(\"PersonnelInfo\",$value->barangay_id,\"brgy\");delay(\"PersonnelInfo\",$value->personalTitleId,\"personaltitle\");$(\"#form_save_dataPersonnelInfo [name=firstName]\").focus();$(\"#back-to-top\").trigger(\"click\");'>Edit Information</a>
+                            " . ($value->level ? "" :
+                            "<a class='dropdown-item btn' onclick='clear_form(\"PersonnelAccount\");getDetails(\"PersonnelAccount\",$arr1,1);$(\"#modalPersonnelAccount\").modal(\"show\");'>Create User Account</a>") .
+                        "</div>
                     </div>
-                </div></div>" : "-",
-
+                </div>",
+                $value->level ?
+                    "<div class='row'>
+                        <div class='col-6'>
+                            <span class='badge text-sm'>$value->username</span><br/>
+                            <span class='badge'>" . $value->user_description . "</span><br/>" .
+                        "</div>
+                        <div class='col-6'>
+                            <button type='button' class='btn btn-xs py-0 text-sm float-right btn-warning rounded-circle border-0' data-toggle='dropdown' aria-expanded='true'>
+                                <span class='fa fa-ellipsis-h text-white'></span>
+                            </button>
+                            <div class='dropdown-menu'>
+                                <a class='dropdown-item btn' onclick='clear_form(\"PersonnelAccount\");getDetails(\"PersonnelAccount\",$arr2,1);$(\"#modalPersonnelAccount\").modal(\"show\");'>Edit Account</a>
+                            </div>
+                        </div>
+                    </div>" : "-",
                 "<span class='badge'>" . $value->employee_type . "</span><br/>
                 <span class='badge'>" . $value->status . "</span>",
             );
@@ -320,7 +323,7 @@ class Getdata extends MY_Controller
         $query1 = $this->db->query("SELECT * FROM id.visitor ORDER BY id");
         foreach ($query1->result() as $key => $value) {
             $arr[] = [
-                "visitor_id" => $value->description.$value->id,
+                "visitor_id" => $value->description . $value->id,
                 "count" => $value->id,
             ];
         }
@@ -552,7 +555,7 @@ class Getdata extends MY_Controller
         $cc = $offset + 1;
         foreach ($query->result() as $key => $value) {
             $id = $value->id;
-            $desc = $value->description.' - '.$id;
+            $desc = $value->description . ' - ' . $id;
             $name = $value->name;
 
             $data[] = [
